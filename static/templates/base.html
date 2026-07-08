@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DavaOFC - Crypto Exchange{% endblock %}</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Background -->
+    <div id="particles"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar" id="sidebar">
+        <a href="/" class="sidebar-brand">
+            <div class="logo">D</div>
+            <div>
+                <div class="brand-text">DavaOFC</div>
+                <div class="brand-sub">Crypto Exchange</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-label">Menu Utama</li>
+            <li>
+                <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="/convert" class="{% if request.path == '/convert' %}active{% endif %}">
+                    <i class="fas fa-exchange-alt"></i> Convert
+                </a>
+            </li>
+            <li>
+                <a href="/deposit" class="{% if request.path == '/deposit' %}active{% endif %}">
+                    <i class="fas fa-arrow-down"></i> Deposit
+                </a>
+            </li>
+            <li>
+                <a href="/withdraw" class="{% if request.path == '/withdraw' %}active{% endif %}">
+                    <i class="fas fa-arrow-up"></i> Withdraw
+                </a>
+            </li>
+            
+            <li class="menu-label">Games</li>
+            <li>
+                <a href="/slot" class="{% if request.path == '/slot' %}active{% endif %}">
+                    <i class="fas fa-dice"></i> Slot Games
+                </a>
+            </li>
+            
+            <li class="menu-label">Lainnya</li>
+            <li>
+                <a href="/arisan" class="{% if request.path == '/arisan' %}active{% endif %}">
+                    <i class="fas fa-users"></i> Arisan
+                </a>
+            </li>
+            <li>
+                <a href="/investasi" class="{% if request.path == '/investasi' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Investasi
+                </a>
+            </li>
+            <li>
+                <a href="/referral" class="{% if request.path == '/referral' %}active{% endif %}">
+                    <i class="fas fa-link"></i> Referral
+                </a>
+            </li>
+            <li>
+                <a href="/history" class="{% if request.path == '/history' %}active{% endif %}">
+                    <i class="fas fa-history"></i> Riwayat
+                </a>
+            </li>
+            <li>
+                <a href="/reviews" class="{% if request.path == '/reviews' %}active{% endif %}">
+                    <i class="fas fa-star"></i> Ulasan
+                </a>
+            </li>
+            
+            {% if session.user_id == 8737366854 %}
+            <li class="menu-label">Admin</li>
+            <li>
+                <a href="/admin" class="{% if request.path == '/admin' %}active{% endif %}">
+                    <i class="fas fa-crown"></i> Admin Panel
+                    <span class="badge">Owner</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <li style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-toggle" id="mobileToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="topbar-right">
+                <div class="user-info">
+                    <div class="avatar">
+                        {{ session.full_name[0] if session.full_name else 'U' }}
+                    </div>
+                    <span>{{ session.full_name or 'User' }}</span>
+                    <span class="balance">
+                        <small>Saldo</small>
+                        {{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('mobileToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        
+        // Close sidebar on outside click (mobile)
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const toggle = document.getElementById('mobileToggle');
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

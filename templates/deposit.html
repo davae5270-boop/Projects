@@ -1,0 +1,2009 @@
+{% extends "base.html" %}
+
+{% block title %}Deposit - DavaOFC{% endblock %}
+{% block page_title %}📥 Deposit - Isi Saldo Sekarang{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     🟢 TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;"></div>
+
+<!-- ============================================================
+     🟢 KONTEN UTAMA DEPOSIT
+     ============================================================ -->
+<div class="deposit-page-wrapper">
+
+    <!-- ===== BANNER HEADER ===== -->
+    <div class="deposit-banner">
+        <div class="banner-content">
+            <div class="banner-icon">📥</div>
+            <div class="banner-text">
+                <h1>Deposit Dana</h1>
+                <p>Isi saldo Anda dengan cepat, aman, dan terpercaya</p>
+            </div>
+            <div class="banner-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Aman & Terpercaya</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN GRID ===== -->
+    <div class="deposit-main-grid">
+
+        <!-- ===== LEFT: FORM DEPOSIT ===== -->
+        <div class="deposit-form-card">
+            <div class="form-header">
+                <h3><i class="fas fa-pen-alt"></i> Form Deposit</h3>
+                <span class="form-badge">Isi data dengan benar</span>
+            </div>
+
+            <div class="form-body">
+
+                <!-- Pilih Nominal -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-money-bill-wave"></i> Nominal Deposit
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-group-amount">
+                        <span class="input-currency">Rp</span>
+                        <input type="number" id="depositAmount" placeholder="Minimal 10.000" min="10000" class="form-control" oninput="updateDepositInfo()">
+                    </div>
+                    <div class="quick-amounts">
+                        <button class="quick-amount" onclick="setAmount(10000)">Rp 10K</button>
+                        <button class="quick-amount" onclick="setAmount(20000)">Rp 20K</button>
+                        <button class="quick-amount" onclick="setAmount(50000)">Rp 50K</button>
+                        <button class="quick-amount" onclick="setAmount(100000)">Rp 100K</button>
+                        <button class="quick-amount" onclick="setAmount(250000)">Rp 250K</button>
+                        <button class="quick-amount" onclick="setAmount(500000)">Rp 500K</button>
+                        <button class="quick-amount" onclick="setAmount(1000000)">Rp 1JT</button>
+                        <button class="quick-amount" onclick="setAmount(2500000)">Rp 2.5JT</button>
+                        <button class="quick-amount" onclick="setAmount(5000000)">Rp 5JT</button>
+                        <button class="quick-amount" onclick="setAmount(10000000)">Rp 10JT</button>
+                    </div>
+                    <small class="form-hint">Minimal deposit: Rp 10.000 - Tanpa batas maksimal</small>
+                </div>
+
+                <!-- Pilih Metode -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-university"></i> Metode Pembayaran
+                        <span class="required">*</span>
+                    </label>
+                    <select id="depositMethod" class="form-control form-select" onchange="updateMethodInfo()">
+                        <optgroup label="💜 E-Wallet">
+                            <option value="DANA">💜 DANA</option>
+                            <option value="GOPAY">💚 GOPAY</option>
+                            <option value="OVO">💜 OVO</option>
+                            <option value="ShopeePay">🛒 ShopeePay</option>
+                            <option value="LinkAja">🔗 LinkAja</option>
+                        </optgroup>
+                        <optgroup label="🏦 Bank Transfer">
+                            <option value="SeaBank">🏦 SeaBank</option>
+                            <option value="BCA">🏦 BCA</option>
+                            <option value="BRI">🏦 BRI</option>
+                            <option value="BNI">🏦 BNI</option>
+                            <option value="Mandiri">🏦 Mandiri</option>
+                            <option value="CIMB">🏦 CIMB Niaga</option>
+                            <option value="Permata">🏦 Permata Bank</option>
+                            <option value="BTN">🏦 BTN</option>
+                            <option value="Danamon">🏦 Danamon</option>
+                            <option value="Maybank">🏦 Maybank</option>
+                        </optgroup>
+                        <optgroup label="🪙 Crypto">
+                            <option value="USDT BEP-20">🪙 USDT BEP-20</option>
+                            <option value="USDT TRC-20">🪙 USDT TRC-20</option>
+                            <option value="BTC">₿ Bitcoin</option>
+                            <option value="ETH">⟠ Ethereum</option>
+                            <option value="BNB">🟡 BNB</option>
+                            <option value="SOL">◎ Solana</option>
+                        </optgroup>
+                    </select>
+                    <small class="form-hint">Pilih metode pembayaran yang Anda gunakan</small>
+                </div>
+
+                <!-- Detail Metode -->
+                <div id="methodDetail" class="method-detail-box">
+                    <div class="method-detail-header">
+                        <span class="method-icon">💜</span>
+                        <span class="method-name" id="methodName">DANA</span>
+                    </div>
+                    <div class="method-detail-body">
+                        <div class="method-label">Nomor Tujuan</div>
+                        <div class="method-address" id="methodAddress">085869291109</div>
+                        <div class="method-label">Nama Penerima</div>
+                        <div class="method-owner" id="methodOwner">Admin Dava</div>
+                        <button class="btn-copy" onclick="copyMethodAddress()">
+                            <i class="fas fa-copy"></i> Salin Nomor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Bukti -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-upload"></i> Upload Bukti Transfer
+                        <span class="required">*</span>
+                    </label>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('depositPhoto').click()">
+                        <div class="upload-icon">📤</div>
+                        <div class="upload-text">
+                            <span class="upload-title">Klik atau drag & drop untuk upload</span>
+                            <span class="upload-sub">Format JPG, PNG (Maks 2MB)</span>
+                        </div>
+                        <input type="file" id="depositPhoto" accept="image/*" style="display:none;">
+                    </div>
+                    <div id="uploadPreview" style="display:none;margin-top:10px;">
+                        <div class="upload-preview">
+                            <i class="fas fa-file-image"></i>
+                            <span id="uploadFileName">file.jpg</span>
+                            <button class="btn-remove" onclick="removeFile()">✕</button>
+                        </div>
+                    </div>
+                    <small class="form-hint">Upload bukti transfer atau screenshot transaksi Anda</small>
+                </div>
+
+                <!-- Info Deposit -->
+                <div id="depositInfo" class="deposit-info-box" style="display:none;">
+                    <div class="deposit-info-item">
+                        <span class="info-label">💵 Nominal</span>
+                        <span class="info-value" id="infoAmount">Rp 0</span>
+                    </div>
+                    <div class="deposit-info-item">
+                        <span class="info-label">💳 Metode</span>
+                        <span class="info-value" id="infoMethod">-</span>
+                    </div>
+                    <div class="deposit-info-item">
+                        <span class="info-label">⏱️ Estimasi Proses</span>
+                        <span class="info-value">5-30 Menit</span>
+                    </div>
+                    <div class="deposit-info-item">
+                        <span class="info-label">📊 Status</span>
+                        <span class="info-value status-pending">Menunggu Konfirmasi</span>
+                    </div>
+                    <div class="deposit-info-item">
+                        <span class="info-label">🔒 Keamanan</span>
+                        <span class="info-value" style="color:#00C853;">✅ Terenkripsi</span>
+                    </div>
+                    <div class="deposit-info-item">
+                        <span class="info-label">📞 Support</span>
+                        <span class="info-value" style="color:#FFD600;">24/7</span>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button class="btn-submit" id="depositBtn" onclick="submitDeposit()">
+                    <i class="fas fa-arrow-down"></i>
+                    <span class="btn-text">Submit Deposit</span>
+                    <span class="btn-shimmer"></span>
+                </button>
+
+                <!-- Result -->
+                <div id="depositResult" style="display:none;margin-top:16px;"></div>
+
+            </div>
+        </div>
+
+        <!-- ===== RIGHT: INFO PANEL ===== -->
+        <div class="deposit-info-card">
+
+            <!-- Metode Deposit -->
+            <div class="info-section">
+                <h4><i class="fas fa-list"></i> Metode Deposit Tersedia</h4>
+                <div class="method-list">
+                    <div class="method-item" onclick="selectMethod('DANA')">
+                        <span class="method-icon">💜</span>
+                        <span class="method-label">DANA</span>
+                        <span class="method-badge">Populer</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('SeaBank')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">SeaBank</span>
+                        <span class="method-badge">Populer</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('GOPAY')">
+                        <span class="method-icon">💚</span>
+                        <span class="method-label">GOPAY</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('OVO')">
+                        <span class="method-icon">💜</span>
+                        <span class="method-label">OVO</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BCA')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">BCA</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BRI')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">BRI</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('Mandiri')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">Mandiri</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('USDT BEP-20')">
+                        <span class="method-icon">🪙</span>
+                        <span class="method-label">USDT BEP-20</span>
+                        <span class="method-badge">Crypto</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('ShopeePay')">
+                        <span class="method-icon">🛒</span>
+                        <span class="method-label">ShopeePay</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BNI')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">BNI</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('CIMB')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">CIMB</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('USDT TRC-20')">
+                        <span class="method-icon">🪙</span>
+                        <span class="method-label">USDT TRC-20</span>
+                        <span class="method-badge">Crypto</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BTC')">
+                        <span class="method-icon">₿</span>
+                        <span class="method-label">Bitcoin</span>
+                        <span class="method-badge">Crypto</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('ETH')">
+                        <span class="method-icon">⟠</span>
+                        <span class="method-label">Ethereum</span>
+                        <span class="method-badge">Crypto</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('LinkAja')">
+                        <span class="method-icon">🔗</span>
+                        <span class="method-label">LinkAja</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('Permata')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">Permata</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panduan -->
+            <div class="info-section">
+                <h4><i class="fas fa-list-check"></i> Panduan Deposit</h4>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-number active">1</div>
+                        <div class="step-content">
+                            <span class="step-title">Pilih Nominal</span>
+                            <span class="step-desc">Tentukan jumlah yang ingin Anda deposit</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <span class="step-title">Pilih Metode</span>
+                            <span class="step-desc">Pilih metode pembayaran yang tersedia</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <span class="step-title">Transfer & Upload</span>
+                            <span class="step-desc">Transfer sesuai nominal dan upload bukti</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <span class="step-title">Konfirmasi</span>
+                            <span class="step-desc">Tunggu konfirmasi dari admin (5-30 menit)</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <span class="step-title">Selesai</span>
+                            <span class="step-desc">Dana akan otomatis masuk ke saldo Anda</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keunggulan -->
+            <div class="info-section">
+                <h4><i class="fas fa-star"></i> Keunggulan Deposit di DavaOFC</h4>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-bolt"></i>
+                        <span>Proses Cepat</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aman & Terpercaya</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-headset"></i>
+                        <span>Support 24/7</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Tanpa Biaya Admin</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-history"></i>
+                        <span>Riwayat Transparan</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile Friendly</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-lock"></i>
+                        <span>Enkripsi SSL</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Proses 24 Jam</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Terverifikasi</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-gem"></i>
+                        <span>Premium Service</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <span>105K+ Pengguna</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-medal"></i>
+                        <span>Terpercaya</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="info-section support-section">
+                <h4><i class="fas fa-life-ring"></i> Butuh Bantuan?</h4>
+                <p class="support-text">Tim support kami siap membantu Anda 24/7</p>
+                <div class="support-links">
+                    <a href="#" class="support-link"><i class="fab fa-telegram"></i> Telegram</a>
+                    <a href="#" class="support-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="#" class="support-link"><i class="fas fa-envelope"></i> Email</a>
+                    <a href="#" class="support-link"><i class="fas fa-comment"></i> Live Chat</a>
+                    <a href="#" class="support-link"><i class="fas fa-phone"></i> Call Center</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 CSS - 800+ BARIS ANIMASI & STYLE
+     ============================================================ -->
+<style>
+/* ============================================================
+   DEPOSIT PAGE - 800+ BARIS CSS
+   ============================================================ */
+
+/* ===== RESET & BASE ===== */
+.deposit-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(30px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInDown {
+    from { opacity:0; transform:translateY(-20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInLeft {
+    from { opacity:0; transform:translateX(-20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeInRight {
+    from { opacity:0; transform:translateX(20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInUp {
+    from { opacity:0; transform:translateY(40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInDown {
+    from { opacity:0; transform:translateY(-40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInLeft {
+    from { opacity:0; transform:translateX(-40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity:0; transform:translateX(40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes scaleIn {
+    from { opacity:0; transform:scale(0.85); }
+    to { opacity:1; transform:scale(1); }
+}
+@keyframes scaleOut {
+    from { opacity:1; transform:scale(1); }
+    to { opacity:0; transform:scale(0.85); }
+}
+@keyframes bounceIn {
+    0% { opacity:0; transform:scale(0.3); }
+    50% { opacity:1; transform:scale(1.05); }
+    70% { transform:scale(0.95); }
+    100% { transform:scale(1); }
+}
+@keyframes bounceInDown {
+    0% { opacity:0; transform:translateY(-200px) scale(0.3); }
+    50% { transform:translateY(10px) scale(1.02); }
+    70% { transform:translateY(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes bounceInLeft {
+    0% { opacity:0; transform:translateX(-200px) scale(0.3); }
+    50% { transform:translateX(10px) scale(1.02); }
+    70% { transform:translateX(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes bounceInRight {
+    0% { opacity:0; transform:translateX(200px) scale(0.3); }
+    50% { transform:translateX(-10px) scale(1.02); }
+    70% { transform:translateX(5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-5px); }
+    20%,40%,60%,80% { transform:translateX(5px); }
+}
+@keyframes shakeX {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-10px); }
+    20%,40%,60%,80% { transform:translateX(10px); }
+}
+@keyframes shakeY {
+    0%,100% { transform:translateY(0); }
+    10%,30%,50%,70%,90% { transform:translateY(-10px); }
+    20%,40%,60%,80% { transform:translateY(10px); }
+}
+@keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 20px rgba(0,200,83,0.1); }
+    50% { box-shadow:0 0 60px rgba(0,200,83,0.3); }
+}
+@keyframes pulseDot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.6); }
+}
+@keyframes pulseRing {
+    0% { transform:scale(0.8); opacity:0.5; }
+    100% { transform:scale(1.2); opacity:0; }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes spinSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes spinFast {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(720deg); }
+}
+@keyframes float {
+    0%,100% { transform:translateY(0px) rotate(0deg); }
+    50% { transform:translateY(-10px) rotate(3deg); }
+}
+@keyframes floatSlow {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-6px); }
+}
+@keyframes floatFast {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-15px); }
+}
+@keyframes shimmer {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerText {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerBorder {
+    0% { border-color:rgba(0,200,83,0.1); }
+    50% { border-color:rgba(0,200,83,0.4); }
+    100% { border-color:rgba(0,200,83,0.1); }
+}
+@keyframes glow {
+    0%,100% { text-shadow:0 0 20px rgba(0,200,83,0.1); }
+    50% { text-shadow:0 0 40px rgba(0,200,83,0.3); }
+}
+@keyframes glowPulse {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes borderGlow {
+    0%,100% { border-color:rgba(0,200,83,0.06); }
+    50% { border-color:rgba(0,200,83,0.2); }
+}
+@keyframes rainbow {
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
+}
+@keyframes rotateIcon {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes rotateY {
+    from { transform:rotateY(0deg); }
+    to { transform:rotateY(360deg); }
+}
+@keyframes rotateX {
+    from { transform:rotateX(0deg); }
+    to { transform:rotateX(360deg); }
+}
+@keyframes wiggle {
+    0%,100% { transform:rotate(0deg); }
+    25% { transform:rotate(-5deg); }
+    75% { transform:rotate(5deg); }
+}
+@keyframes jello {
+    0%,100% { transform:skew(0deg,0deg); }
+    25% { transform:skew(5deg,5deg); }
+    75% { transform:skew(-5deg,-5deg); }
+}
+@keyframes rubberBand {
+    0% { transform:scaleX(1); }
+    30% { transform:scaleX(1.25) scaleY(0.75); }
+    40% { transform:scaleX(0.75) scaleY(1.25); }
+    60% { transform:scaleX(1.15) scaleY(0.85); }
+    100% { transform:scaleX(1) scaleY(1); }
+}
+@keyframes headShake {
+    0% { transform:translateX(0); }
+    25% { transform:translateX(-6px); }
+    50% { transform:translateX(6px); }
+    75% { transform:translateX(-6px); }
+    100% { transform:translateX(0); }
+}
+@keyframes tada {
+    0% { transform:scale(1); }
+    10%,20% { transform:scale(0.9) rotate(-3deg); }
+    30%,50%,70%,90% { transform:scale(1.1) rotate(3deg); }
+    40%,60%,80% { transform:scale(1.1) rotate(-3deg); }
+    100% { transform:scale(1) rotate(0); }
+}
+@keyframes swing {
+    20% { transform:rotate(15deg); }
+    40% { transform:rotate(-10deg); }
+    60% { transform:rotate(5deg); }
+    80% { transform:rotate(-5deg); }
+    100% { transform:rotate(0deg); }
+}
+@keyframes wobble {
+    0%,100% { transform:translateX(0%) rotate(0deg); }
+    15% { transform:translateX(-25%) rotate(-5deg); }
+    30% { transform:translateX(20%) rotate(3deg); }
+    45% { transform:translateX(-15%) rotate(-3deg); }
+    60% { transform:translateX(10%) rotate(2deg); }
+    80% { transform:translateX(-5%) rotate(-1deg); }
+}
+@keyframes flip {
+    0% { transform:perspective(400px) rotateY(0deg); }
+    100% { transform:perspective(400px) rotateY(360deg); }
+}
+@keyframes flipX {
+    0% { transform:perspective(400px) rotateX(0deg); }
+    100% { transform:perspective(400px) rotateX(360deg); }
+}
+@keyframes flipInX {
+    0% { transform:perspective(400px) rotateX(90deg); opacity:0; }
+    100% { transform:perspective(400px) rotateX(0deg); opacity:1; }
+}
+@keyframes flipInY {
+    0% { transform:perspective(400px) rotateY(90deg); opacity:0; }
+    100% { transform:perspective(400px) rotateY(0deg); opacity:1; }
+}
+@keyframes flipOutX {
+    0% { transform:perspective(400px) rotateX(0deg); opacity:1; }
+    100% { transform:perspective(400px) rotateX(90deg); opacity:0; }
+}
+@keyframes flipOutY {
+    0% { transform:perspective(400px) rotateY(0deg); opacity:1; }
+    100% { transform:perspective(400px) rotateY(90deg); opacity:0; }
+}
+@keyframes zoomIn {
+    0% { opacity:0; transform:scale(0.6); }
+    100% { opacity:1; transform:scale(1); }
+}
+@keyframes zoomOut {
+    0% { opacity:1; transform:scale(1); }
+    100% { opacity:0; transform:scale(0.6); }
+}
+@keyframes zoomInUp {
+    0% { opacity:0; transform:scale(0.6) translateY(100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInDown {
+    0% { opacity:0; transform:scale(0.6) translateY(-100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInLeft {
+    0% { opacity:0; transform:scale(0.6) translateX(-100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes zoomInRight {
+    0% { opacity:0; transform:scale(0.6) translateX(100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes bounce {
+    0%,20%,50%,80%,100% { transform:translateY(0); }
+    40% { transform:translateY(-30px); }
+    60% { transform:translateY(-15px); }
+}
+@keyframes bounceUp {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-20px); }
+}
+@keyframes bounceDown {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(20px); }
+}
+@keyframes rollIn {
+    0% { opacity:0; transform:translateX(-100%) rotate(-120deg); }
+    100% { opacity:1; transform:translateX(0) rotate(0deg); }
+}
+@keyframes rollOut {
+    0% { opacity:1; transform:translateX(0) rotate(0deg); }
+    100% { opacity:0; transform:translateX(100%) rotate(120deg); }
+}
+@keyframes lightSpeedIn {
+    0% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+    60% { opacity:1; transform:translateX(-20%) skewX(30deg); }
+    80% { transform:translateX(0%) skewX(-15deg); }
+    100% { opacity:1; transform:translateX(0%) skewX(0deg); }
+}
+@keyframes lightSpeedOut {
+    0% { opacity:1; transform:translateX(0%) skewX(0deg); }
+    100% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+}
+@keyframes hinge {
+    0% { transform:rotate(0deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    20%,60% { transform:rotate(80deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    40% { transform:rotate(60deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    80% { transform:rotate(60deg) translateY(0); opacity:1; transform-origin:top left; animation-timing-function:ease-in-out; }
+    100% { transform:translateY(700px); opacity:0; }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.animate-up { animation:fadeInUp 0.6s ease-out forwards; }
+.animate-down { animation:fadeInDown 0.6s ease-out forwards; }
+.animate-left { animation:fadeInLeft 0.6s ease-out forwards; }
+.animate-right { animation:fadeInRight 0.6s ease-out forwards; }
+.animate-scale { animation:scaleIn 0.6s ease-out forwards; }
+.animate-bounce { animation:bounce 1s ease forwards; }
+.animate-pulse { animation:pulse 1.5s ease-in-out infinite; }
+.animate-spin { animation:spin 2s linear infinite; }
+.animate-spin-slow { animation:spinSlow 10s linear infinite; }
+.animate-float { animation:float 3s ease-in-out infinite; }
+.animate-shimmer { animation:shimmer 3s linear infinite; background-size:200% auto; }
+.animate-glow { animation:glowPulse 2s ease-in-out infinite; }
+.animate-wiggle { animation:wiggle 0.5s ease-in-out infinite; }
+.animate-jello { animation:jello 0.8s ease-in-out infinite; }
+.animate-rubber { animation:rubberBand 0.8s ease forwards; }
+.animate-swing { animation:swing 0.8s ease forwards; }
+.animate-tada { animation:tada 0.8s ease forwards; }
+.animate-wobble { animation:wobble 0.8s ease forwards; }
+.animate-headshake { animation:headShake 0.6s ease forwards; }
+.animate-flip { animation:flip 1s ease forwards; }
+.animate-flipX { animation:flipX 1s ease forwards; }
+.animate-flipInX { animation:flipInX 0.8s ease forwards; }
+.animate-flipInY { animation:flipInY 0.8s ease forwards; }
+.animate-zoomIn { animation:zoomIn 0.6s ease forwards; }
+.animate-zoomOut { animation:zoomOut 0.6s ease forwards; }
+.animate-zoomInUp { animation:zoomInUp 0.6s ease forwards; }
+.animate-zoomInDown { animation:zoomInDown 0.6s ease forwards; }
+.animate-zoomInLeft { animation:zoomInLeft 0.6s ease forwards; }
+.animate-zoomInRight { animation:zoomInRight 0.6s ease forwards; }
+.animate-bounceIn { animation:bounceIn 0.8s ease forwards; }
+.animate-bounceInDown { animation:bounceInDown 0.8s ease forwards; }
+.animate-bounceInLeft { animation:bounceInLeft 0.8s ease forwards; }
+.animate-bounceInRight { animation:bounceInRight 0.8s ease forwards; }
+.animate-rollIn { animation:rollIn 0.8s ease forwards; }
+.animate-rollOut { animation:rollOut 0.8s ease forwards; }
+.animate-lightSpeedIn { animation:lightSpeedIn 0.8s ease forwards; }
+.animate-lightSpeedOut { animation:lightSpeedOut 0.8s ease forwards; }
+.animate-hinge { animation:hinge 2s ease forwards; }
+
+.delay-1 { animation-delay:0.05s; }
+.delay-2 { animation-delay:0.10s; }
+.delay-3 { animation-delay:0.15s; }
+.delay-4 { animation-delay:0.20s; }
+.delay-5 { animation-delay:0.25s; }
+.delay-6 { animation-delay:0.30s; }
+.delay-7 { animation-delay:0.35s; }
+.delay-8 { animation-delay:0.40s; }
+.delay-9 { animation-delay:0.45s; }
+.delay-10 { animation-delay:0.50s; }
+.delay-11 { animation-delay:0.55s; }
+.delay-12 { animation-delay:0.60s; }
+.delay-13 { animation-delay:0.65s; }
+.delay-14 { animation-delay:0.70s; }
+.delay-15 { animation-delay:0.75s; }
+.delay-16 { animation-delay:0.80s; }
+.delay-17 { animation-delay:0.85s; }
+.delay-18 { animation-delay:0.90s; }
+.delay-19 { animation-delay:0.95s; }
+.delay-20 { animation-delay:1.00s; }
+
+/* ===== BANNER ===== */
+.deposit-banner {
+    background: linear-gradient(135deg, rgba(0,200,83,0.06), rgba(0,200,83,0.02));
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+.deposit-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0,200,83,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 30s linear infinite;
+}
+.deposit-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(108,60,225,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 20s linear infinite reverse;
+}
+.deposit-banner .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+.deposit-banner .banner-icon {
+    font-size: 48px;
+    animation: float 3s ease-in-out infinite;
+}
+.deposit-banner .banner-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, #00C853 60%, #009624);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+.deposit-banner .banner-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity:0;
+}
+.deposit-banner .banner-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0,200,83,0.1);
+    border: 1px solid rgba(0,200,83,0.1);
+    border-radius: 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+.deposit-banner .banner-status .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00C853;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+.deposit-banner .banner-status .status-text {
+    font-size: 12px;
+    color: #00C853;
+    font-weight: 500;
+}
+
+/* ===== MAIN GRID ===== */
+.deposit-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+}
+@media (max-width: 992px) {
+    .deposit-main-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== FORM CARD ===== */
+.deposit-form-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    animation: borderGlow 3s ease-in-out infinite;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.deposit-form-card:hover {
+    border-color: rgba(0,200,83,0.12);
+    box-shadow: 0 8px 40px rgba(0,200,83,0.04);
+    transform: translateY(-2px);
+}
+.deposit-form-card .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.deposit-form-card .form-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+}
+.deposit-form-card .form-header h3 i {
+    color: #00C853;
+    margin-right: 8px;
+    animation: rotateIcon 10s linear infinite;
+}
+.deposit-form-card .form-header .form-badge {
+    font-size: 10px;
+    padding: 4px 12px;
+    background: rgba(0,200,83,0.08);
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 50px;
+    color: #00C853;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== FORM GROUP ===== */
+.form-group {
+    margin-bottom: 18px;
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+.form-group:nth-child(1) { animation-delay:0.05s; }
+.form-group:nth-child(2) { animation-delay:0.10s; }
+.form-group:nth-child(3) { animation-delay:0.15s; }
+.form-group:nth-child(4) { animation-delay:0.20s; }
+.form-group:nth-child(5) { animation-delay:0.25s; }
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+}
+.form-group label i { 
+    color: #00C853; 
+    animation: floatSlow 3s ease-in-out infinite;
+}
+.form-group label .required {
+    color: #FF1744;
+    margin-left: 2px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.form-group .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.form-group .form-control:focus {
+    outline: none;
+    border-color: #00C853;
+    box-shadow: 0 0 0 4px rgba(0,200,83,0.1);
+    transform: translateY(-1px) scale(1.01);
+}
+.form-group .form-control:hover {
+    border-color: rgba(0,200,83,0.15);
+}
+.form-group .form-control::placeholder {
+    color: rgba(255,255,255,0.15);
+}
+.form-group .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.2)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px !important;
+    cursor: pointer;
+}
+.form-group .form-select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+.form-group .form-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+/* ===== INPUT GROUP AMOUNT ===== */
+.input-group-amount {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.input-group-amount .input-currency {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    font-weight: 500;
+}
+.input-group-amount .form-control {
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+}
+
+/* ===== QUICK AMOUNTS ===== */
+.quick-amounts {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.quick-amounts .quick-amount {
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity:0;
+}
+.quick-amounts .quick-amount:nth-child(1) { animation-delay:0.02s; }
+.quick-amounts .quick-amount:nth-child(2) { animation-delay:0.04s; }
+.quick-amounts .quick-amount:nth-child(3) { animation-delay:0.06s; }
+.quick-amounts .quick-amount:nth-child(4) { animation-delay:0.08s; }
+.quick-amounts .quick-amount:nth-child(5) { animation-delay:0.10s; }
+.quick-amounts .quick-amount:nth-child(6) { animation-delay:0.12s; }
+.quick-amounts .quick-amount:nth-child(7) { animation-delay:0.14s; }
+.quick-amounts .quick-amount:nth-child(8) { animation-delay:0.16s; }
+.quick-amounts .quick-amount:nth-child(9) { animation-delay:0.18s; }
+.quick-amounts .quick-amount:nth-child(10) { animation-delay:0.20s; }
+
+.quick-amounts .quick-amount:hover {
+    background: rgba(0,200,83,0.12);
+    border-color: rgba(0,200,83,0.2);
+    color: #fff;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,200,83,0.15);
+}
+.quick-amounts .quick-amount:active {
+    transform: scale(0.95);
+}
+
+/* ===== METHOD DETAIL BOX ===== */
+.method-detail-box {
+    background: rgba(108,60,225,0.04);
+    border: 1px solid rgba(108,60,225,0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 8px 0 4px 0;
+    animation: scaleIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.method-detail-box:hover {
+    border-color: rgba(108,60,225,0.15);
+    box-shadow: 0 4px 20px rgba(108,60,225,0.06);
+    transform: translateY(-2px);
+}
+.method-detail-box .method-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.method-detail-box .method-detail-header .method-icon {
+    font-size: 24px;
+    animation: float 3s ease-in-out infinite;
+}
+.method-detail-box .method-detail-header .method-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+}
+.method-detail-box .method-detail-body .method-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+}
+.method-detail-box .method-detail-body .method-address {
+    font-size: 15px;
+    color: #FFD600;
+    font-family: 'Courier New', monospace;
+    padding: 2px 0;
+    word-break: break-all;
+    animation: glow 2s ease-in-out infinite;
+}
+.method-detail-box .method-detail-body .method-owner {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+}
+.method-detail-box .btn-copy {
+    margin-top: 8px;
+    padding: 4px 14px;
+    background: rgba(108,60,225,0.12);
+    border: none;
+    color: #8B6BE8;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+}
+.method-detail-box .btn-copy:hover {
+    background: rgba(108,60,225,0.2);
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(108,60,225,0.15);
+}
+.method-detail-box .btn-copy:active {
+    transform: scale(0.95);
+}
+
+/* ===== UPLOAD AREA ===== */
+.upload-area {
+    border: 2px dashed rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    background: rgba(255,255,255,0.01);
+    animation: shimmerBorder 3s ease-in-out infinite;
+}
+.upload-area:hover {
+    border-color: rgba(0,200,83,0.25);
+    background: rgba(0,200,83,0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,200,83,0.06);
+}
+.upload-area .upload-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+}
+.upload-area .upload-text .upload-title {
+    display: block;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+}
+.upload-area .upload-text .upload-sub {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.12);
+    margin-top: 2px;
+}
+.upload-area.dragover {
+    border-color: #00C853;
+    background: rgba(0,200,83,0.06);
+    transform: scale(1.02);
+}
+.upload-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    animation: slideInUp 0.4s ease-out forwards;
+}
+.upload-preview i {
+    color: #00C853;
+    font-size: 18px;
+}
+.upload-preview span {
+    flex: 1;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+}
+.upload-preview .btn-remove {
+    background: rgba(255,23,68,0.1);
+    border: none;
+    color: #FF1744;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.upload-preview .btn-remove:hover {
+    background: rgba(255,23,68,0.2);
+    transform: scale(1.1) rotate(90deg);
+}
+.upload-preview .btn-remove:active {
+    transform: scale(0.9);
+}
+
+/* ===== DEPOSIT INFO BOX ===== */
+.deposit-info-box {
+    background: rgba(0,200,83,0.03);
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 8px 0 4px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    animation: slideInUp 0.5s ease-out forwards;
+}
+.deposit-info-box .deposit-info-item {
+    padding: 4px 0;
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity:0;
+}
+.deposit-info-box .deposit-info-item:nth-child(1) { animation-delay:0.02s; }
+.deposit-info-box .deposit-info-item:nth-child(2) { animation-delay:0.04s; }
+.deposit-info-box .deposit-info-item:nth-child(3) { animation-delay:0.06s; }
+.deposit-info-box .deposit-info-item:nth-child(4) { animation-delay:0.08s; }
+.deposit-info-box .deposit-info-item:nth-child(5) { animation-delay:0.10s; }
+.deposit-info-box .deposit-info-item:nth-child(6) { animation-delay:0.12s; }
+
+.deposit-info-box .deposit-info-item .info-label {
+    display: block;
+    font-size: 9px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.deposit-info-box .deposit-info-item .info-value {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+.deposit-info-box .deposit-info-item .info-value.status-pending {
+    color: #FFD600;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #00C853, #009624);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+.btn-submit .btn-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: all 0.6s;
+}
+.btn-submit:hover .btn-shimmer {
+    left: 100%;
+}
+.btn-submit:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 35px rgba(0,200,83,0.4);
+}
+.btn-submit:active {
+    transform: scale(0.97);
+}
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    animation: none;
+}
+.btn-submit .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ===== INFO CARD ===== */
+.deposit-info-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    animation: slideInRight 0.6s ease-out forwards;
+    opacity:0;
+}
+.deposit-info-card:hover {
+    border-color: rgba(0,200,83,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px rgba(0,200,83,0.04);
+}
+.deposit-info-card .info-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity:0;
+}
+.deposit-info-card .info-section:nth-child(1) { animation-delay:0.02s; }
+.deposit-info-card .info-section:nth-child(2) { animation-delay:0.04s; }
+.deposit-info-card .info-section:nth-child(3) { animation-delay:0.06s; }
+.deposit-info-card .info-section:nth-child(4) { animation-delay:0.08s; }
+
+.deposit-info-card .info-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.deposit-info-card .info-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+.deposit-info-card .info-section h4 i {
+    color: #00C853;
+    margin-right: 8px;
+    animation: rotateIcon 10s linear infinite;
+}
+
+/* ===== METHOD LIST ===== */
+.method-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.method-list .method-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity:0;
+}
+.method-list .method-item:nth-child(1) { animation-delay:0.02s; }
+.method-list .method-item:nth-child(2) { animation-delay:0.04s; }
+.method-list .method-item:nth-child(3) { animation-delay:0.06s; }
+.method-list .method-item:nth-child(4) { animation-delay:0.08s; }
+.method-list .method-item:nth-child(5) { animation-delay:0.10s; }
+.method-list .method-item:nth-child(6) { animation-delay:0.12s; }
+.method-list .method-item:nth-child(7) { animation-delay:0.14s; }
+.method-list .method-item:nth-child(8) { animation-delay:0.16s; }
+.method-list .method-item:nth-child(9) { animation-delay:0.18s; }
+.method-list .method-item:nth-child(10) { animation-delay:0.20s; }
+.method-list .method-item:nth-child(11) { animation-delay:0.22s; }
+.method-list .method-item:nth-child(12) { animation-delay:0.24s; }
+.method-list .method-item:nth-child(13) { animation-delay:0.26s; }
+.method-list .method-item:nth-child(14) { animation-delay:0.28s; }
+.method-list .method-item:nth-child(15) { animation-delay:0.30s; }
+.method-list .method-item:nth-child(16) { animation-delay:0.32s; }
+
+.method-list .method-item:hover {
+    background: rgba(0,200,83,0.06);
+    border-color: rgba(0,200,83,0.12);
+    transform: translateX(4px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(0,200,83,0.06);
+}
+.method-list .method-item:active {
+    transform: scale(0.95);
+}
+.method-list .method-item .method-icon {
+    font-size: 14px;
+}
+.method-list .method-item .method-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+}
+.method-list .method-item .method-badge {
+    font-size: 8px;
+    padding: 1px 6px;
+    background: rgba(0,200,83,0.1);
+    border-radius: 10px;
+    color: #00C853;
+    margin-left: auto;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== STEP LIST ===== */
+.step-list .step-item {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+.step-list .step-item:nth-child(1) { animation-delay:0.05s; }
+.step-list .step-item:nth-child(2) { animation-delay:0.10s; }
+.step-list .step-item:nth-child(3) { animation-delay:0.15s; }
+.step-list .step-item:nth-child(4) { animation-delay:0.20s; }
+.step-list .step-item:nth-child(5) { animation-delay:0.25s; }
+
+.step-list .step-item .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,200,83,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #00C853;
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.step-list .step-item .step-number.active {
+    background: rgba(0,200,83,0.2);
+    animation: pulseDot 2s infinite;
+}
+.step-list .step-item:hover .step-number {
+    transform: scale(1.1) rotate(10deg);
+}
+.step-list .step-item .step-content {
+    flex: 1;
+}
+.step-list .step-item .step-content .step-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+}
+.step-list .step-item .step-content .step-desc {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+}
+
+/* ===== FEATURE GRID ===== */
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.feature-grid .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity:0;
+}
+.feature-grid .feature-item:nth-child(1) { animation-delay:0.02s; }
+.feature-grid .feature-item:nth-child(2) { animation-delay:0.04s; }
+.feature-grid .feature-item:nth-child(3) { animation-delay:0.06s; }
+.feature-grid .feature-item:nth-child(4) { animation-delay:0.08s; }
+.feature-grid .feature-item:nth-child(5) { animation-delay:0.10s; }
+.feature-grid .feature-item:nth-child(6) { animation-delay:0.12s; }
+.feature-grid .feature-item:nth-child(7) { animation-delay:0.14s; }
+.feature-grid .feature-item:nth-child(8) { animation-delay:0.16s; }
+.feature-grid .feature-item:nth-child(9) { animation-delay:0.18s; }
+.feature-grid .feature-item:nth-child(10) { animation-delay:0.20s; }
+.feature-grid .feature-item:nth-child(11) { animation-delay:0.22s; }
+.feature-grid .feature-item:nth-child(12) { animation-delay:0.24s; }
+
+.feature-grid .feature-item:hover {
+    background: rgba(0,200,83,0.06);
+    border-color: rgba(0,200,83,0.1);
+    color: #fff;
+    transform: translateX(4px) scale(1.02);
+}
+.feature-grid .feature-item i {
+    color: #00C853;
+    font-size: 14px;
+}
+
+/* ===== SUPPORT ===== */
+.support-section .support-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 10px;
+}
+.support-section .support-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.support-section .support-links .support-link {
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    font-size: 11px;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.support-section .support-links .support-link:hover {
+    background: rgba(0,200,83,0.08);
+    border-color: rgba(0,200,83,0.12);
+    color: #fff;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,200,83,0.1);
+}
+.support-section .support-links .support-link i {
+    margin-right: 4px;
+    color: #00C853;
+}
+.support-section .support-links .support-link:active {
+    transform: scale(0.95);
+}
+
+/* ===== RESULT ===== */
+.result-success {
+    padding: 14px 18px;
+    background: rgba(0,200,83,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(0,200,83,0.12);
+    text-align: center;
+    animation: bounceIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+}
+.result-success strong {
+    color: #FFD600;
+    font-size: 18px;
+    animation: glow 2s ease-in-out infinite;
+}
+.result-success small {
+    color: rgba(255,255,255,0.3);
+    display: block;
+    margin-top: 4px;
+}
+.result-error {
+    padding: 14px 18px;
+    background: rgba(255,23,68,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(255,23,68,0.12);
+    text-align: center;
+    animation: shake 0.6s ease-out forwards;
+    color: #FF1744;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    animation: slideInRight 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    backdrop-filter: blur(10px);
+}
+.toast.success { 
+    background: linear-gradient(135deg, #00C853, #009624);
+    border-left: 4px solid #69F0AE;
+}
+.toast.error { 
+    background: linear-gradient(135deg, #FF1744, #D50000);
+    border-left: 4px solid #FF8A80;
+}
+.toast.info { 
+    background: linear-gradient(135deg, #00B4D8, #0096C7);
+    border-left: 4px solid #80DEEA;
+}
+.toast.warning { 
+    background: linear-gradient(135deg, #FFD600, #F9A825);
+    color: #000;
+    border-left: 4px solid #FFF59D;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:#0A0A1A; }
+::-webkit-scrollbar-thumb { background:linear-gradient(135deg,#00C853,#009624); border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background:linear-gradient(135deg,#69F0AE,#00C853); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .deposit-banner .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .deposit-banner .banner-status {
+        margin-left: 0;
+    }
+    .deposit-banner .banner-icon {
+        font-size: 36px;
+    }
+    .deposit-banner .banner-text h1 {
+        font-size: 20px;
+    }
+    .deposit-banner {
+        padding: 18px 16px;
+    }
+    .deposit-form-card {
+        padding: 16px;
+    }
+    .deposit-info-card {
+        padding: 16px;
+    }
+    .method-list {
+        grid-template-columns: 1fr 1fr;
+    }
+    .feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .quick-amounts .quick-amount {
+        padding: 3px 8px;
+        font-size: 9px;
+    }
+    .deposit-info-box {
+        grid-template-columns: 1fr 1fr;
+    }
+    .method-detail-box .method-detail-body .method-address {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .deposit-page-wrapper {
+        padding: 0 8px 30px;
+    }
+    .method-list {
+        grid-template-columns: 1fr;
+    }
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    .support-section .support-links {
+        flex-direction: column;
+    }
+    .support-section .support-links .support-link {
+        text-align: center;
+    }
+    .quick-amounts {
+        gap: 3px;
+    }
+    .quick-amounts .quick-amount {
+        flex: 1;
+        min-width: 35px;
+        text-align: center;
+        font-size: 8px;
+        padding: 2px 6px;
+    }
+    .deposit-info-box {
+        grid-template-columns: 1fr;
+    }
+    .method-detail-box .method-detail-body .method-address {
+        font-size: 12px;
+    }
+    .deposit-banner .banner-icon {
+        font-size: 28px;
+    }
+    .deposit-banner .banner-text h1 {
+        font-size: 18px;
+    }
+    .deposit-banner .banner-text p {
+        font-size: 12px;
+    }
+    .deposit-form-card .form-header h3 {
+        font-size: 16px;
+    }
+    .deposit-form-card .form-header .form-badge {
+        font-size: 8px;
+        padding: 2px 8px;
+    }
+}
+</style>
+
+<!-- ============================================================
+     🟢 JAVASCRIPT - 400+ BARIS
+     ============================================================ -->
+<script>
+// ===== METHOD DATA =====
+window.methodData = {
+    'DANA': { icon: '💜', name: 'DANA', address: '085869291109', owner: 'Admin Dava' },
+    'GOPAY': { icon: '💚', name: 'GOPAY', address: '083857916260', owner: 'Admin Dava' },
+    'OVO': { icon: '💜', name: 'OVO', address: '', owner: 'Admin Dava' },
+    'ShopeePay': { icon: '🛒', name: 'ShopeePay', address: '', owner: 'Admin Dava' },
+    'LinkAja': { icon: '🔗', name: 'LinkAja', address: '', owner: 'Admin Dava' },
+    'SeaBank': { icon: '🏦', name: 'SeaBank', address: '901947918818', owner: 'Admin Dava' },
+    'BCA': { icon: '🏦', name: 'BCA', address: '', owner: 'Admin Dava' },
+    'BRI': { icon: '🏦', name: 'BRI', address: '', owner: 'Admin Dava' },
+    'BNI': { icon: '🏦', name: 'BNI', address: '', owner: 'Admin Dava' },
+    'Mandiri': { icon: '🏦', name: 'Mandiri', address: '', owner: 'Admin Dava' },
+    'CIMB': { icon: '🏦', name: 'CIMB Niaga', address: '', owner: 'Admin Dava' },
+    'Permata': { icon: '🏦', name: 'Permata Bank', address: '', owner: 'Admin Dava' },
+    'BTN': { icon: '🏦', name: 'BTN', address: '', owner: 'Admin Dava' },
+    'Danamon': { icon: '🏦', name: 'Danamon', address: '', owner: 'Admin Dava' },
+    'Maybank': { icon: '🏦', name: 'Maybank', address: '', owner: 'Admin Dava' },
+    'USDT BEP-20': { icon: '🪙', name: 'USDT BEP-20', address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', owner: 'Admin Dava' },
+    'USDT TRC-20': { icon: '🪙', name: 'USDT TRC-20', address: 'TM7ySbKFBUGroDEs2snuttcJmV8qkFBRYx', owner: 'Admin Dava' },
+    'BTC': { icon: '₿', name: 'Bitcoin', address: '', owner: 'Admin Dava' },
+    'ETH': { icon: '⟠', name: 'Ethereum', address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', owner: 'Admin Dava' },
+    'BNB': { icon: '🟡', name: 'BNB', address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', owner: 'Admin Dava' },
+    'SOL': { icon: '◎', name: 'Solana', address: '', owner: 'Admin Dava' }
+};
+
+// ============================================================
+// UPDATE METHOD INFO
+// ============================================================
+function updateMethodInfo() {
+    var method = document.getElementById('depositMethod').value;
+    var data = methodData[method] || methodData['DANA'];
+    
+    document.getElementById('methodName').textContent = data.icon + ' ' + data.name;
+    document.getElementById('methodAddress').textContent = data.address;
+    document.getElementById('methodOwner').textContent = data.owner;
+    
+    var detail = document.getElementById('methodDetail');
+    detail.style.animation = 'none';
+    setTimeout(function() {
+        detail.style.animation = 'scaleIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards';
+    }, 10);
+    
+    updateDepositInfo();
+}
+
+// ============================================================
+// UPDATE DEPOSIT INFO
+// ============================================================
+function updateDepositInfo() {
+    var amount = document.getElementById('depositAmount').value;
+    var method = document.getElementById('depositMethod').value;
+    var infoBox = document.getElementById('depositInfo');
+    var data = methodData[method] || methodData['DANA'];
+    
+    if (amount && parseInt(amount) >= 10000) {
+        infoBox.style.display = 'grid';
+        document.getElementById('infoAmount').textContent = 'Rp ' + parseInt(amount).toLocaleString('id-ID');
+        document.getElementById('infoMethod').textContent = data.icon + ' ' + data.name;
+        infoBox.style.animation = 'none';
+        setTimeout(function() {
+            infoBox.style.animation = 'slideInUp 0.5s ease-out forwards';
+        }, 10);
+    } else {
+        infoBox.style.display = 'none';
+    }
+}
+
+// ============================================================
+// SET QUICK AMOUNT
+// ============================================================
+function setAmount(value) {
+    document.getElementById('depositAmount').value = value;
+    updateDepositInfo();
+    document.getElementById('depositAmount').focus();
+    var input = document.getElementById('depositAmount');
+    input.style.borderColor = '#00C853';
+    input.style.transform = 'scale(1.02)';
+    setTimeout(function() {
+        input.style.borderColor = '';
+        input.style.transform = '';
+    }, 500);
+    showToast('✅ Nominal Rp ' + value.toLocaleString('id-ID') + ' dipilih!', 'success');
+}
+
+// ============================================================
+// SELECT METHOD FROM LIST
+// ============================================================
+function selectMethod(method) {
+    var select = document.getElementById('depositMethod');
+    for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === method) {
+            select.selectedIndex = i;
+            break;
+        }
+    }
+    updateMethodInfo();
+    showToast('✅ Metode ' + method + ' dipilih!', 'success');
+}
+
+// ============================================================
+// COPY METHOD ADDRESS
+// ============================================================
+function copyMethodAddress() {
+    var address = document.getElementById('methodAddress').textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(address).then(function() {
+            showToast('✅ Nomor tujuan berhasil disalin!', 'success');
+        }).catch(function() { fallbackCopy(address); });
+    } else {
+        fallbackCopy(address);
+    }
+}
+
+function fallbackCopy(text) {
+    var input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    try {
+        document.execCommand('copy');
+        showToast('✅ Nomor tujuan berhasil disalin!', 'success');
+    } catch (e) {
+        showToast('❌ Gagal menyalin!', 'error');
+    }
+    document.body.removeChild(input);
+}
+
+// ============================================================
+// FILE UPLOAD HANDLING
+// ============================================================
+var uploadedFile = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    var uploadArea = document.getElementById('uploadArea');
+    var fileInput = document.getElementById('depositPhoto');
+    
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                uploadedFile = this.files[0];
+                document.getElementById('uploadPreview').style.display = 'block';
+                document.getElementById('uploadFileName').textContent = uploadedFile.name;
+                uploadArea.style.borderColor = '#00C853';
+                uploadArea.style.transform = 'scale(1.02)';
+                setTimeout(function() {
+                    uploadArea.style.transform = '';
+                }, 300);
+                showToast('✅ File berhasil diupload: ' + uploadedFile.name, 'success');
+            }
+        });
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+});
+
+function removeFile() {
+    uploadedFile = null;
+    document.getElementById('depositPhoto').value = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('uploadArea').style.borderColor = '';
+    showToast('🗑️ File berhasil dihapus', 'info');
+}
+
+// ============================================================
+// SUBMIT DEPOSIT
+// ============================================================
+async function submitDeposit() {
+    var btn = document.getElementById('depositBtn');
+    var amount = document.getElementById('depositAmount').value;
+    var method = document.getElementById('depositMethod').value;
+    var photo = document.getElementById('depositPhoto').files[0];
+    var result = document.getElementById('depositResult');
+    
+    if (!amount || parseInt(amount) < 10000) {
+        showToast('❌ Minimal deposit Rp 10.000!', 'error');
+        document.getElementById('depositAmount').focus();
+        document.getElementById('depositAmount').style.borderColor = '#FF1744';
+        document.getElementById('depositAmount').style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            document.getElementById('depositAmount').style.borderColor = '';
+            document.getElementById('depositAmount').style.animation = '';
+        }, 2000);
+        return;
+    }
+    if (!photo) {
+        showToast('❌ Upload bukti transfer!', 'error');
+        document.getElementById('uploadArea').style.borderColor = '#FF1744';
+        document.getElementById('uploadArea').style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            document.getElementById('uploadArea').style.borderColor = '';
+            document.getElementById('uploadArea').style.animation = '';
+        }, 2000);
+        return;
+    }
+    if (photo.size > 2 * 1024 * 1024) {
+        showToast('❌ Ukuran foto maksimal 2MB!', 'error');
+        document.getElementById('depositPhoto').value = '';
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> <span class="btn-text">Processing...</span>';
+    btn.style.opacity = '0.7';
+    
+    var reader = new FileReader();
+    reader.readAsDataURL(photo);
+    
+    reader.onload = async function() {
+        try {
+            var response = await fetch('/api/deposit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: parseFloat(amount),
+                    method: method,
+                    proof: reader.result
+                })
+            });
+            
+            var data = await response.json();
+            
+            if (data.success) {
+                result.style.display = 'block';
+                result.innerHTML = '<div class="result-success">✅ Deposit Berhasil Diajukan!<br><strong>ID: ' + data.dep_number + '</strong><br><small>Nominal: Rp ' + parseInt(amount).toLocaleString('id-ID') + '<br>Status: <span style="color:#FFD600;">Menunggu Konfirmasi</span></small></div>';
+                showToast('✅ Deposit berhasil diajukan! ID: ' + data.dep_number, 'success');
+                
+                document.getElementById('depositAmount').value = '';
+                document.getElementById('depositPhoto').value = '';
+                document.getElementById('uploadPreview').style.display = 'none';
+                document.getElementById('depositInfo').style.display = 'none';
+                uploadedFile = null;
+                
+                result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+            } else {
+                result.style.display = 'block';
+                result.innerHTML = '<div class="result-error">❌ ' + (data.error || 'Gagal submit deposit!') + '</div>';
+                showToast('❌ ' + data.error, 'error');
+            }
+            
+        } catch (err) {
+            console.error('Submit error:', err);
+            result.style.display = 'block';
+            result.innerHTML = '<div class="result-error">❌ Gagal terhubung ke server! Periksa koneksi Anda.</div>';
+            showToast('❌ Gagal terhubung ke server!', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-arrow-down"></i> <span class="btn-text">Submit Deposit</span><span class="btn-shimmer"></span>';
+            btn.style.opacity = '1';
+        }
+    };
+    
+    reader.onerror = function() {
+        showToast('❌ Gagal membaca file!', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-arrow-down"></i> <span class="btn-text">Submit Deposit</span><span class="btn-shimmer"></span>';
+        btn.style.opacity = '1';
+    };
+}
+
+// ============================================================
+// SHOW TOAST
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) { alert(message); return; }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(function() { toast.remove(); }, 400);
+    }, 4000);
+}
+
+// ============================================================
+// KEYBOARD SHORTCUT
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        var btn = document.getElementById('depositBtn');
+        if (!btn.disabled) { btn.click(); }
+    }
+    if (e.key === 'Escape') {
+        document.getElementById('depositResult').style.display = 'none';
+    }
+});
+
+// ============================================================
+// LOAD
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    updateMethodInfo();
+    
+    document.getElementById('depositAmount').addEventListener('input', function() {
+        updateDepositInfo();
+    });
+    
+    console.log('🚀 DavaOFC Deposit Page Loaded!');
+    console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+    console.log('💳 ' + Object.keys(methodData).length + ' metode deposit tersedia!');
+    console.log('🎬 ' + document.querySelectorAll('style').length + ' CSS animations loaded!');
+});
+
+console.log('✅ All systems ready!');
+console.log('📥 Deposit page is fully operational!');
+</script>
+
+{% endblock %}

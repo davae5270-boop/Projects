@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DavaOFC - Crypto Exchange & Slot Games</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A0A1A;
+            color: #fff;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 20% 50%, rgba(108, 60, 225, 0.10) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 50%, rgba(255, 107, 107, 0.04) 0%, transparent 55%),
+                #0A0A1A;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        .animate-up {
+            opacity: 0;
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+        .delay-1 {
+            animation-delay: 0.06s;
+        }
+        .delay-2 {
+            animation-delay: 0.12s;
+        }
+        .delay-3 {
+            animation-delay: 0.18s;
+        }
+        .delay-4 {
+            animation-delay: 0.24s;
+        }
+
+        ::-webkit-scrollbar {
+            width: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A1A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #6C3CE1, #8B6BE8);
+            border-radius: 10px;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 26, 0.92);
+            backdrop-filter: blur(16px);
+        }
+        .navbar .logo {
+            font-size: 15px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #8B6BE8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+        .navbar .logo i {
+            background: linear-gradient(135deg, #6C3CE1, #8B6BE8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .navbar .nav-links a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .navbar .nav-links a:hover {
+            color: #fff;
+        }
+        .navbar .nav-links .btn {
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(108, 60, 225, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(108, 60, 225, 0.35);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .btn-glow {
+            background: linear-gradient(135deg, #6C3CE1, #8B6BE8);
+            color: #fff;
+            box-shadow: 0 3px 15px rgba(108, 60, 225, 0.2);
+        }
+        .btn-glow:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 4px 22px rgba(108, 60, 225, 0.35);
+        }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 3px;
+        }
+        .hamburger span {
+            width: 16px;
+            height: 2px;
+            background: #fff;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 45px 16px 0px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .hero .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            background: rgba(108, 60, 225, 0.08);
+            border: 1px solid rgba(108, 60, 225, 0.12);
+            border-radius: 50px;
+            font-size: 8px;
+            font-weight: 600;
+            color: #8B6BE8;
+            margin-bottom: 4px;
+            animation: float 4s ease-in-out infinite;
+        }
+        .hero h1 {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 2px;
+            background: linear-gradient(135deg, #fff 30%, #8B6BE8 65%, #6C3CE1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+        }
+        .hero .subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.45);
+            max-width: 380px;
+            margin: 0 auto 6px;
+            line-height: 1.5;
+        }
+        .hero .buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .hero .buttons .btn {
+            padding: 5px 16px;
+            font-size: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .hero .buttons .btn i {
+            margin-right: 3px;
+        }
+
+        /* ===== TRUST BADGES ===== */
+        .trust-section {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 3px;
+            padding: 0 4px;
+        }
+        .trust-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 3px 6px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 7px;
+            font-weight: 500;
+        }
+        .trust-item i {
+            font-size: 9px;
+            color: #8B6BE8;
+        }
+        .trust-item .highlight {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .trust-divider {
+            width: 1px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* ===== LIVE ACTIVITY FEED ===== */
+        .live-feed {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto 3px;
+            padding: 2px 6px;
+            background: rgba(255, 255, 255, 0.012);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .live-feed .feed-header {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 0px;
+        }
+        .live-feed .feed-header .dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #34D399;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        .live-feed .feed-header span {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 6px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .live-feed .feed-header .count {
+            color: #34D399;
+            font-size: 6px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+        .feed-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 1px 0;
+            animation: fadeInUp 0.3s ease-out forwards;
+            opacity: 0;
+        }
+        .feed-item .avatar {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(108, 60, 225, 0.2), rgba(139, 107, 232, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5px;
+            font-weight: 700;
+            color: #8B6BE8;
+            flex-shrink: 0;
+            border: 1px solid rgba(108, 60, 225, 0.08);
+        }
+        .feed-item .text {
+            font-size: 7px;
+            color: rgba(255, 255, 255, 0.25);
+            flex: 1;
+            text-align: left;
+        }
+        .feed-item .text strong {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+        .feed-item .text .amount {
+            color: #34D399;
+            font-weight: 600;
+        }
+        .feed-item .time {
+            font-size: 5px;
+            color: rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        /* ===== STATS ===== */
+        .stats-section {
+            padding: 0px 16px 4px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+        }
+        .stats .stat-item {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 5px;
+            padding: 4px 2px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .stats .stat-item:hover {
+            border-color: rgba(108, 60, 225, 0.15);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .stats .stat-item .icon {
+            font-size: 10px;
+            display: block;
+            color: #8B6BE8;
+        }
+        .stats .stat-item .number {
+            font-size: 14px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8B6BE8, #6C3CE1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+            line-height: 1.1;
+        }
+        .stats .stat-item .label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 7px;
+            font-weight: 500;
+            display: block;
+        }
+        .stats .stat-item .sub-label {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 5px;
+            display: block;
+        }
+        .stats .stat-item .trend {
+            display: inline-block;
+            color: #34D399;
+            font-size: 6px;
+            font-weight: 600;
+        }
+        .stats .stat-item .trend i {
+            margin-right: 1px;
+        }
+
+        /* ===== WHY US ===== */
+        .why-section {
+            padding: 2px 16px 4px;
+            max-width: 660px;
+            margin: 0 auto;
+        }
+        .why-section .section-title {
+            text-align: center;
+            font-size: 15px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #8B6BE8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2px;
+        }
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3px;
+        }
+        .why-card {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 5px;
+            padding: 4px 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        .why-card:hover {
+            border-color: rgba(108, 60, 225, 0.12);
+        }
+        .why-card i {
+            font-size: 12px;
+            color: #8B6BE8;
+            flex-shrink: 0;
+        }
+        .why-card .info h4 {
+            font-size: 8px;
+            font-weight: 600;
+        }
+        .why-card .info p {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 6px;
+            line-height: 1.2;
+        }
+
+        /* ===== PAYMENT METHODS ===== */
+        .payment-section {
+            padding: 0px 16px 4px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+        .payment-section .section-title {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 2px;
+        }
+        .payment-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 3px 6px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 5px;
+        }
+        .payment-item {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 6px;
+            font-weight: 500;
+        }
+        .payment-item i {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+        .payment-item .bca {
+            color: #0066B3;
+        }
+        .payment-item .bri {
+            color: #0066B3;
+        }
+        .payment-item .mandiri {
+            color: #0066B3;
+        }
+        .payment-item .ovo {
+            color: #660099;
+        }
+        .payment-item .dana {
+            color: #005B9F;
+        }
+        .payment-item .gopay {
+            color: #00A651;
+        }
+
+        /* ===== FEATURES ===== */
+        .features-section {
+            padding: 2px 16px 6px;
+            max-width: 740px;
+            margin: 0 auto;
+        }
+        .features-section .section-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #8B6BE8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .features-section .section-sub {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 5px;
+            padding: 6px 4px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(108, 60, 225, 0.15);
+        }
+        .feature-card .icon {
+            font-size: 14px;
+            display: block;
+            background: linear-gradient(135deg, #8B6BE8, #6C3CE1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .feature-card h3 {
+            font-size: 9px;
+            font-weight: 700;
+            margin: 0px;
+        }
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 7px;
+            line-height: 1.2;
+        }
+
+        /* ===== TESTIMONIAL ===== */
+        .testimonial-section {
+            padding: 2px 16px 6px;
+            max-width: 660px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .testimonial-section .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #8B6BE8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .testimonial-section .section-sub {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+        }
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 5px;
+            padding: 6px 4px;
+            text-align: left;
+            transition: all 0.3s;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(108, 60, 225, 0.12);
+        }
+        .testimonial-card .stars {
+            color: #FBBF24;
+            font-size: 7px;
+            margin-bottom: 0px;
+        }
+        .testimonial-card blockquote {
+            font-size: 7px;
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            margin-bottom: 2px;
+        }
+        .testimonial-card .author {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .testimonial-card .author .avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6C3CE1, #8B6BE8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 6px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .testimonial-card .author .info .name {
+            font-weight: 600;
+            font-size: 7px;
+        }
+        .testimonial-card .author .info .role {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 5px;
+        }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            padding: 6px 16px;
+            max-width: 460px;
+            margin: 0 auto;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .cta-section .badge-cta {
+            display: inline-block;
+            padding: 1px 6px;
+            background: rgba(108, 60, 225, 0.08);
+            border: 1px solid rgba(108, 60, 225, 0.10);
+            border-radius: 50px;
+            font-size: 7px;
+            font-weight: 600;
+            color: #8B6BE8;
+            margin-bottom: 2px;
+        }
+        .cta-section h2 {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 1px;
+        }
+        .cta-section p {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+        .cta-section .btn {
+            padding: 5px 18px;
+            font-size: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .cta-section .btn i {
+            margin-right: 3px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 6px 16px 3px;
+            max-width: 740px;
+            margin: 0 auto;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .footer-grid .brand .logo {
+            font-size: 12px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #8B6BE8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+        }
+        .footer-grid .brand p {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 7px;
+            line-height: 1.2;
+            margin-top: 1px;
+            max-width: 140px;
+        }
+        .footer-grid .brand .social {
+            display: flex;
+            gap: 3px;
+            margin-top: 2px;
+        }
+        .footer-grid .brand .social a {
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 9px;
+            transition: all 0.3s;
+        }
+        .footer-grid .brand .social a:hover {
+            color: #8B6BE8;
+        }
+        .footer-grid h4 {
+            font-size: 7px;
+            font-weight: 600;
+            margin-bottom: 1px;
+            color: #fff;
+        }
+        .footer-grid ul {
+            list-style: none;
+        }
+        .footer-grid ul li {
+            margin-bottom: 0px;
+        }
+        .footer-grid ul li a {
+            color: rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            font-size: 7px;
+            transition: all 0.3s;
+        }
+        .footer-grid ul li a:hover {
+            color: #8B6BE8;
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+        .footer-bottom p {
+            color: rgba(255, 255, 255, 0.10);
+            font-size: 6px;
+        }
+        .footer-bottom .footer-links {
+            display: flex;
+            gap: 5px;
+        }
+        .footer-bottom .footer-links a {
+            color: rgba(255, 255, 255, 0.10);
+            text-decoration: none;
+            font-size: 6px;
+            transition: color 0.3s;
+        }
+        .footer-bottom .footer-links a:hover {
+            color: #8B6BE8;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 4px 10px;
+            }
+            .navbar .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10, 10, 26, 0.98);
+                padding: 8px;
+                gap: 5px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            }
+            .navbar .nav-links.active {
+                display: flex;
+            }
+            .hamburger {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 20px;
+            }
+            .hero {
+                padding: 40px 10px 0px;
+            }
+
+            .trust-row {
+                gap: 3px;
+                padding: 2px 4px;
+            }
+            .trust-item {
+                font-size: 6px;
+            }
+            .trust-item i {
+                font-size: 8px;
+            }
+            .trust-divider {
+                display: none;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2px;
+            }
+            .stats .stat-item {
+                padding: 3px 2px;
+            }
+            .stats .stat-item .number {
+                font-size: 12px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 2px;
+            }
+            .why-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 2px;
+            }
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+                gap: 2px;
+            }
+            .payment-row {
+                gap: 4px;
+                padding: 2px 4px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 4px;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar .logo {
+                font-size: 11px;
+            }
+            .hero h1 {
+                font-size: 17px;
+            }
+            .hero .buttons .btn {
+                padding: 3px 10px;
+                font-size: 8px;
+            }
+            .hero {
+                padding: 35px 8px 0px;
+            }
+
+            .trust-item {
+                font-size: 5px;
+            }
+            .trust-item i {
+                font-size: 7px;
+            }
+
+            .live-feed {
+                padding: 1px 4px;
+            }
+            .feed-item .text {
+                font-size: 6px;
+            }
+
+            .stats {
+                gap: 2px;
+            }
+            .stats .stat-item {
+                padding: 2px 1px;
+                border-radius: 3px;
+            }
+            .stats .stat-item .number {
+                font-size: 10px;
+            }
+            .stats .stat-item .label {
+                font-size: 6px;
+            }
+
+            .features-section {
+                padding: 2px 4px 4px;
+            }
+            .features-grid {
+                gap: 2px;
+            }
+            .feature-card {
+                padding: 4px 2px;
+                border-radius: 3px;
+            }
+            .feature-card .icon {
+                font-size: 11px;
+            }
+            .feature-card h3 {
+                font-size: 8px;
+            }
+            .feature-card p {
+                font-size: 6px;
+            }
+            .features-section .section-title {
+                font-size: 13px;
+            }
+
+            .why-section {
+                padding: 2px 4px 2px;
+            }
+            .why-grid {
+                gap: 2px;
+            }
+            .why-card {
+                padding: 3px 4px;
+            }
+            .why-card i {
+                font-size: 10px;
+            }
+            .why-card .info h4 {
+                font-size: 7px;
+            }
+            .why-card .info p {
+                font-size: 5px;
+            }
+            .why-section .section-title {
+                font-size: 12px;
+            }
+
+            .payment-section {
+                padding: 0px 4px 2px;
+            }
+            .payment-row {
+                gap: 3px;
+                padding: 2px 3px;
+            }
+            .payment-item {
+                font-size: 5px;
+            }
+            .payment-item i {
+                font-size: 8px;
+            }
+
+            .testimonial-section {
+                padding: 2px 4px 4px;
+            }
+            .testimonial-card {
+                padding: 4px 3px;
+                border-radius: 3px;
+            }
+            .testimonial-card blockquote {
+                font-size: 6px;
+            }
+            .testimonial-section .section-title {
+                font-size: 13px;
+            }
+
+            .cta-section {
+                padding: 4px 4px;
+            }
+            .cta-section h2 {
+                font-size: 13px;
+            }
+            .cta-section p {
+                font-size: 9px;
+            }
+            .cta-section .btn {
+                padding: 4px 12px;
+                font-size: 8px;
+            }
+
+            .footer {
+                padding: 4px 4px 2px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <a href="/" class="logo">
+            <i class="fas fa-rocket"></i> DavaOFC
+        </a>
+        <button class="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="/">Home</a>
+            <a href="#features">Features</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#about">About</a>
+            {% if session.get('user_id') %}
+                <a href="/dashboard" class="btn btn-primary"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+                <a href="/login" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+                <a href="/register" class="btn btn-primary"><i class="fas fa-user-plus"></i> Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="home">
+        <div class="badge animate-up">
+            <i class="fas fa-bolt"></i> Platform Crypto & Slot
+        </div>
+        <h1 class="animate-up">Selamat Datang di DavaOFC</h1>
+        <p class="subtitle animate-up delay-1">Platform crypto exchange dan slot games terpercaya. Konversi instan, deposit mudah, dan profit setiap hari.</p>
+        <div class="buttons animate-up delay-2">
+            {% if session.get('user_id') %}
+                <a href="/dashboard" class="btn btn-glow"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            {% else %}
+                <a href="/register" class="btn btn-glow"><i class="fas fa-rocket"></i> Mulai</a>
+                <a href="/login" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> Masuk</a>
+            {% endif %}
+        </div>
+
+        <!-- ===== TRUST BADGES ===== -->
+        <div class="trust-section animate-up delay-3">
+            <div class="trust-row">
+                <span class="trust-item"><i class="fas fa-shield-alt"></i> <span class="highlight">SSL 256-bit</span></span>
+                <span class="trust-divider"></span>
+                <span class="trust-item"><i class="fas fa-credit-card"></i> <span class="highlight">Bank & E-Wallet</span></span>
+                <span class="trust-divider"></span>
+                <span class="trust-item"><i class="fas fa-robot"></i> <span class="highlight">2FA Security</span></span>
+                <span class="trust-divider"></span>
+                <span class="trust-item"><i class="fas fa-clock"></i> <span class="highlight">24/7 Support</span></span>
+            </div>
+        </div>
+
+        <!-- ===== LIVE ACTIVITY FEED ===== -->
+        <div class="live-feed animate-up delay-4">
+            <div class="feed-header">
+                <span class="dot"></span>
+                <span>Live Activity</span>
+                <span class="count">● 1.2K online</span>
+            </div>
+            <div class="feed-item" style="animation-delay:0.1s;">
+                <div class="avatar">A</div>
+                <span class="text"><strong>Andi</strong> deposit <span class="amount">+Rp 2.500.000</span></span>
+                <span class="time">2m ago</span>
+            </div>
+            <div class="feed-item" style="animation-delay:0.2s;">
+                <div class="avatar">S</div>
+                <span class="text"><strong>Siti</strong> withdraw <span class="amount">+Rp 750.000</span></span>
+                <span class="time">5m ago</span>
+            </div>
+            <div class="feed-item" style="animation-delay:0.3s;">
+                <div class="avatar">B</div>
+                <span class="text"><strong>Budi</strong> konversi <span class="amount">+$ 120</span></span>
+                <span class="time">8m ago</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== STATS ===== -->
+    <section class="stats-section">
+        <div class="stats animate-up delay-1">
+            <div class="stat-item">
+                <span class="icon"><i class="fas fa-users"></i></span>
+                <span class="number">105K+</span>
+                <span class="label">Users</span>
+                <span class="sub-label">Pengguna global</span>
+                <span class="trend"><i class="fas fa-arrow-up"></i> +12%</span>
+            </div>
+            <div class="stat-item">
+                <span class="icon"><i class="fas fa-exchange-alt"></i></span>
+                <span class="number">52.4K+</span>
+                <span class="label">Transactions</span>
+                <span class="sub-label">Harian</span>
+                <span class="trend"><i class="fas fa-arrow-up"></i> +8.5%</span>
+            </div>
+            <div class="stat-item">
+                <span class="icon"><i class="fas fa-server"></i></span>
+                <span class="number">99.99%</span>
+                <span class="label">Uptime</span>
+                <span class="sub-label">Keandalan</span>
+                <span class="trend"><i class="fas fa-check-circle"></i> Stabil</span>
+            </div>
+            <div class="stat-item">
+                <span class="icon"><i class="fas fa-headset"></i></span>
+                <span class="number">24/7</span>
+                <span class="label">Support</span>
+                <span class="sub-label">Dukungan</span>
+                <span class="trend"><i class="fas fa-clock"></i> &lt; 5m</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WHY US ===== -->
+    <section class="why-section" id="about">
+        <h2 class="section-title animate-up">Mengapa Memilih DavaOFC?</h2>
+        <div class="why-grid animate-up delay-1">
+            <div class="why-card">
+                <i class="fas fa-bolt"></i>
+                <div class="info">
+                    <h4>Proses Instan</h4>
+                    <p>Konversi & transaksi tanpa antrian</p>
+                </div>
+            </div>
+            <div class="why-card">
+                <i class="fas fa-shield-alt"></i>
+                <div class="info">
+                    <h4>Keamanan Terbaik</h4>
+                    <p>SSL 256-bit & 2FA terverifikasi</p>
+                </div>
+            </div>
+            <div class="why-card">
+                <i class="fas fa-chart-line"></i>
+                <div class="info">
+                    <h4>Profit Harian</h4>
+                    <p>Sistem fair & transparan</p>
+                </div>
+            </div>
+            <div class="why-card">
+                <i class="fas fa-headset"></i>
+                <div class="info">
+                    <h4>Support 24/7</h4>
+                    <p>Tim siap membantu Anda</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PAYMENT METHODS ===== -->
+    <section class="payment-section">
+        <h3 class="section-title animate-up">Metode Deposit</h3>
+        <div class="payment-row animate-up delay-1">
+            <span class="payment-item"><i class="fas fa-university bca"></i> BCA</span>
+            <span class="payment-item"><i class="fas fa-university bri"></i> BRI</span>
+            <span class="payment-item"><i class="fas fa-university mandiri"></i> Mandiri</span>
+            <span class="payment-item"><i class="fas fa-mobile-alt ovo"></i> OVO</span>
+            <span class="payment-item"><i class="fas fa-mobile-alt dana"></i> DANA</span>
+            <span class="payment-item"><i class="fas fa-mobile-alt gopay"></i> GoPay</span>
+            <span class="payment-item"><i class="fab fa-bitcoin"></i> BTC</span>
+            <span class="payment-item"><i class="fab fa-ethereum"></i> ETH</span>
+        </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="features-section" id="features">
+        <h2 class="section-title animate-up">Fitur Unggulan</h2>
+        <p class="section-sub animate-up delay-1">Layanan terbaik untuk kemudahan Anda</p>
+        <div class="features-grid">
+            <div class="feature-card animate-up delay-1">
+                <span class="icon"><i class="fas fa-bolt"></i></span>
+                <h3>Konversi Instan</h3>
+                <p>Proses cepat tanpa antrian</p>
+            </div>
+            <div class="feature-card animate-up delay-2">
+                <span class="icon"><i class="fas fa-hand-holding-usd"></i></span>
+                <h3>Deposit Mudah</h3>
+                <p>Bank, e-wallet, crypto</p>
+            </div>
+            <div class="feature-card animate-up delay-3">
+                <span class="icon"><i class="fas fa-trophy"></i></span>
+                <h3>Slot Games</h3>
+                <p>RTP tinggi & jackpot</p>
+            </div>
+            <div class="feature-card animate-up delay-4">
+                <span class="icon"><i class="fas fa-shield-alt"></i></span>
+                <h3>Keamanan</h3>
+                <p>SSL 256-bit & 2FA</p>
+            </div>
+            <div class="feature-card animate-up delay-5">
+                <span class="icon"><i class="fas fa-chart-pie"></i></span>
+                <h3>Profit Harian</h3>
+                <p>Fair & transparan</p>
+            </div>
+            <div class="feature-card animate-up delay-6">
+                <span class="icon"><i class="fas fa-mobile-alt"></i></span>
+                <h3>Akses Mobile</h3>
+                <p>Kapan saja di mana saja</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TESTIMONIAL ===== -->
+    <section class="testimonial-section" id="testimonials">
+        <h2 class="section-title animate-up">Apa Kata Pengguna</h2>
+        <p class="section-sub animate-up delay-1">105K+ pengguna telah merasakan manfaatnya</p>
+        <div class="testimonial-grid">
+            <div class="testimonial-card animate-up delay-1">
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <blockquote>"Konversi instan & profit konsisten."</blockquote>
+                <div class="author">
+                    <div class="avatar">AP</div>
+                    <div class="info">
+                        <div class="name">Andi Pratama</div>
+                        <div class="role">Trader</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card animate-up delay-2">
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <blockquote>"Deposit mudah, withdraw cepat."</blockquote>
+                <div class="author">
+                    <div class="avatar">SR</div>
+                    <div class="info">
+                        <div class="name">Siti Rahma</div>
+                        <div class="role">Creator</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card animate-up delay-3">
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <blockquote>"Slot games seru dengan RTP tinggi!"</blockquote>
+                <div class="author">
+                    <div class="avatar">BM</div>
+                    <div class="info">
+                        <div class="name">Budi Mulyono</div>
+                        <div class="role">Slot Enthusiast</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta-section" id="cta">
+        <div class="badge-cta animate-up"><i class="fas fa-rocket"></i> Bergabung</div>
+        <h2 class="animate-up delay-1">Siap Memulai?</h2>
+        <p class="animate-up delay-2">Bergabung dengan 105.000+ pengguna di DavaOFC.</p>
+        {% if session.get('user_id') %}
+            <a href="/dashboard" class="btn btn-glow animate-up delay-3">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        {% else %}
+            <a href="/register" class="btn btn-glow animate-up delay-3">
+                <i class="fas fa-user-plus"></i> Daftar Gratis
+            </a>
+        {% endif %}
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="brand">
+                <a href="/" class="logo"><i class="fas fa-rocket"></i> DavaOFC</a>
+                <p>Platform crypto exchange dan slot games terpercaya.</p>
+                <div class="social">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="/convert">Exchange</a></li>
+                    <li><a href="/slot">Slot Games</a></li>
+                    <li><a href="/deposit">Deposit</a></li>
+                    <li><a href="/withdraw">Withdraw</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Perusahaan</h4>
+                <ul>
+                    <li><a href="#about">Tentang</a></li>
+                    <li><a href="#">Karir</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Kontak</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Dukungan</h4>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Bantuan</a></li>
+                    <li><a href="#">Privasi</a></li>
+                    <li><a href="#">Syarat</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 DavaOFC</p>
+            <div class="footer-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Cookie</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        document.querySelectorAll('#navLinks a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('active');
+            });
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    const navHeight = document.querySelector('.navbar').offsetHeight;
+                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 3;
+                    window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

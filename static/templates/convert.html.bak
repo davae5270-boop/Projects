@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+
+{% block title %}Convert - DavaOFC{% endblock %}
+{% block page_title %}Convert Crypto{% endblock %}
+
+{% block content %}
+<!-- PREMIUM HYPER-HD STYLING (ANTI-ZOOM & CRISP DESIGN) -->
+<style>
+    /* Container utama dibuat full-width HD tanpa batasan grid sempit */
+    .premium-convert-container {
+        width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+    
+    .premium-card {
+        background: #14161d; /* Super Dark HD Background */
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        margin-bottom: 24px;
+    }
+
+    /* Kotak Wallet Address Premium diletakkan di paling atas */
+    .top-wallet-box {
+        background: rgba(255, 152, 0, 0.04);
+        border: 1px dashed rgba(255, 152, 0, 0.25);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+        text-align: left;
+    }
+    .top-wallet-box code {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 14px;
+        color: #ff9800;
+        word-break: break-all;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px 14px;
+        border-radius: 8px;
+        display: block;
+        margin-top: 8px;
+        border: 1px solid rgba(255, 152, 0, 0.1);
+        letter-spacing: 0.5px;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+        text-align: left;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+    }
+
+    /* Kolom Input & Select Premium Ultra Sharp */
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select {
+        width: 100%;
+        padding: 16px 18px;
+        background: #0b0c10; /* Pure deep dark */
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #7c4dff;
+        background: #0e1015;
+        box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.2);
+    }
+
+    /* Upload Box Bukti Transfer HD */
+    .hd-upload-box {
+        border: 1px dashed rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.01);
+        border-radius: 12px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+    }
+    .hd-upload-box:hover {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: #7c4dff;
+    }
+    .hd-btn-pilih {
+        background: #5333ed;
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13.5px;
+        font-weight: 700;
+        border: none;
+        box-shadow: 0 4px 12px rgba(83, 51, 237, 0.3);
+        letter-spacing: 0.3px;
+        transition: opacity 0.2s;
+    }
+    .hd-btn-pilih:hover {
+        opacity: 0.9;
+    }
+
+    /* Tombol Submit Utama Ultra HD */
+    .hd-submit-btn {
+        background: linear-gradient(135deg, #7c4dff 0%, #5333ed 100%) !important;
+        color: #ffffff !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
+        border: none !important;
+        box-shadow: 0 6px 20px rgba(83, 51, 237, 0.4) !important;
+        letter-spacing: 0.5px !important;
+        transition: all 0.25s ease !important;
+        cursor: pointer;
+    }
+    .hd-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(83, 51, 237, 0.5) !important;
+    }
+    .hd-submit-btn:disabled {
+        background: #3a3b45 !important;
+        box-shadow: none !important;
+        cursor: not-allowed;
+    }
+
+    /* Tabel Riwayat Ultra HD Modern */
+    .hd-table-card {
+        background: #14161d;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    .hd-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: 15px;
+    }
+    .hd-table th {
+        color: #8a8d93;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .hd-table td {
+        background: #0b0c10;
+        padding: 16px;
+        color: #ffffff;
+        font-size: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+    .hd-table td:first-child {
+        border-left: 1px solid rgba(255, 255, 255, 0.02);
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+    .hd-table td:last-child {
+        border-right: 1px solid rgba(255, 255, 255, 0.02);
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    .hd-table code {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: #7c4dff;
+    }
+</style>
+
+<div class="premium-convert-container">
+
+    <!-- WALLET ADDRESS RESMI DI LETAKKAN PALING ATAS SEBELUM FORM -->
+    <div class="top-wallet-box fade-in">
+        <span style="font-size: 14px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-wallet" style="color: #ff9800;"></i> OFFICIAL WALLET ADDRESS TUJUAN
+        </span>
+        <code id="walletAddr">0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b</code>
+        <small style="color: #8a8d93; display: block; margin-top: 6px; font-size: 12px;">Silakan transfer aset crypto Anda ke alamat di atas terlebih dahulu sebelum mengisi formulir.</small>
+    </div>
+    
+    <!-- MAIN PREMIUM FORM CARD -->
+    <div class="premium-card fade-in">
+        <div class="card-header" style="margin-bottom: 24px; padding: 0; text-align: left;">
+            <h3><i class="fas fa-exchange-alt" style="color: var(--primary, #7c4dff);"></i> Form Convert</h3>
+        </div>
+        
+        <form id="convertForm">
+            <div class="form-group">
+                <label>Pilih Crypto</label>
+                <select name="crypto" required>
+                    {% for crypto in cryptos %}
+                    <option value="{{ crypto }}">{{ crypto }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Metode Pembayaran</label>
+                <select name="bank" required>
+                    {% for bank in banks %}
+                    <option value="{{ bank }}">{{ bank }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" name="full_name" placeholder="Contoh: Dava Putra" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Nomor Rekening / E-Wallet</label>
+                <input type="text" name="account" placeholder="Contoh: 08193728274 / Norek Bank Anda" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Jumlah USD (Min $0.1)</label>
+                <input type="number" name="amount_usd" step="0.01" min="0.1" placeholder="0.00" required>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-camera"></i> Upload Bukti Transfer</label>
+                <div class="hd-upload-box" onclick="document.getElementById('bukti_transfer').click()">
+                    <button type="button" class="hd-btn-pilih">Pilih File</button>
+                    <span id="file-name" style="color: #6c757d; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">Tidak ada file yang dipilih</span>
+                    <input type="file" id="bukti_transfer" accept="image/*" style="display: none;" required>
+                </div>
+                <small style="color: #6c757d; display:block; margin-top:8px; font-size: 12px;">Pastikan file screenshot transaksi jernih dan berukuran maksimal 2MB.</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block hd-submit-btn">
+                <i class="fas fa-paper-plane"></i> Submit Order
+            </button>
+        </form>
+
+        <div id="teksMengirim" style="text-align: center; margin-top: 20px; display: none; color: #8a8d93; font-size: 14px;">
+            <i class="fas fa-circle-notch fa-spin" style="color: #7c4dff; margin-right: 8px;"></i> Memproses otentikasi data ke jaringan backend...
+        </div>
+        <div id="convertResult" style="margin-top: 20px; display: none;"></div>
+    </div>
+
+    <!-- PANDUAN MANUAL JALUR BAWAH -->
+    <div class="premium-card fade-in" style="text-align: left;">
+        <div class="card-header" style="margin-bottom: 16px; padding:0;">
+            <h3><i class="fas fa-info-circle" style="color: #00e676;"></i> Panduan Convert</h3>
+        </div>
+        <ul style="list-style: none; padding: 0; margin: 0; color: #8a8d93; line-height: 2; font-size: 13.5px;">
+            <li style="margin-bottom: 6px;"><i class="fas fa-check-circle" style="color: #00e676; margin-right: 8px;"></i> Pilih tipe aset cryptocurrency & metode penampung pencairan Anda.</li>
+            <li style="margin-bottom: 6px;"><i class="fas fa-check-circle" style="color: #00e676; margin-right: 8px;"></i> Input nama pemegang rekening sah beserta nomor tujuannya secara akurat.</li>
+            <li style="margin-bottom: 6px;"><i class="fas fa-check-circle" style="color: #00e676; margin-right: 8px;"></i> Lakukan pengiriman koin crypto ke alamat dompet resmi di bagian paling atas halaman ini.</li>
+            <li style="margin-bottom: 6px;"><i class="fas fa-check-circle" style="color: #00e676; margin-right: 8px;"></i> Ambil bukti tangkapan layar (screenshot) sukses dari riwayat wallet eksternal Anda.</li>
+            <li style="margin-bottom: 6px;"><i class="fas fa-check-circle" style="color: #00e676; margin-right: 8px;"></i> Upload berkas gambar tersebut dan selesaikan pengiriman form dengan mengklik tombol submit.</li>
+        </ul>
+    </div>
+
+    <!-- DATA RIWAYAT TRANSAKSI TERAKHIR (ULTRA HD TABLE) -->
+    <div class="hd-table-card fade-in">
+        <div class="card-header" style="padding: 0; display: flex; justify-content: space-between; align-items: center;">
+            <h3><i class="fas fa-history" style="color: #7c4dff;"></i> Riwayat Convert</h3>
+            <a href="/history" class="action-btn" style="font-weight: 600; font-size: 13px;">Lihat Semua</a>
+        </div>
+        <div class="table-wrapper" style="overflow-x: auto;">
+            <table class="hd-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">ID Order</th>
+                        <th>Jumlah USD</th>
+                        <th>Jumlah IDR</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if orders %}
+                    {% for order in orders %}
+                    <tr style="text-align: center;">
+                        <td style="text-align: left;"><code>{{ order.order_number }}</code></td>
+                        <td style="font-weight: 600;">${{ order.amount_usd }}</td>
+                        <td style="color: #00e676; font-weight: 600;">Rp {{ "{:,.0f}".format(order.amount_idr).replace(',', '.') }}</td>
+                        <td><span class="status-badge {{ order.status }}">{{ order.status }}</span></td>
+                        <td style="text-align: right; color: #8a8d93;">{{ order.created_at[:10] }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #6c757d; padding: 30px 0;">Belum ada basis riwayat transaksi convert di akun Anda.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Logic update file name text label secara real-time
+document.getElementById('bukti_transfer').addEventListener('change', function() {
+    const txtLabel = document.getElementById('file-name');
+    if (this.files.length > 0) {
+        txtLabel.textContent = this.files[0].name;
+        txtLabel.style.color = '#ffffff';
+    } else {
+        txtLabel.textContent = 'Tidak ada file yang dipilih';
+        txtLabel.style.color = '#6c757d';
+    }
+});
+
+// Submit Form Handler via AJAX JSON payload
+document.getElementById('convertForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const currentForm = e.target;
+    const btnSubmit = currentForm.querySelector('.hd-submit-btn');
+    const origHTML = btnSubmit.innerHTML;
+    const sendingText = document.getElementById('teksMengirim');
+    const resultDiv = document.getElementById('convertResult');
+    const fileSelector = document.getElementById('bukti_transfer');
+    
+    if (!fileSelector.files.length) {
+        alert('❌ Harap melampirkan file foto bukti transfer terlebih dahulu!');
+        return;
+    }
+    
+    // Validasi batasan kapasitas penyimpanan berkas maksimal 2 Megabyte
+    if (fileSelector.files[0].size > 2 * 1024 * 1024) {
+        alert('❌ File terlalu besar! Batas maksimal ukuran gambar adalah 2MB.');
+        return;
+    }
+    
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    sendingText.style.display = 'block';
+    resultDiv.style.display = 'none';
+    
+    const dataPayload = Object.fromEntries(new FormData(currentForm));
+    const readerInstance = new FileReader();
+    readerInstance.readAsDataURL(fileSelector.files[0]);
+    
+    readerInstance.onload = function() {
+        dataPayload.proof = readerInstance.result;
+        dataPayload.receive_type = 'IDR';
+        dataPayload.amount_usd = parseFloat(dataPayload.amount_usd || 0);
+        
+        fetch('/api/convert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataPayload)
+        })
+        .then(response => {
+            if(!response.ok) throw new Error('API request status failed.');
+            return response.json();
+        })
+        .then(data => {
+            resultDiv.style.display = 'block';
+            if (data.success) {
+                currentForm.reset();
+                document.getElementById('file-name').textContent = 'Tidak ada file yang dipilih';
+                document.getElementById('file-name').style.color = '#6c757d';
+                resultDiv.innerHTML = `
+                    <div style="padding: 16px; background: rgba(0,200,83,0.08); border: 1px solid #00c853; border-radius: 12px; color: #fff; text-align: left;">
+                        <span style="color: #00e676; font-weight: bold; display: block; margin-bottom: 4px;"><i class="fas fa-check-circle"></i> Transaksi Berhasil Diajukan!</span>
+                        ID Transaksi: <code>${data.order_number}</code><br>
+                        Estimasi Dana Dicairkan: <strong>Rp ${Number(data.amount_idr).toLocaleString('id-ID')}</strong>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="padding: 16px; background: rgba(255,23,68,0.08); border: 1px solid #ff1744; border-radius: 12px; color: #fff; text-align: left;">
+                        <span style="color: #ff1744; font-weight: bold; display: block; margin-bottom: 4px;"><i class="fas fa-exclamation-triangle"></i> Gagal Memproses</span>
+                        Alasan: ${data.error}
+                    </div>
+                `;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('⚠️ Terjadi gangguan interkoneksi ke sistem API Gateway.');
+        })
+        .finally(() => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = origHTML;
+            sendingText.style.display = 'none';
+        });
+    };
+    
+    readerInstance.onerror = function() {
+        alert('❌ Kegagalan lokal saat membaca data struktur gambar.');
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = origHTML;
+        sendingText.style.display = 'none';
+    };
+});
+</script>
+{% endblock %}

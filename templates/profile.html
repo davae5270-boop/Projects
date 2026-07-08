@@ -1,0 +1,1357 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - DavaOFC{% endblock %}
+{% block page_title %}👤 Profil Saya{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     🟢 TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;"></div>
+
+<!-- ============================================================
+     🟢 KONTEN UTAMA PROFILE
+     ============================================================ -->
+<div class="profile-page-wrapper">
+
+    <!-- ===== BANNER HEADER ===== -->
+    <div class="profile-banner">
+        <div class="banner-content">
+            <div class="banner-icon">👤</div>
+            <div class="banner-text">
+                <h1>Profil Saya</h1>
+                <p>Kelola data diri dan preferensi akun Anda</p>
+            </div>
+            <div class="banner-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Terverifikasi</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="profile-stats">
+        <div class="profile-stat" data-aos="fade-up" data-aos-delay="100">
+            <div class="num gold">{{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}</div>
+            <div class="lbl">💰 Saldo</div>
+        </div>
+        <div class="profile-stat" data-aos="fade-up" data-aos-delay="200">
+            <div class="num green">{{ total_orders|default(0) }}</div>
+            <div class="lbl">📦 Total Order</div>
+        </div>
+        <div class="profile-stat" data-aos="fade-up" data-aos-delay="300">
+            <div class="num purple">{{ total_deposits|default(0) }}</div>
+            <div class="lbl">📥 Deposit</div>
+        </div>
+        <div class="profile-stat" data-aos="fade-up" data-aos-delay="400">
+            <div class="num gold">{{ total_referrals|default(0) }}</div>
+            <div class="lbl">👥 Referral</div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN GRID ===== -->
+    <div class="profile-main-grid">
+
+        <!-- ===== LEFT: AVATAR & INFO ===== -->
+        <div class="profile-avatar-card" data-aos="fade-right">
+            <div class="avatar-wrapper">
+                <div class="avatar-container" id="avatarContainer">
+                    <div class="avatar-image" id="avatarPreview">
+                        <span id="avatarText">{{ user.full_name[0] if user.full_name else 'U' }}</span>
+                    </div>
+                    <div class="avatar-badge verified">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="avatar-actions">
+                    <button class="btn btn-avatar" onclick="document.getElementById('avatarInput').click()">
+                        <i class="fas fa-camera"></i> Ganti Foto
+                    </button>
+                    <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="uploadAvatar(event)">
+                    <button class="btn btn-avatar-remove" onclick="removeAvatar()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="profile-name">
+                <h2>{{ user.full_name or user.username }}</h2>
+                <p>@{{ user.username }}</p>
+                <span class="status-badge verified">
+                    <i class="fas fa-check-circle"></i> Terverifikasi
+                </span>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-primary" onclick="document.getElementById('editModal').classList.add('active')">
+                    <i class="fas fa-edit"></i> Edit Profil
+                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('passwordModal').classList.add('active')">
+                    <i class="fas fa-key"></i> Ganti Password
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT: DETAIL INFO ===== -->
+        <div class="profile-info-card" data-aos="fade-left">
+            <div class="info-header">
+                <h3><i class="fas fa-info-circle" style="color:#8B6BE8;"></i> Informasi Akun</h3>
+                <span class="info-badge">Aktif</span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">📧 Email</div>
+                    <div class="info-value">{{ user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">👤 Username</div>
+                    <div class="info-value">@{{ user.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📛 Nama Lengkap</div>
+                    <div class="info-value">{{ user.full_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🆔 User ID</div>
+                    <div class="info-value">#{{ user.id }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📅 Bergabung</div>
+                    <div class="info-value">{{ user.joined_at[:16] if user.joined_at else '-' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🕐 Terakhir Login</div>
+                    <div class="info-value">{{ user.last_login[:16] if user.last_login else '-' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">👑 Status</div>
+                    <div class="info-value">
+                        {% if user.is_owner %}
+                            <span class="status-badge owner">👑 Owner</span>
+                        {% else %}
+                            <span class="status-badge user">👤 User</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🔒 Keamanan</div>
+                    <div class="info-value">
+                        <span class="status-badge secure">✅ Secure</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== QUICK LINKS ===== -->
+            <div class="quick-links">
+                <a href="/history" class="quick-link">
+                    <i class="fas fa-history"></i>
+                    <span>Riwayat</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <a href="/referral" class="quick-link">
+                    <i class="fas fa-link"></i>
+                    <span>Referral</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <a href="/reviews" class="quick-link">
+                    <i class="fas fa-star"></i>
+                    <span>Ulasan</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <a href="/logout" class="quick-link danger">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 MODAL EDIT PROFIL
+     ============================================================ -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box" data-aos="zoomIn">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit" style="color:#8B6BE8;"></i> Edit Profil</h3>
+            <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="editFullName" value="{{ user.full_name }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="editUsername" value="{{ user.username }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editEmail" value="{{ user.email }}" class="form-control" required>
+                </div>
+                <div id="editResult" style="display:none;margin-top:10px;"></div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-confirm">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('editModal')">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 MODAL GANTI PASSWORD
+     ============================================================ -->
+<div class="modal-overlay" id="passwordModal">
+    <div class="modal-box" data-aos="zoomIn">
+        <div class="modal-header">
+            <h3><i class="fas fa-key" style="color:#FFD600;"></i> Ganti Password</h3>
+            <button class="modal-close" onclick="closeModal('passwordModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label>Password Saat Ini</label>
+                    <input type="password" id="currentPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password Baru</label>
+                    <input type="password" id="newPassword" class="form-control" required minlength="6">
+                    <small class="form-hint">Minimal 6 karakter</small>
+                </div>
+                <div class="form-group">
+                    <label>Konfirmasi Password Baru</label>
+                    <input type="password" id="confirmPassword" class="form-control" required>
+                </div>
+                <div id="passwordResult" style="display:none;margin-top:10px;"></div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-confirm">
+                        <i class="fas fa-save"></i> Ubah Password
+                    </button>
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('passwordModal')">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 CSS - ANIMASI 1000+ BARIS
+     ============================================================ -->
+<style>
+/* ============================================================
+   ANIMASI KEYFRAMES
+   ============================================================ */
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(30px) scale(0.98); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInDown {
+    from { opacity:0; transform:translateY(-20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInLeft {
+    from { opacity:0; transform:translateX(-20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeInRight {
+    from { opacity:0; transform:translateX(20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInUp {
+    from { opacity:0; transform:translateY(40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInDown {
+    from { opacity:0; transform:translateY(-40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInLeft {
+    from { opacity:0; transform:translateX(-40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity:0; transform:translateX(40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes scaleIn {
+    from { opacity:0; transform:scale(0.85); }
+    to { opacity:1; transform:scale(1); }
+}
+@keyframes bounceIn {
+    0% { opacity:0; transform:scale(0.3); }
+    50% { opacity:1; transform:scale(1.05); }
+    70% { transform:scale(0.95); }
+    100% { transform:scale(1); }
+}
+@keyframes bounceInDown {
+    0% { opacity:0; transform:translateY(-200px) scale(0.3); }
+    50% { transform:translateY(10px) scale(1.02); }
+    70% { transform:translateY(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes bounceInLeft {
+    0% { opacity:0; transform:translateX(-200px) scale(0.3); }
+    50% { transform:translateX(10px) scale(1.02); }
+    70% { transform:translateX(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes bounceInRight {
+    0% { opacity:0; transform:translateX(200px) scale(0.3); }
+    50% { transform:translateX(-10px) scale(1.02); }
+    70% { transform:translateX(5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-5px); }
+    20%,40%,60%,80% { transform:translateX(5px); }
+}
+@keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 60px rgba(108,60,225,0.3); }
+}
+@keyframes pulseDot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.6); }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes spinSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes float {
+    0%,100% { transform:translateY(0px) rotate(0deg); }
+    50% { transform:translateY(-10px) rotate(3deg); }
+}
+@keyframes floatSlow {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-6px); }
+}
+@keyframes shimmer {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerText {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerBorder {
+    0% { border-color:rgba(108,60,225,0.1); }
+    50% { border-color:rgba(108,60,225,0.4); }
+    100% { border-color:rgba(108,60,225,0.1); }
+}
+@keyframes glow {
+    0%,100% { text-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { text-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes glowPulse {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes borderGlow {
+    0%,100% { border-color:rgba(108,60,225,0.06); }
+    50% { border-color:rgba(108,60,225,0.2); }
+}
+@keyframes rainbow {
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
+}
+@keyframes rotateIcon {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes wiggle {
+    0%,100% { transform:rotate(0deg); }
+    25% { transform:rotate(-5deg); }
+    75% { transform:rotate(5deg); }
+}
+@keyframes tada {
+    0% { transform:scale(1); }
+    10%,20% { transform:scale(0.9) rotate(-3deg); }
+    30%,50%,70%,90% { transform:scale(1.1) rotate(3deg); }
+    40%,60%,80% { transform:scale(1.1) rotate(-3deg); }
+    100% { transform:scale(1) rotate(0); }
+}
+@keyframes swing {
+    20% { transform:rotate(15deg); }
+    40% { transform:rotate(-10deg); }
+    60% { transform:rotate(5deg); }
+    80% { transform:rotate(-5deg); }
+    100% { transform:rotate(0deg); }
+}
+@keyframes zoomIn {
+    0% { opacity:0; transform:scale(0.6); }
+    100% { opacity:1; transform:scale(1); }
+}
+@keyframes zoomInUp {
+    0% { opacity:0; transform:scale(0.6) translateY(100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInDown {
+    0% { opacity:0; transform:scale(0.6) translateY(-100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInLeft {
+    0% { opacity:0; transform:scale(0.6) translateX(-100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes zoomInRight {
+    0% { opacity:0; transform:scale(0.6) translateX(100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes bounce {
+    0%,20%,50%,80%,100% { transform:translateY(0); }
+    40% { transform:translateY(-30px); }
+    60% { transform:translateY(-15px); }
+}
+@keyframes bounceUp {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-20px); }
+}
+@keyframes bounceDown {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(20px); }
+}
+@keyframes rollIn {
+    0% { opacity:0; transform:translateX(-100%) rotate(-120deg); }
+    100% { opacity:1; transform:translateX(0) rotate(0deg); }
+}
+@keyframes rollOut {
+    0% { opacity:1; transform:translateX(0) rotate(0deg); }
+    100% { opacity:0; transform:translateX(100%) rotate(120deg); }
+}
+@keyframes lightSpeedIn {
+    0% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+    60% { opacity:1; transform:translateX(-20%) skewX(30deg); }
+    80% { transform:translateX(0%) skewX(-15deg); }
+    100% { opacity:1; transform:translateX(0%) skewX(0deg); }
+}
+@keyframes lightSpeedOut {
+    0% { opacity:1; transform:translateX(0%) skewX(0deg); }
+    100% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+}
+@keyframes hinge {
+    0% { transform:rotate(0deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    20%,60% { transform:rotate(80deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    40% { transform:rotate(60deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    80% { transform:rotate(60deg) translateY(0); opacity:1; transform-origin:top left; animation-timing-function:ease-in-out; }
+    100% { transform:translateY(700px); opacity:0; }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.animate-up { animation:fadeInUp 0.6s ease-out forwards; }
+.animate-down { animation:fadeInDown 0.6s ease-out forwards; }
+.animate-left { animation:fadeInLeft 0.6s ease-out forwards; }
+.animate-right { animation:fadeInRight 0.6s ease-out forwards; }
+.animate-scale { animation:scaleIn 0.6s ease-out forwards; }
+.animate-bounce { animation:bounce 1s ease forwards; }
+.animate-pulse { animation:pulse 1.5s ease-in-out infinite; }
+.animate-spin { animation:spin 2s linear infinite; }
+.animate-spin-slow { animation:spinSlow 10s linear infinite; }
+.animate-float { animation:float 3s ease-in-out infinite; }
+.animate-shimmer { animation:shimmer 3s linear infinite; background-size:200% auto; }
+.animate-glow { animation:glowPulse 2s ease-in-out infinite; }
+.animate-wiggle { animation:wiggle 0.5s ease-in-out infinite; }
+.animate-tada { animation:tada 0.8s ease forwards; }
+.animate-swing { animation:swing 0.8s ease forwards; }
+.animate-zoomIn { animation:zoomIn 0.6s ease forwards; }
+.animate-zoomInUp { animation:zoomInUp 0.6s ease forwards; }
+.animate-zoomInDown { animation:zoomInDown 0.6s ease forwards; }
+.animate-zoomInLeft { animation:zoomInLeft 0.6s ease forwards; }
+.animate-zoomInRight { animation:zoomInRight 0.6s ease forwards; }
+.animate-bounceIn { animation:bounceIn 0.8s ease forwards; }
+.animate-bounceInDown { animation:bounceInDown 0.8s ease forwards; }
+.animate-bounceInLeft { animation:bounceInLeft 0.8s ease forwards; }
+.animate-bounceInRight { animation:bounceInRight 0.8s ease forwards; }
+.animate-rollIn { animation:rollIn 0.8s ease forwards; }
+.animate-rollOut { animation:rollOut 0.8s ease forwards; }
+.animate-lightSpeedIn { animation:lightSpeedIn 0.8s ease forwards; }
+.animate-lightSpeedOut { animation:lightSpeedOut 0.8s ease forwards; }
+.animate-hinge { animation:hinge 2s ease forwards; }
+
+.delay-1 { animation-delay:0.05s; }
+.delay-2 { animation-delay:0.10s; }
+.delay-3 { animation-delay:0.15s; }
+.delay-4 { animation-delay:0.20s; }
+.delay-5 { animation-delay:0.25s; }
+.delay-6 { animation-delay:0.30s; }
+.delay-7 { animation-delay:0.35s; }
+.delay-8 { animation-delay:0.40s; }
+.delay-9 { animation-delay:0.45s; }
+.delay-10 { animation-delay:0.50s; }
+.delay-11 { animation-delay:0.55s; }
+.delay-12 { animation-delay:0.60s; }
+.delay-13 { animation-delay:0.65s; }
+.delay-14 { animation-delay:0.70s; }
+.delay-15 { animation-delay:0.75s; }
+.delay-16 { animation-delay:0.80s; }
+.delay-17 { animation-delay:0.85s; }
+.delay-18 { animation-delay:0.90s; }
+.delay-19 { animation-delay:0.95s; }
+.delay-20 { animation-delay:1.00s; }
+
+/* ============================================================
+   PROFILE PAGE STYLES
+   ============================================================ */
+.profile-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+/* ===== BANNER ===== */
+.profile-banner {
+    background: linear-gradient(135deg, rgba(108,60,225,0.06), rgba(108,60,225,0.02));
+    border: 1px solid rgba(108,60,225,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+.profile-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(108,60,225,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 30s linear infinite;
+}
+.profile-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0,200,83,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 20s linear infinite reverse;
+}
+.profile-banner .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+.profile-banner .banner-icon {
+    font-size: 48px;
+    animation: float 3s ease-in-out infinite;
+}
+.profile-banner .banner-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, #6C3CE1 60%, #8B6BE8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+.profile-banner .banner-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity:0;
+}
+.profile-banner .banner-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0,200,83,0.1);
+    border: 1px solid rgba(0,200,83,0.1);
+    border-radius: 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+.profile-banner .banner-status .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00C853;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+.profile-banner .banner-status .status-text {
+    font-size: 12px;
+    color: #00C853;
+    font-weight: 500;
+}
+
+/* ===== STATS ===== */
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.profile-stat {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s;
+}
+.profile-stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(108,60,225,0.1);
+}
+.profile-stat .num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #8B6BE8;
+}
+.profile-stat .num.gold { color: #FFD600; }
+.profile-stat .num.green { color: #00C853; }
+.profile-stat .num.purple { color: #8B6BE8; }
+.profile-stat .lbl {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+}
+@media (max-width: 768px) {
+    .profile-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .profile-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== MAIN GRID ===== */
+.profile-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 768px) {
+    .profile-main-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== AVATAR CARD ===== */
+.profile-avatar-card,
+.profile-info-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.profile-avatar-card:hover,
+.profile-info-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(108,60,225,0.08);
+    box-shadow: 0 8px 40px rgba(108,60,225,0.04);
+}
+
+.avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+.avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid rgba(108,60,225,0.2);
+    padding: 4px;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+.avatar-container .avatar-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    overflow: hidden;
+}
+.avatar-container .avatar-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.avatar-container .avatar-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #00C853;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    border: 2px solid #0a0a1a;
+}
+.avatar-container .avatar-badge.verified {
+    background: #00C853;
+}
+.avatar-container .avatar-badge.owner {
+    background: #FFD600;
+    color: #000;
+}
+
+.avatar-actions {
+    display: flex;
+    gap: 8px;
+}
+.avatar-actions .btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+.avatar-actions .btn-avatar {
+    background: rgba(108,60,225,0.12);
+    color: #8B6BE8;
+}
+.avatar-actions .btn-avatar:hover {
+    background: rgba(108,60,225,0.2);
+    transform: translateY(-2px);
+}
+.avatar-actions .btn-avatar-remove {
+    background: rgba(255,23,68,0.1);
+    color: #FF1744;
+}
+.avatar-actions .btn-avatar-remove:hover {
+    background: rgba(255,23,68,0.2);
+    transform: translateY(-2px);
+}
+
+.profile-name {
+    text-align: center;
+    margin: 16px 0;
+}
+.profile-name h2 {
+    font-size: 22px;
+    font-weight: 700;
+}
+.profile-name p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+}
+.profile-name .status-badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 12px;
+    border-radius: 10px;
+    margin-top: 4px;
+}
+.profile-name .status-badge.verified {
+    background: rgba(0,200,83,0.1);
+    color: #00C853;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 10px;
+}
+.profile-actions .btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+    text-align: center;
+}
+.profile-actions .btn-primary {
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    color: #fff;
+}
+.profile-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108,60,225,0.3);
+}
+.profile-actions .btn-secondary {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.profile-actions .btn-secondary:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+/* ===== INFO CARD ===== */
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.info-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+}
+.info-header .info-badge {
+    font-size: 10px;
+    padding: 2px 12px;
+    background: rgba(0,200,83,0.1);
+    border: 1px solid rgba(0,200,83,0.1);
+    border-radius: 12px;
+    color: #00C853;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    margin-bottom: 16px;
+}
+.info-grid .info-item {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.info-grid .info-item .info-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.info-grid .info-item .info-value {
+    font-size: 13px;
+    color: #fff;
+    font-weight: 500;
+}
+.info-grid .info-item .info-value .status-badge {
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+.info-grid .info-item .info-value .status-badge.owner {
+    background: rgba(255,214,0,0.1);
+    color: #FFD600;
+}
+.info-grid .info-item .info-value .status-badge.user {
+    background: rgba(108,60,225,0.1);
+    color: #8B6BE8;
+}
+.info-grid .info-item .info-value .status-badge.secure {
+    background: rgba(0,200,83,0.1);
+    color: #00C853;
+}
+
+/* ===== QUICK LINKS ===== */
+.quick-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+.quick-links .quick-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.quick-links .quick-link:hover {
+    background: rgba(255,255,255,0.03);
+    color: #fff;
+    transform: translateX(4px);
+}
+.quick-links .quick-link i {
+    font-size: 14px;
+}
+.quick-links .quick-link i:first-child {
+    color: #8B6BE8;
+    width: 20px;
+}
+.quick-links .quick-link.danger:hover {
+    color: #FF1744;
+}
+.quick-links .quick-link.danger i:first-child {
+    color: #FF1744;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    width: 420px;
+    max-width: 92%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: bounceIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+}
+.modal-box .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.modal-box .modal-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+.modal-box .modal-header .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.modal-box .modal-header .modal-close:hover {
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+.modal-box .modal-body .form-group {
+    margin-bottom: 14px;
+}
+.modal-box .modal-body .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+}
+.modal-box .modal-body .form-group .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+.modal-box .modal-body .form-group .form-control:focus {
+    outline: none;
+    border-color: #6C3CE1;
+    box-shadow: 0 0 0 3px rgba(108,60,225,0.1);
+}
+.modal-box .modal-body .form-group .form-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+.modal-box .modal-footer {
+    display: flex;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+.modal-box .modal-footer .btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+.modal-box .modal-footer .btn-confirm {
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    color: #fff;
+}
+.modal-box .modal-footer .btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108,60,225,0.3);
+}
+.modal-box .modal-footer .btn-cancel {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.modal-box .modal-footer .btn-cancel:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    animation: slideInRight 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    backdrop-filter: blur(10px);
+}
+.toast.success { 
+    background: linear-gradient(135deg, #00C853, #009624);
+    border-left: 4px solid #69F0AE;
+}
+.toast.error { 
+    background: linear-gradient(135deg, #FF1744, #D50000);
+    border-left: 4px solid #FF8A80;
+}
+.toast.info { 
+    background: linear-gradient(135deg, #00B4D8, #0096C7);
+    border-left: 4px solid #80DEEA;
+}
+.toast.warning { 
+    background: linear-gradient(135deg, #FFD600, #F9A825);
+    color: #000;
+    border-left: 4px solid #FFF59D;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .profile-banner .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .profile-banner .banner-status { margin-left: 0; }
+    .profile-banner .banner-icon { font-size: 36px; }
+    .profile-banner .banner-text h1 { font-size: 20px; }
+    .profile-banner { padding: 18px 16px; }
+    .profile-avatar-card { padding: 16px; }
+    .profile-info-card { padding: 16px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .profile-actions { flex-direction: column; }
+    .modal-box { width: 95%; padding: 18px; }
+}
+
+@media (max-width: 480px) {
+    .profile-stats { grid-template-columns: 1fr 1fr; }
+    .avatar-container { width: 80px; height: 80px; }
+    .avatar-container .avatar-image { font-size: 32px; }
+    .profile-name h2 { font-size: 18px; }
+    .modal-box .modal-footer { flex-direction: column; }
+}
+</style>
+
+<!-- ============================================================
+     🟢 JAVASCRIPT
+     ============================================================ -->
+<script>
+// ============================================================
+// MODAL FUNCTIONS
+// ============================================================
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+// Close modal on outside click
+document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+        }
+    });
+});
+
+// ============================================================
+// UPLOAD AVATAR
+// ============================================================
+function uploadAvatar(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 500000) {
+        showToast('❌ Ukuran avatar maksimal 500KB!', 'error');
+        return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+        showToast('❌ Format file tidak valid!', 'error');
+        return;
+    }
+    
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var data = e.target.result;
+        var preview = document.getElementById('avatarPreview');
+        preview.innerHTML = '<img src="' + data + '" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">';
+        
+        // Upload to server
+        fetch('/api/profile/avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ avatar: data })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showToast('✅ Avatar berhasil diupdate!', 'success');
+            } else {
+                showToast('❌ ' + data.error, 'error');
+            }
+        })
+        .catch(function() {
+            showToast('❌ Gagal upload avatar!', 'error');
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeAvatar() {
+    if (!confirm('Hapus avatar?')) return;
+    var preview = document.getElementById('avatarPreview');
+    var text = document.getElementById('avatarText');
+    if (text) {
+        preview.innerHTML = '<span id="avatarText">{{ user.full_name[0] if user.full_name else "U" }}</span>';
+    }
+    
+    fetch('/api/profile/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: '' })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Avatar berhasil dihapus!', 'success');
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function() {
+        showToast('❌ Gagal hapus avatar!', 'error');
+    });
+}
+
+// ============================================================
+// EDIT PROFILE FORM
+// ============================================================
+document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var btn = this.querySelector('.btn-confirm');
+    var result = document.getElementById('editResult');
+    
+    var full_name = document.getElementById('editFullName').value.trim();
+    var username = document.getElementById('editUsername').value.trim();
+    var email = document.getElementById('editEmail').value.trim();
+    
+    if (!full_name || full_name.length < 3) {
+        showToast('❌ Nama lengkap minimal 3 karakter!', 'error');
+        return;
+    }
+    if (!email || !email.includes('@')) {
+        showToast('❌ Email tidak valid!', 'error');
+        return;
+    }
+    if (!username || username.length < 3) {
+        showToast('❌ Username minimal 3 karakter!', 'error');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Menyimpan...';
+    result.style.display = 'none';
+    
+    fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: full_name, username: username, email: email })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            result.style.display = 'block';
+            result.innerHTML = '<div style="padding:10px;background:rgba(0,200,83,0.1);border-radius:8px;border:1px solid #00C853;text-align:center;font-size:13px;">✅ ' + data.message + '</div>';
+            showToast('✅ ' + data.message, 'success');
+            setTimeout(function() { location.reload(); }, 1500);
+        } else {
+            result.style.display = 'block';
+            result.innerHTML = '<div style="padding:10px;background:rgba(255,23,68,0.1);border-radius:8px;border:1px solid #FF1744;text-align:center;font-size:13px;">❌ ' + data.error + '</div>';
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function() {
+        showToast('❌ Gagal update profil!', 'error');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Simpan Perubahan';
+    });
+});
+
+// ============================================================
+// CHANGE PASSWORD FORM
+// ============================================================
+document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var btn = this.querySelector('.btn-confirm');
+    var result = document.getElementById('passwordResult');
+    
+    var current = document.getElementById('currentPassword').value;
+    var newPass = document.getElementById('newPassword').value;
+    var confirmPass = document.getElementById('confirmPassword').value;
+    
+    if (!current || !newPass || !confirmPass) {
+        showToast('❌ Semua field harus diisi!', 'error');
+        return;
+    }
+    if (newPass.length < 6) {
+        showToast('❌ Password baru minimal 6 karakter!', 'error');
+        return;
+    }
+    if (newPass !== confirmPass) {
+        showToast('❌ Password baru tidak cocok!', 'error');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
+    result.style.display = 'none';
+    
+    fetch('/api/profile/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            current_password: current,
+            new_password: newPass,
+            confirm_password: confirmPass
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            result.style.display = 'block';
+            result.innerHTML = '<div style="padding:10px;background:rgba(0,200,83,0.1);border-radius:8px;border:1px solid #00C853;text-align:center;font-size:13px;">✅ ' + data.message + '</div>';
+            showToast('✅ ' + data.message, 'success');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            setTimeout(function() { closeModal('passwordModal'); }, 1500);
+        } else {
+            result.style.display = 'block';
+            result.innerHTML = '<div style="padding:10px;background:rgba(255,23,68,0.1);border-radius:8px;border:1px solid #FF1744;text-align:center;font-size:13px;">❌ ' + data.error + '</div>';
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function() {
+        showToast('❌ Gagal ubah password!', 'error');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Ubah Password';
+    });
+});
+
+// ============================================================
+// SHOW TOAST
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+        console.log(message);
+        return;
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(function() { toast.remove(); }, 400);
+    }, 4000);
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(function(modal) {
+            modal.classList.remove('active');
+        });
+    }
+});
+
+// ============================================================
+// LOAD
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DavaOFC Profile Page Loaded!');
+    console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+    console.log('👤 Welcome back, {{ user.full_name or user.username }}!');
+    console.log('🎬 ' + document.querySelectorAll('style').length + ' CSS animations loaded!');
+});
+
+console.log('✅ All systems ready!');
+console.log('👤 Profile page is fully operational!');
+</script>
+
+{% endblock %}

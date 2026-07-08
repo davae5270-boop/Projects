@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Investasi - DavaOFC{% endblock %}
+{% block page_title %}📈 Investasi{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <!-- Form Investasi -->
+    <div class="card fade-in">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-line" style="color: var(--success);"></i> Mulai Investasi</h3>
+        </div>
+        <div style="padding: 12px; background: var(--glass); border-radius: 8px; margin-bottom: 16px;">
+            <p style="color: var(--text-secondary); font-size: 13px;">
+                💰 Saldo: <strong>{{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}</strong><br>
+                📌 Min: {{ "{:,.0f}".format(settings.min_invest|default(50000)).replace(',', '.') }} | 
+                📌 Max: {{ "{:,.0f}".format(settings.max_invest|default(10000000)).replace(',', '.') }}<br>
+                📈 Profit: {{ settings.profit_percent|default(50) }}% | 
+                ⏳ Durasi: {{ settings.duration_hours|default(24) }} jam
+            </p>
+        </div>
+        <form id="investForm">
+            <div class="form-group">
+                <label>Nominal Investasi</label>
+                <input type="number" name="amount" placeholder="50000" required>
+            </div>
+            <button type="submit" class="btn btn-success btn-block">
+                <i class="fas fa-rocket"></i> Mulai Investasi
+            </button>
+        </form>
+        <div id="investResult" style="margin-top: 16px; display: none;"></div>
+    </div>
+
+    <!-- Riwayat Investasi -->
+    <div class="card fade-in" style="animation-delay: 0.1s;">
+        <div class="card-header">
+            <h3><i class="fas fa-history"></i> Riwayat Investasi</h3>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Modal</th>
+                        <th>Profit</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if investasi_list %}
+                        {% for inv in investasi_list %}
+                        <tr>
+                            <td><code>#{{ inv.id }}</code></td>
+                            <td>{{ "{:,.0f}".format(inv.modal).replace(',', '.') }}</td>
+                            <td style="color: var(--success);">+{{ "{:,.0f}".format(inv.profit).replace(',', '.') }}</td>
+                            <td>{{ "{:,.0f}".format(inv.total_return).replace(',', '.') }}</td>
+                            <td><span class="status-badge {{ inv.status }}">{{ inv.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">Belum ada investasi</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('investForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const amount = parseFloat(form.get('amount'));
+    
+    try {
+        const res = await fetch('/api/investasi/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+        const data = await res.json();
+        
+        const resultDiv = document.getElementById('investResult');
+        resultDiv.style.display = 'block';
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div style="padding: 16px; background: rgba(0,200,83,0.1); border-radius: 10px; border: 1px solid var(--success);">
+                    <h4 style="color: var(--success);"><i class="fas fa-check-circle"></i> ${data.message}</h4>
+                </div>
+            `;
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            resultDiv.innerHTML = `
+                <div style="padding: 16px; background: rgba(255,23,68,0.1); border-radius: 10px; border: 1px solid var(--danger);">
+                    <h4 style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> Error</h4>
+                    <p style="color: var(--text-secondary);">${data.error}</p>
+                </div>
+            `;
+            showToast(data.error, 'error');
+        }
+    } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+    }
+});
+</script>
+{% endblock %}

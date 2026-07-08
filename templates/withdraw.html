@@ -1,0 +1,1808 @@
+{% extends "base.html" %}
+
+{% block title %}Withdraw - DavaOFC{% endblock %}
+{% block page_title %}📤 Withdraw Dana{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     🟢 TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;"></div>
+
+<!-- ============================================================
+     🟢 KONTEN UTAMA WITHDRAW
+     ============================================================ -->
+<div class="withdraw-page-wrapper">
+
+    <!-- ===== BANNER HEADER ===== -->
+    <div class="withdraw-banner">
+        <div class="banner-content">
+            <div class="banner-icon">📤</div>
+            <div class="banner-text">
+                <h1>Tarik Dana</h1>
+                <p>Tarik saldo Anda kapan saja dengan cepat dan aman</p>
+            </div>
+            <div class="banner-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Proses 1x24 Jam</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN GRID ===== -->
+    <div class="withdraw-main-grid">
+
+        <!-- ===== LEFT: FORM WITHDRAW ===== -->
+        <div class="withdraw-form-card">
+            <div class="form-header">
+                <h3><i class="fas fa-pen-alt"></i> Form Withdraw</h3>
+                <span class="form-badge">Isi data dengan benar</span>
+            </div>
+
+            <div class="form-body">
+
+                <!-- ===== SALDO ===== -->
+                <div class="balance-card">
+                    <div class="balance-label">
+                        <i class="fas fa-wallet"></i> Saldo Tersedia
+                    </div>
+                    <div class="balance-amount" id="balanceDisplay">
+                        Rp {{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}
+                    </div>
+                    <div class="balance-update" onclick="updateBalance()">
+                        <i class="fas fa-sync-alt"></i> Update Saldo
+                    </div>
+                </div>
+
+                <!-- ===== QUICK AMOUNTS ===== -->
+                <div class="quick-amounts">
+                    <button class="quick-amount" onclick="setAmount(50000)">Rp 50K</button>
+                    <button class="quick-amount" onclick="setAmount(100000)">Rp 100K</button>
+                    <button class="quick-amount" onclick="setAmount(250000)">Rp 250K</button>
+                    <button class="quick-amount" onclick="setAmount(500000)">Rp 500K</button>
+                    <button class="quick-amount" onclick="setAmount(1000000)">Rp 1JT</button>
+                    <button class="quick-amount" onclick="setAmount(2500000)">Rp 2.5JT</button>
+                    <button class="quick-amount" onclick="setAmount(5000000)">Rp 5JT</button>
+                    <button class="quick-amount" onclick="setAmount(10000000)">Rp 10JT</button>
+                    <button class="quick-amount" onclick="setMaxAmount()">MAX</button>
+                </div>
+
+                <!-- ===== FORM GROUP ===== -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-money-bill-wave"></i> Nominal Withdraw
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-group-amount">
+                        <span class="input-currency">Rp</span>
+                        <input type="number" id="wdAmount" placeholder="Minimal 50.000" min="50000" class="form-control" oninput="updateWithdrawInfo()">
+                    </div>
+                    <small class="form-hint">Minimal withdraw: Rp 50.000</small>
+                </div>
+
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-university"></i> Metode Penarikan
+                        <span class="required">*</span>
+                    </label>
+                    <select id="wdMethod" class="form-control form-select" onchange="updateMethodInfo()">
+                        <optgroup label="💜 E-Wallet">
+                            <option value="DANA">💜 DANA</option>
+                            <option value="GOPAY">💚 GOPAY</option>
+                            <option value="OVO">💜 OVO</option>
+                            <option value="ShopeePay">🛒 ShopeePay</option>
+                            <option value="LinkAja">🔗 LinkAja</option>
+                        </optgroup>
+                        <optgroup label="🏦 Bank Transfer">
+                            <option value="SeaBank">🏦 SeaBank</option>
+                            <option value="BCA">🏦 BCA</option>
+                            <option value="BRI">🏦 BRI</option>
+                            <option value="BNI">🏦 BNI</option>
+                            <option value="Mandiri">🏦 Mandiri</option>
+                            <option value="CIMB">🏦 CIMB Niaga</option>
+                            <option value="Permata">🏦 Permata Bank</option>
+                            <option value="BTN">🏦 BTN</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-user"></i> Nama Penerima
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" id="wdFullName" placeholder="Nama sesuai rekening" class="form-control">
+                </div>
+
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-address-card"></i> Nomor Tujuan
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" id="wdDestination" placeholder="Contoh: 08123456789 / 1234567890" class="form-control">
+                </div>
+
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-notes-medical"></i> Catatan (Opsional)
+                    </label>
+                    <input type="text" id="wdNote" placeholder="Catatan tambahan" class="form-control">
+                </div>
+
+                <!-- ===== INFO WITHDRAW ===== -->
+                <div id="withdrawInfo" class="withdraw-info-box" style="display:none;">
+                    <div class="withdraw-info-item">
+                        <span class="info-label">💵 Nominal</span>
+                        <span class="info-value" id="infoAmount">Rp 0</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">💳 Metode</span>
+                        <span class="info-value" id="infoMethod">-</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">📱 Tujuan</span>
+                        <span class="info-value" id="infoDestination">-</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">💰 Fee</span>
+                        <span class="info-value" style="color:#FF1744;">Rp 0</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">📊 Total Diterima</span>
+                        <span class="info-value" id="infoTotal" style="color:#00C853;">Rp 0</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">⏱️ Estimasi Proses</span>
+                        <span class="info-value" style="color:#FFD600;">1x24 Jam</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">🔒 Keamanan</span>
+                        <span class="info-value" style="color:#00C853;">✅ Terenkripsi</span>
+                    </div>
+                    <div class="withdraw-info-item">
+                        <span class="info-label">📞 Support</span>
+                        <span class="info-value" style="color:#FFD600;">24/7</span>
+                    </div>
+                </div>
+
+                <!-- ===== FEE DISPLAY ===== -->
+                <div id="feeDisplay" class="fee-display" style="display:none;">
+                    <div class="fee-row">
+                        <span class="fee-label">Fee Withdraw</span>
+                        <span class="fee-amount" id="feeAmount">Rp 0</span>
+                    </div>
+                    <div class="fee-row">
+                        <span class="fee-label">Total Yang Diterima</span>
+                        <span class="fee-amount total" id="totalAmount">Rp 0</span>
+                    </div>
+                </div>
+
+                <!-- ===== SUBMIT ===== -->
+                <button class="btn-submit" id="withdrawBtn" onclick="submitWithdraw()">
+                    <i class="fas fa-paper-plane"></i>
+                    <span class="btn-text">Submit Withdraw</span>
+                    <span class="btn-shimmer"></span>
+                </button>
+
+                <!-- ===== RESULT ===== -->
+                <div id="wdResult" style="display:none;margin-top:16px;"></div>
+
+            </div>
+        </div>
+
+        <!-- ===== RIGHT: INFO PANEL ===== -->
+        <div class="withdraw-info-card">
+
+            <!-- ===== METODE ===== -->
+            <div class="info-section">
+                <h4><i class="fas fa-list"></i> Metode Penarikan</h4>
+                <div class="method-list">
+                    <div class="method-item" onclick="selectMethod('DANA')">
+                        <span class="method-icon">💜</span>
+                        <span class="method-label">DANA</span>
+                        <span class="method-badge">Populer</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('GOPAY')">
+                        <span class="method-icon">💚</span>
+                        <span class="method-label">GOPAY</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('OVO')">
+                        <span class="method-icon">💜</span>
+                        <span class="method-label">OVO</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('SeaBank')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">SeaBank</span>
+                        <span class="method-badge">Populer</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BCA')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">BCA</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BRI')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">BRI</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('BNI')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">BNI</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('Mandiri')">
+                        <span class="method-icon">🏦</span>
+                        <span class="method-label">Mandiri</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('ShopeePay')">
+                        <span class="method-icon">🛒</span>
+                        <span class="method-label">ShopeePay</span>
+                    </div>
+                    <div class="method-item" onclick="selectMethod('LinkAja')">
+                        <span class="method-icon">🔗</span>
+                        <span class="method-label">LinkAja</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PANDUAN ===== -->
+            <div class="info-section">
+                <h4><i class="fas fa-list-check"></i> Panduan Withdraw</h4>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-number active">1</div>
+                        <div class="step-content">
+                            <span class="step-title">Pilih Nominal</span>
+                            <span class="step-desc">Tentukan jumlah yang ingin ditarik</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <span class="step-title">Pilih Metode</span>
+                            <span class="step-desc">Pilih metode penarikan yang tersedia</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <span class="step-title">Isi Data Tujuan</span>
+                            <span class="step-desc">Masukkan nama dan nomor tujuan</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <span class="step-title">Konfirmasi</span>
+                            <span class="step-desc">Tunggu konfirmasi dari admin (1x24 jam)</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <span class="step-title">Dana Masuk</span>
+                            <span class="step-desc">Dana akan dikirim ke rekening Anda</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== KETENTUAN ===== -->
+            <div class="info-section">
+                <h4><i class="fas fa-shield-alt"></i> Ketentuan Withdraw</h4>
+                <div class="rules-list">
+                    <div class="rule-item">
+                        <i class="fas fa-check-circle" style="color:#00C853;"></i>
+                        <span>Minimal WD: Rp 50.000</span>
+                    </div>
+                    <div class="rule-item">
+                        <i class="fas fa-check-circle" style="color:#00C853;"></i>
+                        <span>Fee Admin: Rp 5.000</span>
+                    </div>
+                    <div class="rule-item">
+                        <i class="fas fa-check-circle" style="color:#00C853;"></i>
+                        <span>Proses: 1x24 Jam</span>
+                    </div>
+                    <div class="rule-item">
+                        <i class="fas fa-check-circle" style="color:#00C853;"></i>
+                        <span>Data tujuan harus valid</span>
+                    </div>
+                    <div class="rule-item">
+                        <i class="fas fa-check-circle" style="color:#00C853;"></i>
+                        <span>Saldo akan dikurangi otomatis</span>
+                    </div>
+                    <div class="rule-item">
+                        <i class="fas fa-check-circle" style="color:#00C853;"></i>
+                        <span>Support 24/7 via Telegram</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== SUPPORT ===== -->
+            <div class="info-section support-section">
+                <h4><i class="fas fa-life-ring"></i> Butuh Bantuan?</h4>
+                <p class="support-text">Tim support kami siap membantu Anda 24/7</p>
+                <div class="support-links">
+                    <a href="#" class="support-link"><i class="fab fa-telegram"></i> Telegram</a>
+                    <a href="#" class="support-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="#" class="support-link"><i class="fas fa-envelope"></i> Email</a>
+                    <a href="#" class="support-link"><i class="fas fa-comment"></i> Live Chat</a>
+                    <a href="#" class="support-link"><i class="fas fa-phone"></i> Call Center</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 CSS - ANIMASI 1000+ BARIS
+     ============================================================ -->
+<style>
+/* ============================================================
+   ANIMASI KEYFRAMES
+   ============================================================ */
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(30px) scale(0.98); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInDown {
+    from { opacity:0; transform:translateY(-20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInLeft {
+    from { opacity:0; transform:translateX(-20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeInRight {
+    from { opacity:0; transform:translateX(20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInUp {
+    from { opacity:0; transform:translateY(40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInDown {
+    from { opacity:0; transform:translateY(-40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInLeft {
+    from { opacity:0; transform:translateX(-40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity:0; transform:translateX(40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes scaleIn {
+    from { opacity:0; transform:scale(0.85); }
+    to { opacity:1; transform:scale(1); }
+}
+@keyframes scaleOut {
+    from { opacity:1; transform:scale(1); }
+    to { opacity:0; transform:scale(0.85); }
+}
+@keyframes bounceIn {
+    0% { opacity:0; transform:scale(0.3); }
+    50% { opacity:1; transform:scale(1.05); }
+    70% { transform:scale(0.95); }
+    100% { transform:scale(1); }
+}
+@keyframes bounceInDown {
+    0% { opacity:0; transform:translateY(-200px) scale(0.3); }
+    50% { transform:translateY(10px) scale(1.02); }
+    70% { transform:translateY(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes bounceInLeft {
+    0% { opacity:0; transform:translateX(-200px) scale(0.3); }
+    50% { transform:translateX(10px) scale(1.02); }
+    70% { transform:translateX(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes bounceInRight {
+    0% { opacity:0; transform:translateX(200px) scale(0.3); }
+    50% { transform:translateX(-10px) scale(1.02); }
+    70% { transform:translateX(5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-5px); }
+    20%,40%,60%,80% { transform:translateX(5px); }
+}
+@keyframes shakeX {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-10px); }
+    20%,40%,60%,80% { transform:translateX(10px); }
+}
+@keyframes shakeY {
+    0%,100% { transform:translateY(0); }
+    10%,30%,50%,70%,90% { transform:translateY(-10px); }
+    20%,40%,60%,80% { transform:translateY(10px); }
+}
+@keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 20px rgba(255,23,68,0.1); }
+    50% { box-shadow:0 0 60px rgba(255,23,68,0.3); }
+}
+@keyframes pulseDot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.6); }
+}
+@keyframes pulseRing {
+    0% { transform:scale(0.8); opacity:0.5; }
+    100% { transform:scale(1.2); opacity:0; }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes spinSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes spinFast {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(720deg); }
+}
+@keyframes float {
+    0%,100% { transform:translateY(0px) rotate(0deg); }
+    50% { transform:translateY(-10px) rotate(3deg); }
+}
+@keyframes floatSlow {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-6px); }
+}
+@keyframes floatFast {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-15px); }
+}
+@keyframes shimmer {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerText {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerBorder {
+    0% { border-color:rgba(255,23,68,0.1); }
+    50% { border-color:rgba(255,23,68,0.4); }
+    100% { border-color:rgba(255,23,68,0.1); }
+}
+@keyframes glow {
+    0%,100% { text-shadow:0 0 20px rgba(255,23,68,0.1); }
+    50% { text-shadow:0 0 40px rgba(255,23,68,0.3); }
+}
+@keyframes glowPulse {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes borderGlow {
+    0%,100% { border-color:rgba(255,23,68,0.06); }
+    50% { border-color:rgba(255,23,68,0.2); }
+}
+@keyframes rainbow {
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
+}
+@keyframes rotateIcon {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes rotateY {
+    from { transform:rotateY(0deg); }
+    to { transform:rotateY(360deg); }
+}
+@keyframes rotateX {
+    from { transform:rotateX(0deg); }
+    to { transform:rotateX(360deg); }
+}
+@keyframes wiggle {
+    0%,100% { transform:rotate(0deg); }
+    25% { transform:rotate(-5deg); }
+    75% { transform:rotate(5deg); }
+}
+@keyframes jello {
+    0%,100% { transform:skew(0deg,0deg); }
+    25% { transform:skew(5deg,5deg); }
+    75% { transform:skew(-5deg,-5deg); }
+}
+@keyframes rubberBand {
+    0% { transform:scaleX(1); }
+    30% { transform:scaleX(1.25) scaleY(0.75); }
+    40% { transform:scaleX(0.75) scaleY(1.25); }
+    60% { transform:scaleX(1.15) scaleY(0.85); }
+    100% { transform:scaleX(1) scaleY(1); }
+}
+@keyframes headShake {
+    0% { transform:translateX(0); }
+    25% { transform:translateX(-6px); }
+    50% { transform:translateX(6px); }
+    75% { transform:translateX(-6px); }
+    100% { transform:translateX(0); }
+}
+@keyframes tada {
+    0% { transform:scale(1); }
+    10%,20% { transform:scale(0.9) rotate(-3deg); }
+    30%,50%,70%,90% { transform:scale(1.1) rotate(3deg); }
+    40%,60%,80% { transform:scale(1.1) rotate(-3deg); }
+    100% { transform:scale(1) rotate(0); }
+}
+@keyframes swing {
+    20% { transform:rotate(15deg); }
+    40% { transform:rotate(-10deg); }
+    60% { transform:rotate(5deg); }
+    80% { transform:rotate(-5deg); }
+    100% { transform:rotate(0deg); }
+}
+@keyframes wobble {
+    0%,100% { transform:translateX(0%) rotate(0deg); }
+    15% { transform:translateX(-25%) rotate(-5deg); }
+    30% { transform:translateX(20%) rotate(3deg); }
+    45% { transform:translateX(-15%) rotate(-3deg); }
+    60% { transform:translateX(10%) rotate(2deg); }
+    80% { transform:translateX(-5%) rotate(-1deg); }
+}
+@keyframes flip {
+    0% { transform:perspective(400px) rotateY(0deg); }
+    100% { transform:perspective(400px) rotateY(360deg); }
+}
+@keyframes flipX {
+    0% { transform:perspective(400px) rotateX(0deg); }
+    100% { transform:perspective(400px) rotateX(360deg); }
+}
+@keyframes flipInX {
+    0% { transform:perspective(400px) rotateX(90deg); opacity:0; }
+    100% { transform:perspective(400px) rotateX(0deg); opacity:1; }
+}
+@keyframes flipInY {
+    0% { transform:perspective(400px) rotateY(90deg); opacity:0; }
+    100% { transform:perspective(400px) rotateY(0deg); opacity:1; }
+}
+@keyframes zoomIn {
+    0% { opacity:0; transform:scale(0.6); }
+    100% { opacity:1; transform:scale(1); }
+}
+@keyframes zoomOut {
+    0% { opacity:1; transform:scale(1); }
+    100% { opacity:0; transform:scale(0.6); }
+}
+@keyframes zoomInUp {
+    0% { opacity:0; transform:scale(0.6) translateY(100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInDown {
+    0% { opacity:0; transform:scale(0.6) translateY(-100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInLeft {
+    0% { opacity:0; transform:scale(0.6) translateX(-100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes zoomInRight {
+    0% { opacity:0; transform:scale(0.6) translateX(100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes bounce {
+    0%,20%,50%,80%,100% { transform:translateY(0); }
+    40% { transform:translateY(-30px); }
+    60% { transform:translateY(-15px); }
+}
+@keyframes bounceUp {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-20px); }
+}
+@keyframes bounceDown {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(20px); }
+}
+@keyframes rollIn {
+    0% { opacity:0; transform:translateX(-100%) rotate(-120deg); }
+    100% { opacity:1; transform:translateX(0) rotate(0deg); }
+}
+@keyframes rollOut {
+    0% { opacity:1; transform:translateX(0) rotate(0deg); }
+    100% { opacity:0; transform:translateX(100%) rotate(120deg); }
+}
+@keyframes lightSpeedIn {
+    0% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+    60% { opacity:1; transform:translateX(-20%) skewX(30deg); }
+    80% { transform:translateX(0%) skewX(-15deg); }
+    100% { opacity:1; transform:translateX(0%) skewX(0deg); }
+}
+@keyframes lightSpeedOut {
+    0% { opacity:1; transform:translateX(0%) skewX(0deg); }
+    100% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.animate-up { animation:fadeInUp 0.6s ease-out forwards; }
+.animate-down { animation:fadeInDown 0.6s ease-out forwards; }
+.animate-left { animation:fadeInLeft 0.6s ease-out forwards; }
+.animate-right { animation:fadeInRight 0.6s ease-out forwards; }
+.animate-scale { animation:scaleIn 0.6s ease-out forwards; }
+.animate-bounce { animation:bounce 1s ease forwards; }
+.animate-pulse { animation:pulse 1.5s ease-in-out infinite; }
+.animate-spin { animation:spin 2s linear infinite; }
+.animate-spin-slow { animation:spinSlow 10s linear infinite; }
+.animate-float { animation:float 3s ease-in-out infinite; }
+.animate-shimmer { animation:shimmer 3s linear infinite; background-size:200% auto; }
+.animate-glow { animation:glowPulse 2s ease-in-out infinite; }
+.animate-wiggle { animation:wiggle 0.5s ease-in-out infinite; }
+.animate-jello { animation:jello 0.8s ease-in-out infinite; }
+.animate-rubber { animation:rubberBand 0.8s ease forwards; }
+.animate-swing { animation:swing 0.8s ease forwards; }
+.animate-tada { animation:tada 0.8s ease forwards; }
+.animate-wobble { animation:wobble 0.8s ease forwards; }
+.animate-headshake { animation:headShake 0.6s ease forwards; }
+.animate-flip { animation:flip 1s ease forwards; }
+.animate-flipX { animation:flipX 1s ease forwards; }
+.animate-flipInX { animation:flipInX 0.8s ease forwards; }
+.animate-flipInY { animation:flipInY 0.8s ease forwards; }
+.animate-zoomIn { animation:zoomIn 0.6s ease forwards; }
+.animate-zoomOut { animation:zoomOut 0.6s ease forwards; }
+.animate-zoomInUp { animation:zoomInUp 0.6s ease forwards; }
+.animate-zoomInDown { animation:zoomInDown 0.6s ease forwards; }
+.animate-zoomInLeft { animation:zoomInLeft 0.6s ease forwards; }
+.animate-zoomInRight { animation:zoomInRight 0.6s ease forwards; }
+.animate-bounceIn { animation:bounceIn 0.8s ease forwards; }
+.animate-bounceInDown { animation:bounceInDown 0.8s ease forwards; }
+.animate-bounceInLeft { animation:bounceInLeft 0.8s ease forwards; }
+.animate-bounceInRight { animation:bounceInRight 0.8s ease forwards; }
+.animate-rollIn { animation:rollIn 0.8s ease forwards; }
+.animate-rollOut { animation:rollOut 0.8s ease forwards; }
+.animate-lightSpeedIn { animation:lightSpeedIn 0.8s ease forwards; }
+.animate-lightSpeedOut { animation:lightSpeedOut 0.8s ease forwards; }
+
+.delay-1 { animation-delay:0.05s; }
+.delay-2 { animation-delay:0.10s; }
+.delay-3 { animation-delay:0.15s; }
+.delay-4 { animation-delay:0.20s; }
+.delay-5 { animation-delay:0.25s; }
+.delay-6 { animation-delay:0.30s; }
+.delay-7 { animation-delay:0.35s; }
+.delay-8 { animation-delay:0.40s; }
+.delay-9 { animation-delay:0.45s; }
+.delay-10 { animation-delay:0.50s; }
+
+/* ============================================================
+   WITHWRAW PAGE STYLES
+   ============================================================ */
+.withdraw-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+/* ===== BANNER ===== */
+.withdraw-banner {
+    background: linear-gradient(135deg, rgba(255,23,68,0.06), rgba(255,23,68,0.02));
+    border: 1px solid rgba(255,23,68,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+.withdraw-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,23,68,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 30s linear infinite;
+}
+.withdraw-banner .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+.withdraw-banner .banner-icon {
+    font-size: 48px;
+    animation: float 3s ease-in-out infinite;
+}
+.withdraw-banner .banner-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, #FF1744 60%, #c62828);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+.withdraw-banner .banner-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity:0;
+}
+.withdraw-banner .banner-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(255,23,68,0.1);
+    border: 1px solid rgba(255,23,68,0.1);
+    border-radius: 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+.withdraw-banner .banner-status .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #FF1744;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+.withdraw-banner .banner-status .status-text {
+    font-size: 12px;
+    color: #FF1744;
+    font-weight: 500;
+}
+
+/* ===== MAIN GRID ===== */
+.withdraw-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+}
+@media (max-width: 992px) {
+    .withdraw-main-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== FORM CARD ===== */
+.withdraw-form-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    animation: borderGlow 3s ease-in-out infinite;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.withdraw-form-card:hover {
+    border-color: rgba(255,23,68,0.12);
+    box-shadow: 0 8px 40px rgba(255,23,68,0.04);
+    transform: translateY(-2px);
+}
+.withdraw-form-card .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.withdraw-form-card .form-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+}
+.withdraw-form-card .form-header h3 i {
+    color: #FF1744;
+    margin-right: 8px;
+    animation: rotateIcon 10s linear infinite;
+}
+.withdraw-form-card .form-header .form-badge {
+    font-size: 10px;
+    padding: 4px 12px;
+    background: rgba(255,23,68,0.08);
+    border: 1px solid rgba(255,23,68,0.08);
+    border-radius: 50px;
+    color: #FF1744;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== BALANCE CARD ===== */
+.balance-card {
+    background: linear-gradient(135deg, rgba(255,23,68,0.04), rgba(255,23,68,0.01));
+    border: 1px solid rgba(255,23,68,0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+}
+.balance-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,23,68,0.03), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 20s linear infinite;
+}
+.balance-card .balance-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.balance-card .balance-label i {
+    color: #FFD600;
+}
+.balance-card .balance-amount {
+    font-size: 28px;
+    font-weight: 800;
+    color: #00C853;
+    margin-top: 4px;
+    position: relative;
+    z-index: 1;
+    animation: glow 2s ease-in-out infinite;
+}
+.balance-card .balance-update {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 1;
+}
+.balance-card .balance-update:hover {
+    color: #8B6BE8;
+}
+.balance-card .balance-update i {
+    animation: spin 3s linear infinite;
+}
+
+/* ===== QUICK AMOUNTS ===== */
+.quick-amounts {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.quick-amounts .quick-amount {
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity:0;
+}
+.quick-amounts .quick-amount:nth-child(1) { animation-delay:0.02s; }
+.quick-amounts .quick-amount:nth-child(2) { animation-delay:0.04s; }
+.quick-amounts .quick-amount:nth-child(3) { animation-delay:0.06s; }
+.quick-amounts .quick-amount:nth-child(4) { animation-delay:0.08s; }
+.quick-amounts .quick-amount:nth-child(5) { animation-delay:0.10s; }
+.quick-amounts .quick-amount:nth-child(6) { animation-delay:0.12s; }
+.quick-amounts .quick-amount:nth-child(7) { animation-delay:0.14s; }
+.quick-amounts .quick-amount:nth-child(8) { animation-delay:0.16s; }
+.quick-amounts .quick-amount:nth-child(9) { animation-delay:0.18s; }
+
+.quick-amounts .quick-amount:hover {
+    background: rgba(255,23,68,0.12);
+    border-color: rgba(255,23,68,0.2);
+    color: #fff;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(255,23,68,0.15);
+}
+.quick-amounts .quick-amount:active {
+    transform: scale(0.95);
+}
+
+/* ===== FORM GROUP ===== */
+.form-group {
+    margin-bottom: 16px;
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+.form-group:nth-child(1) { animation-delay:0.05s; }
+.form-group:nth-child(2) { animation-delay:0.10s; }
+.form-group:nth-child(3) { animation-delay:0.15s; }
+.form-group:nth-child(4) { animation-delay:0.20s; }
+.form-group:nth-child(5) { animation-delay:0.25s; }
+.form-group:nth-child(6) { animation-delay:0.30s; }
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+}
+.form-group label i {
+    color: #FF1744;
+    animation: floatSlow 3s ease-in-out infinite;
+}
+.form-group label .required {
+    color: #FF1744;
+    margin-left: 2px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.form-group .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.form-group .form-control:focus {
+    outline: none;
+    border-color: #FF1744;
+    box-shadow: 0 0 0 4px rgba(255,23,68,0.1);
+    transform: translateY(-1px) scale(1.01);
+}
+.form-group .form-control:hover {
+    border-color: rgba(255,23,68,0.15);
+}
+.form-group .form-control::placeholder {
+    color: rgba(255,255,255,0.15);
+}
+.form-group .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.2)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px !important;
+    cursor: pointer;
+}
+.form-group .form-select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+.form-group .form-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+/* ===== INPUT GROUP AMOUNT ===== */
+.input-group-amount {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.input-group-amount .input-currency {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    font-weight: 500;
+}
+.input-group-amount .form-control {
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+}
+
+/* ===== WITHDRAW INFO BOX ===== */
+.withdraw-info-box {
+    background: rgba(255,23,68,0.03);
+    border: 1px solid rgba(255,23,68,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 8px 0 4px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    animation: slideInUp 0.5s ease-out forwards;
+}
+.withdraw-info-box .withdraw-info-item {
+    padding: 4px 0;
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity:0;
+}
+.withdraw-info-box .withdraw-info-item:nth-child(1) { animation-delay:0.02s; }
+.withdraw-info-box .withdraw-info-item:nth-child(2) { animation-delay:0.04s; }
+.withdraw-info-box .withdraw-info-item:nth-child(3) { animation-delay:0.06s; }
+.withdraw-info-box .withdraw-info-item:nth-child(4) { animation-delay:0.08s; }
+.withdraw-info-box .withdraw-info-item:nth-child(5) { animation-delay:0.10s; }
+.withdraw-info-box .withdraw-info-item:nth-child(6) { animation-delay:0.12s; }
+.withdraw-info-box .withdraw-info-item:nth-child(7) { animation-delay:0.14s; }
+.withdraw-info-box .withdraw-info-item:nth-child(8) { animation-delay:0.16s; }
+
+.withdraw-info-box .withdraw-info-item .info-label {
+    display: block;
+    font-size: 9px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.withdraw-info-box .withdraw-info-item .info-value {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+.withdraw-info-box .withdraw-info-item .info-value.status-pending {
+    color: #FFD600;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== FEE DISPLAY ===== */
+.fee-display {
+    background: rgba(255,23,68,0.03);
+    border: 1px solid rgba(255,23,68,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 8px 0 4px 0;
+    animation: slideInUp 0.4s ease-out forwards;
+}
+.fee-display .fee-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.fee-display .fee-row:last-child {
+    border-bottom: none;
+}
+.fee-display .fee-row .fee-label {
+    color: rgba(255,255,255,0.3);
+}
+.fee-display .fee-row .fee-amount {
+    color: #FF1744;
+    font-weight: 600;
+}
+.fee-display .fee-row .fee-amount.total {
+    color: #00C853;
+    font-size: 16px;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #FF1744, #c62828);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+.btn-submit .btn-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: all 0.6s;
+}
+.btn-submit:hover .btn-shimmer {
+    left: 100%;
+}
+.btn-submit:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 35px rgba(255,23,68,0.4);
+}
+.btn-submit:active {
+    transform: scale(0.97);
+}
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    animation: none;
+}
+.btn-submit .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ============================================================
+   INFO CARD
+   ============================================================ */
+.withdraw-info-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    animation: slideInRight 0.6s ease-out forwards;
+    opacity:0;
+}
+.withdraw-info-card:hover {
+    border-color: rgba(255,23,68,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px rgba(255,23,68,0.04);
+}
+.withdraw-info-card .info-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity:0;
+}
+.withdraw-info-card .info-section:nth-child(1) { animation-delay:0.02s; }
+.withdraw-info-card .info-section:nth-child(2) { animation-delay:0.04s; }
+.withdraw-info-card .info-section:nth-child(3) { animation-delay:0.06s; }
+.withdraw-info-card .info-section:nth-child(4) { animation-delay:0.08s; }
+
+.withdraw-info-card .info-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.withdraw-info-card .info-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+.withdraw-info-card .info-section h4 i {
+    color: #FF1744;
+    margin-right: 8px;
+    animation: rotateIcon 10s linear infinite;
+}
+
+/* ===== METHOD LIST ===== */
+.method-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.method-list .method-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity:0;
+}
+.method-list .method-item:nth-child(1) { animation-delay:0.02s; }
+.method-list .method-item:nth-child(2) { animation-delay:0.04s; }
+.method-list .method-item:nth-child(3) { animation-delay:0.06s; }
+.method-list .method-item:nth-child(4) { animation-delay:0.08s; }
+.method-list .method-item:nth-child(5) { animation-delay:0.10s; }
+.method-list .method-item:nth-child(6) { animation-delay:0.12s; }
+.method-list .method-item:nth-child(7) { animation-delay:0.14s; }
+.method-list .method-item:nth-child(8) { animation-delay:0.16s; }
+.method-list .method-item:nth-child(9) { animation-delay:0.18s; }
+.method-list .method-item:nth-child(10) { animation-delay:0.20s; }
+
+.method-list .method-item:hover {
+    background: rgba(255,23,68,0.06);
+    border-color: rgba(255,23,68,0.12);
+    transform: translateX(4px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(255,23,68,0.06);
+}
+.method-list .method-item:active {
+    transform: scale(0.95);
+}
+.method-list .method-item .method-icon {
+    font-size: 14px;
+}
+.method-list .method-item .method-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+}
+.method-list .method-item .method-badge {
+    font-size: 8px;
+    padding: 1px 6px;
+    background: rgba(255,23,68,0.1);
+    border-radius: 10px;
+    color: #FF1744;
+    margin-left: auto;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ===== STEP LIST ===== */
+.step-list .step-item {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+.step-list .step-item:nth-child(1) { animation-delay:0.05s; }
+.step-list .step-item:nth-child(2) { animation-delay:0.10s; }
+.step-list .step-item:nth-child(3) { animation-delay:0.15s; }
+.step-list .step-item:nth-child(4) { animation-delay:0.20s; }
+.step-list .step-item:nth-child(5) { animation-delay:0.25s; }
+
+.step-list .step-item .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,23,68,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FF1744;
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+.step-list .step-item .step-number.active {
+    background: rgba(255,23,68,0.2);
+    animation: pulseDot 2s infinite;
+}
+.step-list .step-item:hover .step-number {
+    transform: scale(1.1) rotate(10deg);
+}
+.step-list .step-item .step-content {
+    flex: 1;
+}
+.step-list .step-item .step-content .step-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+}
+.step-list .step-item .step-content .step-desc {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+}
+
+/* ===== RULES LIST ===== */
+.rules-list .rule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity:0;
+}
+.rules-list .rule-item:nth-child(1) { animation-delay:0.02s; }
+.rules-list .rule-item:nth-child(2) { animation-delay:0.04s; }
+.rules-list .rule-item:nth-child(3) { animation-delay:0.06s; }
+.rules-list .rule-item:nth-child(4) { animation-delay:0.08s; }
+.rules-list .rule-item:nth-child(5) { animation-delay:0.10s; }
+.rules-list .rule-item:nth-child(6) { animation-delay:0.12s; }
+
+.rules-list .rule-item:hover {
+    color: #fff;
+}
+.rules-list .rule-item i {
+    font-size: 14px;
+}
+
+/* ===== SUPPORT ===== */
+.support-section .support-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 10px;
+}
+.support-section .support-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.support-section .support-links .support-link {
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    font-size: 11px;
+    transition: all 0.3s;
+}
+.support-section .support-links .support-link:hover {
+    background: rgba(255,23,68,0.08);
+    border-color: rgba(255,23,68,0.12);
+    color: #fff;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(255,23,68,0.1);
+}
+.support-section .support-links .support-link i {
+    margin-right: 4px;
+    color: #FF1744;
+}
+.support-section .support-links .support-link:active {
+    transform: scale(0.95);
+}
+
+/* ===== TOAST ===== */
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    animation: slideInRight 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    backdrop-filter: blur(10px);
+}
+.toast.success { 
+    background: linear-gradient(135deg, #00C853, #009624);
+    border-left: 4px solid #69F0AE;
+}
+.toast.error { 
+    background: linear-gradient(135deg, #FF1744, #D50000);
+    border-left: 4px solid #FF8A80;
+}
+.toast.info { 
+    background: linear-gradient(135deg, #00B4D8, #0096C7);
+    border-left: 4px solid #80DEEA;
+}
+.toast.warning { 
+    background: linear-gradient(135deg, #FFD600, #F9A825);
+    color: #000;
+    border-left: 4px solid #FFF59D;
+}
+
+/* ===== RESULT ===== */
+.result-success {
+    padding: 14px 18px;
+    background: rgba(0,200,83,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(0,200,83,0.12);
+    text-align: center;
+    animation: bounceIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+}
+.result-success strong {
+    color: #FFD600;
+    font-size: 18px;
+    animation: glow 2s ease-in-out infinite;
+}
+.result-error {
+    padding: 14px 18px;
+    background: rgba(255,23,68,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(255,23,68,0.12);
+    text-align: center;
+    animation: shake 0.6s ease-out forwards;
+    color: #FF1744;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:#0A0A1A; }
+::-webkit-scrollbar-thumb { background:linear-gradient(135deg,#FF1744,#c62828); border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background:linear-gradient(135deg,#FF8A80,#FF1744); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .withdraw-banner .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .withdraw-banner .banner-status {
+        margin-left: 0;
+    }
+    .withdraw-banner .banner-icon { font-size: 36px; }
+    .withdraw-banner .banner-text h1 { font-size: 20px; }
+    .withdraw-banner { padding: 18px 16px; }
+    .withdraw-form-card { padding: 16px; }
+    .withdraw-info-card { padding: 16px; }
+    .method-list { grid-template-columns: 1fr 1fr; }
+    .quick-amounts .quick-amount { padding: 3px 8px; font-size: 9px; }
+    .withdraw-info-box { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+    .withdraw-page-wrapper { padding: 0 8px 30px; }
+    .method-list { grid-template-columns: 1fr; }
+    .support-section .support-links { flex-direction: column; }
+    .support-section .support-links .support-link { text-align: center; }
+    .quick-amounts .quick-amount { flex: 1; min-width: 35px; text-align: center; font-size: 8px; padding: 2px 6px; }
+    .withdraw-info-box { grid-template-columns: 1fr; }
+    .withdraw-banner .banner-icon { font-size: 28px; }
+    .withdraw-banner .banner-text h1 { font-size: 18px; }
+    .withdraw-banner .banner-text p { font-size: 12px; }
+    .withdraw-form-card .form-header h3 { font-size: 16px; }
+    .withdraw-form-card .form-header .form-badge { font-size: 8px; padding: 2px 8px; }
+}
+</style>
+
+<!-- ============================================================
+     🟢 JAVASCRIPT
+     ============================================================ -->
+<script>
+// ============================================================
+// DATA METODE WITHDRAW
+// ============================================================
+var withdrawMethodData = {
+    'DANA': { icon: '💜', name: 'DANA' },
+    'GOPAY': { icon: '💚', name: 'GOPAY' },
+    'OVO': { icon: '💜', name: 'OVO' },
+    'ShopeePay': { icon: '🛒', name: 'ShopeePay' },
+    'LinkAja': { icon: '🔗', name: 'LinkAja' },
+    'SeaBank': { icon: '🏦', name: 'SeaBank' },
+    'BCA': { icon: '🏦', name: 'BCA' },
+    'BRI': { icon: '🏦', name: 'BRI' },
+    'BNI': { icon: '🏦', name: 'BNI' },
+    'Mandiri': { icon: '🏦', name: 'Mandiri' },
+    'CIMB': { icon: '🏦', name: 'CIMB Niaga' },
+    'Permata': { icon: '🏦', name: 'Permata Bank' }
+};
+
+// ============================================================
+// UPDATE METHOD INFO
+// ============================================================
+function updateMethodInfo() {
+    var method = document.getElementById('wdMethod').value;
+    var data = withdrawMethodData[method] || withdrawMethodData['DANA'];
+    var methodDisplay = document.getElementById('infoMethod');
+    if (methodDisplay) {
+        methodDisplay.textContent = data.icon + ' ' + data.name;
+    }
+    updateWithdrawInfo();
+}
+
+// ============================================================
+// UPDATE WITHDRAW INFO
+// ============================================================
+function updateWithdrawInfo() {
+    var amount = document.getElementById('wdAmount').value;
+    var method = document.getElementById('wdMethod').value;
+    var destination = document.getElementById('wdDestination').value.trim();
+    var infoBox = document.getElementById('withdrawInfo');
+    var data = withdrawMethodData[method] || withdrawMethodData['DANA'];
+    var fee = 5000;
+    
+    if (amount && parseInt(amount) >= 50000) {
+        var val = parseInt(amount);
+        var total = val - fee;
+        infoBox.style.display = 'grid';
+        document.getElementById('infoAmount').textContent = 'Rp ' + formatRupiahManual(val);
+        document.getElementById('infoMethod').textContent = data.icon + ' ' + data.name;
+        document.getElementById('infoDestination').textContent = destination || '-';
+        document.getElementById('infoTotal').textContent = 'Rp ' + formatRupiahManual(total);
+        infoBox.style.animation = 'none';
+        setTimeout(function() {
+            infoBox.style.animation = 'slideInUp 0.5s ease-out forwards';
+        }, 10);
+        
+        // Show fee display
+        var feeDisplay = document.getElementById('feeDisplay');
+        feeDisplay.style.display = 'block';
+        document.getElementById('feeAmount').textContent = 'Rp ' + formatRupiahManual(fee);
+        document.getElementById('totalAmount').textContent = 'Rp ' + formatRupiahManual(total);
+        
+    } else {
+        infoBox.style.display = 'none';
+        document.getElementById('feeDisplay').style.display = 'none';
+    }
+}
+
+// ============================================================
+// SET QUICK AMOUNT
+// ============================================================
+function setAmount(value) {
+    document.getElementById('wdAmount').value = value;
+    updateWithdrawInfo();
+    document.getElementById('wdAmount').focus();
+    var input = document.getElementById('wdAmount');
+    input.style.borderColor = '#FF1744';
+    input.style.transform = 'scale(1.02)';
+    setTimeout(function() {
+        input.style.borderColor = '';
+        input.style.transform = '';
+    }, 500);
+    showToast('✅ Nominal ' + formatRupiahManual(value) + ' dipilih!', 'success');
+}
+
+// ============================================================
+// SET MAX AMOUNT
+// ============================================================
+function setMaxAmount() {
+    var balance = {{ balance|default(0)|float }};
+    if (balance < 50000) {
+        showToast('❌ Saldo tidak cukup untuk withdraw!', 'error');
+        return;
+    }
+    document.getElementById('wdAmount').value = balance;
+    updateWithdrawInfo();
+    showToast('✅ Nominal maksimal ' + formatRupiahManual(balance) + ' dipilih!', 'success');
+}
+
+// ============================================================
+// SELECT METHOD FROM LIST
+// ============================================================
+function selectMethod(method) {
+    var select = document.getElementById('wdMethod');
+    for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === method) {
+            select.selectedIndex = i;
+            break;
+        }
+    }
+    updateMethodInfo();
+    showToast('✅ Metode ' + method + ' dipilih!', 'success');
+}
+
+// ============================================================
+// FORMAT RUPIAH MANUAL
+// ============================================================
+function formatRupiahManual(amount) {
+    if (!amount && amount !== 0) return '0';
+    var num = Number(amount);
+    if (isNaN(num)) return '0';
+    var str = Math.round(num).toString();
+    var result = '';
+    var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+        result = str[i] + result;
+        count++;
+        if (count % 3 === 0 && i !== 0) {
+            result = '.' + result;
+        }
+    }
+    return result;
+}
+
+// ============================================================
+// UPDATE BALANCE
+// ============================================================
+function updateBalance() {
+    fetch('/api/user')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.balance !== undefined) {
+                var balanceDisplay = document.getElementById('balanceDisplay');
+                if (balanceDisplay) {
+                    balanceDisplay.textContent = 'Rp ' + formatRupiahManual(data.balance);
+                }
+                showToast('✅ Saldo diperbarui!', 'success');
+            }
+        })
+        .catch(function() {
+            showToast('❌ Gagal update saldo!', 'error');
+        });
+}
+
+// ============================================================
+// SHOW TOAST
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+        console.log(message);
+        return;
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(function() { toast.remove(); }, 400);
+    }, 4000);
+}
+
+// ============================================================
+// SUBMIT WITHDRAW
+// ============================================================
+async function submitWithdraw() {
+    var btn = document.getElementById('withdrawBtn');
+    var amount = document.getElementById('wdAmount');
+    var method = document.getElementById('wdMethod');
+    var fullName = document.getElementById('wdFullName');
+    var destination = document.getElementById('wdDestination');
+    var note = document.getElementById('wdNote');
+    var result = document.getElementById('wdResult');
+    var balance = {{ balance|default(0)|float }};
+    var fee = 5000;
+
+    var amountVal = parseInt(amount.value) || 0;
+    var methodVal = method.value;
+    var fullNameVal = fullName.value.trim();
+    var destinationVal = destination.value.trim();
+    var noteVal = note.value.trim();
+
+    // VALIDASI
+    if (amountVal < 50000) {
+        showToast('❌ Minimal withdraw Rp 50.000!', 'error');
+        amount.focus();
+        amount.style.borderColor = '#FF1744';
+        amount.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            amount.style.borderColor = '';
+            amount.style.animation = '';
+        }, 2000);
+        return;
+    }
+
+    if (amountVal > balance) {
+        showToast('❌ Saldo tidak cukup! Saldo: Rp ' + formatRupiahManual(balance), 'error');
+        amount.focus();
+        amount.style.borderColor = '#FF1744';
+        amount.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            amount.style.borderColor = '';
+            amount.style.animation = '';
+        }, 2000);
+        return;
+    }
+
+    if (!fullNameVal || fullNameVal.length < 3) {
+        showToast('❌ Nama penerima wajib diisi!', 'error');
+        fullName.focus();
+        fullName.style.borderColor = '#FF1744';
+        fullName.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            fullName.style.borderColor = '';
+            fullName.style.animation = '';
+        }, 2000);
+        return;
+    }
+
+    if (!destinationVal || destinationVal.length < 5) {
+        showToast('❌ Nomor tujuan wajib diisi!', 'error');
+        destination.focus();
+        destination.style.borderColor = '#FF1744';
+        destination.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            destination.style.borderColor = '';
+            destination.style.animation = '';
+        }, 2000);
+        return;
+    }
+
+    // DISABLE BUTTON
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+    btn.style.opacity = '0.7';
+
+    try {
+        var response = await fetch('/api/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: amountVal,
+                method: methodVal,
+                full_name: fullNameVal,
+                destination: destinationVal,
+                note: noteVal,
+                fee: fee
+            })
+        });
+
+        var data = await response.json();
+
+        if (data.success) {
+            result.style.display = 'block';
+            result.innerHTML = `
+                <div class="result-success">
+                    ✅ Withdraw Berhasil Diajukan!
+                    <br><strong>ID: ${data.wd_number || 'WD' + Math.floor(Math.random()*999999)}</strong>
+                    <br><small>Nominal: Rp ${formatRupiahManual(amountVal)}
+                    <br>Fee: Rp ${formatRupiahManual(fee)}
+                    <br>Total Diterima: Rp ${formatRupiahManual(amountVal - fee)}
+                    <br>Status: <span style="color:#FFD600;">Menunggu Konfirmasi</span></small>
+                    <br><small style="color:rgba(255,255,255,0.2);">Proses 1x24 Jam</small>
+                </div>
+            `;
+            showToast('✅ Withdraw berhasil diajukan! ID: ' + (data.wd_number || 'WD...'), 'success');
+
+            // RESET FORM
+            amount.value = '';
+            destination.value = '';
+            fullName.value = '';
+            note.value = '';
+            document.getElementById('withdrawInfo').style.display = 'none';
+            document.getElementById('feeDisplay').style.display = 'none';
+
+            // UPDATE BALANCE
+            var balanceDisplay = document.getElementById('balanceDisplay');
+            if (balanceDisplay) {
+                var newBalance = balance - amountVal;
+                balanceDisplay.textContent = 'Rp ' + formatRupiahManual(newBalance);
+            }
+
+            result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        } else {
+            result.style.display = 'block';
+            result.innerHTML = `
+                <div class="result-error">
+                    ❌ ${data.error || 'Gagal submit withdraw!'}
+                </div>
+            `;
+            showToast('❌ ' + (data.error || 'Gagal submit withdraw!'), 'error');
+        }
+
+    } catch (err) {
+        console.error('Submit error:', err);
+        result.style.display = 'block';
+        result.innerHTML = `
+            <div class="result-error">
+                ❌ Gagal terhubung ke server! Periksa koneksi Anda.
+            </div>
+        `;
+        showToast('❌ Gagal terhubung ke server!', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Withdraw';
+        btn.style.opacity = '1';
+    }
+}
+
+// ============================================================
+// KEYBOARD SHORTCUT
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        var btn = document.getElementById('withdrawBtn');
+        if (!btn.disabled) { btn.click(); }
+    }
+    if (e.key === 'Escape') {
+        document.getElementById('wdResult').style.display = 'none';
+    }
+});
+
+// ============================================================
+// LOAD
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    updateMethodInfo();
+    
+    document.getElementById('wdAmount').addEventListener('input', function() {
+        updateWithdrawInfo();
+    });
+    
+    document.getElementById('wdDestination').addEventListener('input', function() {
+        updateWithdrawInfo();
+    });
+
+    console.log('🚀 DavaOFC Withdraw Page Loaded!');
+    console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+    console.log('💳 ' + Object.keys(withdrawMethodData).length + ' metode withdraw tersedia!');
+    console.log('🎬 ' + document.querySelectorAll('style').length + ' CSS animations loaded!');
+});
+
+console.log('✅ All systems ready!');
+console.log('📤 Withdraw page is fully operational!');
+</script>
+
+{% endblock %}

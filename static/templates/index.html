@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DavaOFC{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ========== STATS CARDS ========== -->
+<div class="stats-grid">
+    <div class="stat-card fade-in">
+        <div class="stat-icon purple"><i class="fas fa-wallet"></i></div>
+        <div class="stat-value">{{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}</div>
+        <div class="stat-label">Saldo Anda</div>
+    </div>
+    <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-value">{{ total_orders|default(0) }}</div>
+        <div class="stat-label">Total Transaksi</div>
+    </div>
+    <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+        <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+        <div class="stat-value">{{ pending_orders|default(0) }}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card fade-in" style="animation-delay: 0.3s;">
+        <div class="stat-icon red"><i class="fas fa-arrow-up"></i></div>
+        <div class="stat-value">{{ "{:,.0f}".format(total_deposit|default(0)).replace(',', '.') }}</div>
+        <div class="stat-label">Total Deposit</div>
+    </div>
+</div>
+
+<!-- ========== QUICK ACTIONS ========== -->
+<div class="grid-2">
+    <div class="card fade-in">
+        <div class="card-header">
+            <h3><i class="fas fa-exchange-alt" style="color: var(--primary);"></i> Convert Crypto</h3>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            Tukar crypto Anda menjadi Rupiah dengan cepat dan mudah.
+        </p>
+        <a href="/convert" class="btn btn-primary btn-block">
+            <i class="fas fa-arrow-right"></i> Mulai Convert
+        </a>
+    </div>
+
+    <div class="card fade-in" style="animation-delay: 0.1s;">
+        <div class="card-header">
+            <h3><i class="fas fa-dice" style="color: var(--warning);"></i> Slot Games</h3>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            Mainkan slot classic, astronot, dan gaple dengan bet minimal 400!
+        </p>
+        <a href="/slot" class="btn btn-warning btn-block">
+            <i class="fas fa-play"></i> Main Sekarang
+        </a>
+    </div>
+</div>
+
+<!-- ========== RECENT ACTIVITY ========== -->
+<div class="card fade-in" style="animation-delay: 0.2s;">
+    <div class="card-header">
+        <h3><i class="fas fa-history"></i> Aktivitas Terbaru</h3>
+        <a href="/history" class="action-btn">Lihat Semua</a>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Jenis</th>
+                    <th>Jumlah</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if orders %}
+                    {% for order in orders[:5] %}
+                    <tr>
+                        <td><code>{{ order.order_number }}</code></td>
+                        <td>Convert</td>
+                        <td>{{ "{:,.0f}".format(order.amount_idr|default(0)).replace(',', '.') }}</td>
+                        <td><span class="status-badge {{ order.status }}">{{ order.status }}</span></td>
+                        <td>{{ order.created_at[:10] if order.created_at else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-secondary);">
+                            Belum ada aktivitas
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

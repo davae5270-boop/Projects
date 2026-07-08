@@ -1,0 +1,1464 @@
+{% extends "base.html" %}
+
+{% block title %}Investasi - DavaOFC{% endblock %}
+{% block page_title %}📈 Investasi Premium{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     🟢 TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;"></div>
+
+<!-- ============================================================
+     🟢 KONTEN UTAMA INVESTASI
+     ============================================================ -->
+<div class="investasi-page-wrapper">
+
+    <!-- ===== BANNER HEADER ===== -->
+    <div class="investasi-banner">
+        <div class="banner-content">
+            <div class="banner-icon">📈</div>
+            <div class="banner-text">
+                <h1>Investasi DavaOFC</h1>
+                <p>Kembangkan aset Anda dengan investasi menguntungkan</p>
+            </div>
+            <div class="banner-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Aman & Terpercaya</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="investasi-stats">
+    <div class="investasi-stat" data-aos="fade-up" data-aos-delay="100">
+        <div class="num green" id="liveBalance">Rp {{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}</div>
+        <div class="lbl">💰 Saldo Anda</div>
+    </div>
+    <div class="investasi-stat" data-aos="fade-up" data-aos-delay="200">
+        <div class="num gold">{{ investasi_list|length|default(0) }}</div>
+        <div class="lbl">📊 Total Investasi</div>
+    </div>
+    <div class="investasi-stat" data-aos="fade-up" data-aos-delay="300">
+        <div class="num purple" id="activeInvestCount">{{ active_count|default(0) }}</div>
+        <div class="lbl">⚡ Aktif</div>
+    </div>
+    <div class="investasi-stat" data-aos="fade-up" data-aos-delay="400">
+        <div class="num gold" id="totalProfit">Rp {{ "{:,.0f}".format(total_profit|default(0)).replace(',', '.') }}</div>
+        <div class="lbl">📈 Total Profit</div>
+    </div>
+</div>
+
+    <!-- ===== INFO CARD ===== -->
+    <div class="investasi-info" data-aos="fade-up">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-value">{{ "{:,.0f}".format(settings.min_invest|default(50000)).replace(',', '.') }}</div>
+                <div class="info-label">📉 Minimal Invest</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value">{{ "{:,.0f}".format(settings.max_invest|default(10000000)).replace(',', '.') }}</div>
+                <div class="info-label">📈 Maksimal Invest</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" style="color:#00C853;">{{ settings.profit_percent|default(50) }}%</div>
+                <div class="info-label">🎯 Profit</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" style="color:#FFD600;">{{ settings.duration_hours|default(24) }} Jam</div>
+                <div class="info-label">⏱️ Durasi</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" style="color:#8B6BE8;" id="liveTimer">--:--:--</div>
+                <div class="info-label">🔄 Sisa Waktu</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" style="color:#FFD600;" id="liveProfit">Rp 0</div>
+                <div class="info-label">📈 Profit Berjalan</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ACTIVE INVESTASI ===== -->
+    {% if active_investasi_data %}
+    <div class="investasi-active" data-aos="fade-up">
+        <div class="active-header">
+            <h3><i class="fas fa-bolt" style="color:#FFD600;"></i> Investasi Aktif</h3>
+            <span class="active-badge">Running</span>
+        </div>
+        <div class="active-card">
+            <div class="active-grid">
+                <div class="active-item">
+                    <span class="active-label">💰 Modal</span>
+                    <span class="active-value">{{ "{:,.0f}".format(active_investasi_data.modal|default(0)).replace(',', '.') }}</span>
+                </div>
+                <div class="active-item">
+                    <span class="active-label">📈 Profit</span>
+                    <span class="active-value green" id="activeProfit">{{ "{:,.0f}".format(active_investasi_data.profit|default(0)).replace(',', '.') }}</span>
+                </div>
+                <div class="active-item">
+                    <span class="active-label">💵 Total Return</span>
+                    <span class="active-value gold" id="activeReturn">{{ "{:,.0f}".format(active_investasi_data.total_return|default(0)).replace(',', '.') }}</span>
+                </div>
+                <div class="active-item">
+                    <span class="active-label">⏱️ Sisa Waktu</span>
+                    <span class="active-value purple" id="activeTimer">--:--:--</span>
+                </div>
+            </div>
+            <div class="active-progress">
+                <div class="progress-bar" id="activeProgressBar" style="width: 0%;"></div>
+                <div class="progress-text" id="activeProgressText">0%</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== FORM INVESTASI ===== -->
+    <div class="investasi-form" data-aos="fade-up">
+        <div class="form-header">
+            <h4><i class="fas fa-rocket" style="color:#00C853;"></i> Mulai Investasi Baru</h4>
+            <span class="form-badge">Profit {{ settings.profit_percent|default(50) }}%</span>
+        </div>
+        <div class="form-body">
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-money-bill-wave"></i> Nominal Investasi
+                    <span class="required">*</span>
+                </label>
+                <div class="input-group-amount">
+                    <span class="input-currency">Rp</span>
+                    <input type="number" id="investAmount" placeholder="Minimal 50.000" min="50000" class="form-control" oninput="updateInvestInfo()">
+                </div>
+                <div class="quick-amounts">
+                    <button class="quick-amount" onclick="setAmount(50000)">Rp 50K</button>
+                    <button class="quick-amount" onclick="setAmount(100000)">Rp 100K</button>
+                    <button class="quick-amount" onclick="setAmount(250000)">Rp 250K</button>
+                    <button class="quick-amount" onclick="setAmount(500000)">Rp 500K</button>
+                    <button class="quick-amount" onclick="setAmount(1000000)">Rp 1JT</button>
+                    <button class="quick-amount" onclick="setAmount(2500000)">Rp 2.5JT</button>
+                    <button class="quick-amount" onclick="setAmount(5000000)">Rp 5JT</button>
+                    <button class="quick-amount" onclick="setAmount(10000000)">Rp 10JT</button>
+                    <button class="quick-amount" onclick="setMaxAmount()">MAX</button>
+                </div>
+                <small class="form-hint">Minimal: Rp 50.000 - Maksimal: Rp 10.000.000</small>
+            </div>
+
+            <div id="investInfo" class="invest-info-box" style="display:none;">
+                <div class="invest-info-item">
+                    <span class="info-label">💵 Modal</span>
+                    <span class="info-value" id="infoModal">Rp 0</span>
+                </div>
+                <div class="invest-info-item">
+                    <span class="info-label">📈 Profit ({{ settings.profit_percent|default(50) }}%)</span>
+                    <span class="info-value green" id="infoProfit">Rp 0</span>
+                </div>
+                <div class="invest-info-item">
+                    <span class="info-label">💎 Total Return</span>
+                    <span class="info-value gold" id="infoReturn">Rp 0</span>
+                </div>
+                <div class="invest-info-item">
+                    <span class="info-label">⏱️ Durasi</span>
+                    <span class="info-value purple">{{ settings.duration_hours|default(24) }} Jam</span>
+                </div>
+            </div>
+
+            <button class="btn-invest" id="investBtn" onclick="startInvestasi()">
+                <i class="fas fa-play"></i>
+                <span class="btn-text">Mulai Investasi</span>
+                <span class="btn-shimmer"></span>
+            </button>
+            <div id="investResult" style="display:none;margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- ===== HISTORY INVESTASI ===== -->
+    <div class="investasi-history" data-aos="fade-up">
+        <div class="history-header">
+            <h3><i class="fas fa-history" style="color:#8B6BE8;"></i> Riwayat Investasi</h3>
+            <button class="btn-refresh" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+        <div class="history-list">
+            {% if investasi_list %}
+                {% for inv in investasi_list %}
+                <div class="history-item" data-aos="fade-up" data-aos-delay="{{ loop.index * 30 }}">
+                    <div class="history-left">
+                        <div class="history-id">#{{ inv.id }}</div>
+                        <div class="history-time">
+                            <i class="fas fa-clock"></i>
+                            {{ inv.start_time[:16] if inv.start_time else '-' }}
+                        </div>
+                    </div>
+                    <div class="history-center">
+                        <div class="history-modal">{{ "{:,.0f}".format(inv.modal|default(0)).replace(',', '.') }}</div>
+                        <div class="history-profit {% if inv.status == 'completed' %}profit-positive{% else %}profit-pending{% endif %}">
+                            {{ "{:,.0f}".format(inv.profit|default(0)).replace(',', '.') }}
+                        </div>
+                    </div>
+                    <div class="history-right">
+                        <span class="history-status status-{{ inv.status }}">
+                            {% if inv.status == 'active' %}
+                                ⏳ Berjalan
+                            {% elif inv.status == 'completed' %}
+                                ✅ Selesai
+                            {% elif inv.status == 'cancelled' %}
+                                ❌ Dibatalkan
+                            {% else %}
+                                {{ inv.status }}
+                            {% endif %}
+                        </span>
+                        <div class="history-return">{{ "{:,.0f}".format(inv.total_return|default(0)).replace(',', '.') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <div class="empty-title">Belum Ada Investasi</div>
+                    <div class="empty-desc">Mulai investasi sekarang untuk mendapatkan keuntungan</div>
+                    <button class="btn btn-primary" onclick="document.getElementById('investAmount').focus()" style="margin-top:12px;">
+                        <i class="fas fa-rocket"></i> Investasi Sekarang
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================
+     🟢 CSS - ANIMASI 1000+ BARIS
+     ============================================================ -->
+<style>
+/* ============================================================
+   ANIMASI KEYFRAMES
+   ============================================================ */
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(30px) scale(0.98); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInDown {
+    from { opacity:0; transform:translateY(-20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInLeft {
+    from { opacity:0; transform:translateX(-20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeInRight {
+    from { opacity:0; transform:translateX(20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInUp {
+    from { opacity:0; transform:translateY(40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInDown {
+    from { opacity:0; transform:translateY(-40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInLeft {
+    from { opacity:0; transform:translateX(-40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity:0; transform:translateX(40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes scaleIn {
+    from { opacity:0; transform:scale(0.85); }
+    to { opacity:1; transform:scale(1); }
+}
+@keyframes bounceIn {
+    0% { opacity:0; transform:scale(0.3); }
+    50% { opacity:1; transform:scale(1.05); }
+    70% { transform:scale(0.95); }
+    100% { transform:scale(1); }
+}
+@keyframes bounceInDown {
+    0% { opacity:0; transform:translateY(-200px) scale(0.3); }
+    50% { transform:translateY(10px) scale(1.02); }
+    70% { transform:translateY(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes bounceInLeft {
+    0% { opacity:0; transform:translateX(-200px) scale(0.3); }
+    50% { transform:translateX(10px) scale(1.02); }
+    70% { transform:translateX(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes bounceInRight {
+    0% { opacity:0; transform:translateX(200px) scale(0.3); }
+    50% { transform:translateX(-10px) scale(1.02); }
+    70% { transform:translateX(5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-5px); }
+    20%,40%,60%,80% { transform:translateX(5px); }
+}
+@keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 20px rgba(0,200,83,0.1); }
+    50% { box-shadow:0 0 60px rgba(0,200,83,0.3); }
+}
+@keyframes pulseDot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.6); }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes spinSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes float {
+    0%,100% { transform:translateY(0px) rotate(0deg); }
+    50% { transform:translateY(-10px) rotate(3deg); }
+}
+@keyframes floatSlow {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-6px); }
+}
+@keyframes shimmer {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerText {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerBorder {
+    0% { border-color:rgba(0,200,83,0.1); }
+    50% { border-color:rgba(0,200,83,0.4); }
+    100% { border-color:rgba(0,200,83,0.1); }
+}
+@keyframes glow {
+    0%,100% { text-shadow:0 0 20px rgba(0,200,83,0.1); }
+    50% { text-shadow:0 0 40px rgba(0,200,83,0.3); }
+}
+@keyframes glowPulse {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes borderGlow {
+    0%,100% { border-color:rgba(0,200,83,0.06); }
+    50% { border-color:rgba(0,200,83,0.2); }
+}
+@keyframes rainbow {
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
+}
+@keyframes rotateIcon {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes wiggle {
+    0%,100% { transform:rotate(0deg); }
+    25% { transform:rotate(-5deg); }
+    75% { transform:rotate(5deg); }
+}
+@keyframes tada {
+    0% { transform:scale(1); }
+    10%,20% { transform:scale(0.9) rotate(-3deg); }
+    30%,50%,70%,90% { transform:scale(1.1) rotate(3deg); }
+    40%,60%,80% { transform:scale(1.1) rotate(-3deg); }
+    100% { transform:scale(1) rotate(0); }
+}
+@keyframes swing {
+    20% { transform:rotate(15deg); }
+    40% { transform:rotate(-10deg); }
+    60% { transform:rotate(5deg); }
+    80% { transform:rotate(-5deg); }
+    100% { transform:rotate(0deg); }
+}
+@keyframes zoomIn {
+    0% { opacity:0; transform:scale(0.6); }
+    100% { opacity:1; transform:scale(1); }
+}
+@keyframes zoomInUp {
+    0% { opacity:0; transform:scale(0.6) translateY(100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInDown {
+    0% { opacity:0; transform:scale(0.6) translateY(-100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInLeft {
+    0% { opacity:0; transform:scale(0.6) translateX(-100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes zoomInRight {
+    0% { opacity:0; transform:scale(0.6) translateX(100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes bounce {
+    0%,20%,50%,80%,100% { transform:translateY(0); }
+    40% { transform:translateY(-30px); }
+    60% { transform:translateY(-15px); }
+}
+@keyframes bounceUp {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-20px); }
+}
+@keyframes bounceDown {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(20px); }
+}
+@keyframes rollIn {
+    0% { opacity:0; transform:translateX(-100%) rotate(-120deg); }
+    100% { opacity:1; transform:translateX(0) rotate(0deg); }
+}
+@keyframes rollOut {
+    0% { opacity:1; transform:translateX(0) rotate(0deg); }
+    100% { opacity:0; transform:translateX(100%) rotate(120deg); }
+}
+@keyframes lightSpeedIn {
+    0% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+    60% { opacity:1; transform:translateX(-20%) skewX(30deg); }
+    80% { transform:translateX(0%) skewX(-15deg); }
+    100% { opacity:1; transform:translateX(0%) skewX(0deg); }
+}
+@keyframes lightSpeedOut {
+    0% { opacity:1; transform:translateX(0%) skewX(0deg); }
+    100% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+}
+@keyframes hinge {
+    0% { transform:rotate(0deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    20%,60% { transform:rotate(80deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    40% { transform:rotate(60deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    80% { transform:rotate(60deg) translateY(0); opacity:1; transform-origin:top left; animation-timing-function:ease-in-out; }
+    100% { transform:translateY(700px); opacity:0; }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.animate-up { animation:fadeInUp 0.6s ease-out forwards; }
+.animate-down { animation:fadeInDown 0.6s ease-out forwards; }
+.animate-left { animation:fadeInLeft 0.6s ease-out forwards; }
+.animate-right { animation:fadeInRight 0.6s ease-out forwards; }
+.animate-scale { animation:scaleIn 0.6s ease-out forwards; }
+.animate-bounce { animation:bounce 1s ease forwards; }
+.animate-pulse { animation:pulse 1.5s ease-in-out infinite; }
+.animate-spin { animation:spin 2s linear infinite; }
+.animate-spin-slow { animation:spinSlow 10s linear infinite; }
+.animate-float { animation:float 3s ease-in-out infinite; }
+.animate-shimmer { animation:shimmer 3s linear infinite; background-size:200% auto; }
+.animate-glow { animation:glowPulse 2s ease-in-out infinite; }
+.animate-wiggle { animation:wiggle 0.5s ease-in-out infinite; }
+.animate-tada { animation:tada 0.8s ease forwards; }
+.animate-swing { animation:swing 0.8s ease forwards; }
+.animate-zoomIn { animation:zoomIn 0.6s ease forwards; }
+.animate-zoomInUp { animation:zoomInUp 0.6s ease forwards; }
+.animate-zoomInDown { animation:zoomInDown 0.6s ease forwards; }
+.animate-zoomInLeft { animation:zoomInLeft 0.6s ease forwards; }
+.animate-zoomInRight { animation:zoomInRight 0.6s ease forwards; }
+.animate-bounceIn { animation:bounceIn 0.8s ease forwards; }
+.animate-bounceInDown { animation:bounceInDown 0.8s ease forwards; }
+.animate-bounceInLeft { animation:bounceInLeft 0.8s ease forwards; }
+.animate-bounceInRight { animation:bounceInRight 0.8s ease forwards; }
+.animate-rollIn { animation:rollIn 0.8s ease forwards; }
+.animate-rollOut { animation:rollOut 0.8s ease forwards; }
+.animate-lightSpeedIn { animation:lightSpeedIn 0.8s ease forwards; }
+.animate-lightSpeedOut { animation:lightSpeedOut 0.8s ease forwards; }
+.animate-hinge { animation:hinge 2s ease forwards; }
+
+.delay-1 { animation-delay:0.05s; }
+.delay-2 { animation-delay:0.10s; }
+.delay-3 { animation-delay:0.15s; }
+.delay-4 { animation-delay:0.20s; }
+.delay-5 { animation-delay:0.25s; }
+.delay-6 { animation-delay:0.30s; }
+.delay-7 { animation-delay:0.35s; }
+.delay-8 { animation-delay:0.40s; }
+.delay-9 { animation-delay:0.45s; }
+.delay-10 { animation-delay:0.50s; }
+.delay-11 { animation-delay:0.55s; }
+.delay-12 { animation-delay:0.60s; }
+.delay-13 { animation-delay:0.65s; }
+.delay-14 { animation-delay:0.70s; }
+.delay-15 { animation-delay:0.75s; }
+.delay-16 { animation-delay:0.80s; }
+.delay-17 { animation-delay:0.85s; }
+.delay-18 { animation-delay:0.90s; }
+.delay-19 { animation-delay:0.95s; }
+.delay-20 { animation-delay:1.00s; }
+
+/* ============================================================
+   INVESTASI PAGE STYLES
+   ============================================================ */
+.investasi-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+/* ===== BANNER ===== */
+.investasi-banner {
+    background: linear-gradient(135deg, rgba(0,200,83,0.06), rgba(0,200,83,0.02));
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+.investasi-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0,200,83,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 30s linear infinite;
+}
+.investasi-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(108,60,225,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 20s linear infinite reverse;
+}
+.investasi-banner .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+.investasi-banner .banner-icon {
+    font-size: 48px;
+    animation: float 3s ease-in-out infinite;
+}
+.investasi-banner .banner-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, #00C853 60%, #009624);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+.investasi-banner .banner-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity:0;
+}
+.investasi-banner .banner-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0,200,83,0.1);
+    border: 1px solid rgba(0,200,83,0.1);
+    border-radius: 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+.investasi-banner .banner-status .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00C853;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+.investasi-banner .banner-status .status-text {
+    font-size: 12px;
+    color: #00C853;
+    font-weight: 500;
+}
+
+/* ===== STATS ===== */
+.investasi-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.investasi-stat {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s;
+}
+.investasi-stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0,200,83,0.1);
+}
+.investasi-stat .num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #8B6BE8;
+}
+.investasi-stat .num.green { color: #00C853; }
+.investasi-stat .num.gold { color: #FFD600; }
+.investasi-stat .num.purple { color: #8B6BE8; }
+.investasi-stat .lbl {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+}
+@media (max-width: 768px) {
+    .investasi-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .investasi-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== INFO CARD ===== */
+.investasi-info {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+.investasi-info .info-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+.investasi-info .info-item {
+    text-align: center;
+}
+.investasi-info .info-item .info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #8B6BE8;
+}
+.investasi-info .info-item .info-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+}
+@media (max-width: 768px) {
+    .investasi-info .info-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+    .investasi-info .info-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== ACTIVE INVESTASI ===== */
+.investasi-active {
+    background: rgba(255,214,0,0.03);
+    border: 1px solid rgba(255,214,0,0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+.investasi-active .active-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.investasi-active .active-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+}
+.investasi-active .active-header .active-badge {
+    font-size: 10px;
+    padding: 2px 12px;
+    background: rgba(255,214,0,0.1);
+    border: 1px solid rgba(255,214,0,0.1);
+    border-radius: 12px;
+    color: #FFD600;
+}
+.investasi-active .active-card {
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+.investasi-active .active-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+.investasi-active .active-item {
+    text-align: center;
+}
+.investasi-active .active-item .active-label {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.investasi-active .active-item .active-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+}
+.investasi-active .active-item .active-value.green { color: #00C853; }
+.investasi-active .active-item .active-value.gold { color: #FFD600; }
+.investasi-active .active-item .active-value.purple { color: #8B6BE8; }
+
+.investasi-active .active-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+.investasi-active .active-progress .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.investasi-active .active-progress .progress-bar {
+    background: linear-gradient(90deg, #00C853, #FFD600);
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.investasi-active .active-progress .progress-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    min-width: 36px;
+}
+@media (max-width: 768px) {
+    .investasi-active .active-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .investasi-active .active-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== FORM ===== */
+.investasi-form {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+.investasi-form .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.investasi-form .form-header h4 {
+    font-size: 15px;
+    font-weight: 600;
+}
+.investasi-form .form-header .form-badge {
+    font-size: 10px;
+    padding: 2px 12px;
+    background: rgba(0,200,83,0.08);
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 12px;
+    color: #00C853;
+}
+.investasi-form .form-body .form-group {
+    margin-bottom: 14px;
+}
+.investasi-form .form-body .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+}
+.investasi-form .form-body .form-group label .required {
+    color: #FF1744;
+}
+.investasi-form .form-body .form-group .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+.investasi-form .form-body .form-group .form-control:focus {
+    outline: none;
+    border-color: #00C853;
+    box-shadow: 0 0 0 3px rgba(0,200,83,0.1);
+}
+.investasi-form .form-body .form-group .form-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+/* ===== INPUT GROUP AMOUNT ===== */
+.input-group-amount {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.input-group-amount .input-currency {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    font-weight: 500;
+}
+.input-group-amount .form-control {
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+}
+
+/* ===== QUICK AMOUNTS ===== */
+.quick-amounts {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.quick-amounts .quick-amount {
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+.quick-amounts .quick-amount:hover {
+    background: rgba(0,200,83,0.12);
+    border-color: rgba(0,200,83,0.2);
+    color: #fff;
+    transform: translateY(-3px) scale(1.05);
+}
+.quick-amounts .quick-amount:active { transform: scale(0.95); }
+
+/* ===== INVEST INFO BOX ===== */
+.invest-info-box {
+    background: rgba(0,200,83,0.03);
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 8px 0 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+.invest-info-box .invest-info-item .info-label {
+    display: block;
+    font-size: 9px;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.invest-info-box .invest-info-item .info-value {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+.invest-info-box .invest-info-item .info-value.green { color: #00C853; }
+.invest-info-box .invest-info-item .info-value.gold { color: #FFD600; }
+.invest-info-box .invest-info-item .info-value.purple { color: #8B6BE8; }
+
+/* ===== SUBMIT BUTTON ===== */
+.btn-invest {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #00C853, #009624);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-invest .btn-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: all 0.6s;
+}
+.btn-invest:hover .btn-shimmer { left: 100%; }
+.btn-invest:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 35px rgba(0,200,83,0.4);
+}
+.btn-invest:active { transform: scale(0.97); }
+.btn-invest:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+.btn-invest .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ===== HISTORY ===== */
+.investasi-history {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px 20px;
+}
+.investasi-history .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.investasi-history .history-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+}
+.investasi-history .history-header .btn-refresh {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.4);
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+}
+.investasi-history .history-header .btn-refresh:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.history-list .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.history-list .history-item:last-child { border-bottom: none; }
+
+.history-list .history-item .history-left .history-id {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8B6BE8;
+}
+.history-list .history-item .history-left .history-time {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+}
+.history-list .history-item .history-center {
+    text-align: center;
+}
+.history-list .history-item .history-center .history-modal {
+    font-size: 14px;
+    font-weight: 600;
+}
+.history-list .history-item .history-center .history-profit {
+    font-size: 12px;
+}
+.history-list .history-item .history-center .history-profit.profit-positive {
+    color: #00C853;
+}
+.history-list .history-item .history-center .history-profit.profit-pending {
+    color: #FFD600;
+}
+
+.history-list .history-item .history-right {
+    text-align: right;
+}
+.history-list .history-item .history-right .history-status {
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+.history-list .history-item .history-right .history-status.status-active {
+    background: rgba(0,200,83,0.1);
+    color: #00C853;
+}
+.history-list .history-item .history-right .history-status.status-completed {
+    background: rgba(108,60,225,0.1);
+    color: #8B6BE8;
+}
+.history-list .history-item .history-right .history-status.status-cancelled {
+    background: rgba(255,23,68,0.1);
+    color: #FF1744;
+}
+.history-list .history-item .history-right .history-return {
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFD600;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+.empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+.empty-state .empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+}
+.empty-state .empty-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+.empty-state .btn-primary {
+    background: linear-gradient(135deg, #00C853, #009624);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.empty-state .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,200,83,0.3);
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    animation: slideInRight 0.4s forwards;
+    backdrop-filter: blur(10px);
+}
+.toast.success { 
+    background: linear-gradient(135deg, #00C853, #009624);
+    border-left: 4px solid #69F0AE;
+}
+.toast.error { 
+    background: linear-gradient(135deg, #FF1744, #D50000);
+    border-left: 4px solid #FF8A80;
+}
+.toast.info { 
+    background: linear-gradient(135deg, #00B4D8, #0096C7);
+    border-left: 4px solid #80DEEA;
+}
+.toast.warning { 
+    background: linear-gradient(135deg, #FFD600, #F9A825);
+    color: #000;
+    border-left: 4px solid #FFF59D;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:#0A0A1A; }
+::-webkit-scrollbar-thumb { background:linear-gradient(135deg,#00C853,#009624); border-radius:10px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .investasi-banner .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .investasi-banner .banner-status { margin-left: 0; }
+    .investasi-banner .banner-icon { font-size: 36px; }
+    .investasi-banner .banner-text h1 { font-size: 20px; }
+    .investasi-banner { padding: 18px 16px; }
+    .investasi-form { padding: 16px; }
+    .investasi-history { padding: 16px; }
+    .investasi-active .active-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .investasi-stats { grid-template-columns: 1fr 1fr; }
+    .investasi-info .info-grid { grid-template-columns: 1fr 1fr; }
+    .investasi-active .active-grid { grid-template-columns: 1fr 1fr; }
+    .investasi-active .active-item .active-value { font-size: 15px; }
+    .history-item { flex-wrap: wrap; gap: 4px; }
+    .history-item .history-left { width: 100%; }
+    .history-item .history-center { width: 50%; }
+    .history-item .history-right { width: 50%; }
+    .quick-amounts .quick-amount { flex: 1; min-width: 35px; text-align: center; font-size: 8px; padding: 2px 6px; }
+}
+</style>
+
+<!-- ============================================================
+     🟢 JAVASCRIPT
+     ============================================================ -->
+<script>
+// ============================================================
+// GLOBAL VARIABLES
+// ============================================================
+var activeInvestId = null;
+var timerInterval = null;
+var profitInterval = null;
+var balance = {{ balance|default(0)|float }};
+
+// ============================================================
+// SET AMOUNT
+// ============================================================
+function setAmount(value) {
+    document.getElementById('investAmount').value = value;
+    updateInvestInfo();
+    var input = document.getElementById('investAmount');
+    input.focus();
+    input.style.borderColor = '#00C853';
+    input.style.transform = 'scale(1.02)';
+    setTimeout(function() {
+        input.style.borderColor = '';
+        input.style.transform = '';
+    }, 500);
+    showToast('✅ Nominal ' + formatRupiahManual(value) + ' dipilih!', 'success');
+}
+
+function setMaxAmount() {
+    var max = {{ settings.max_invest|default(10000000) }};
+    var balance = {{ balance|default(0)|float }};
+    var maxAmount = Math.min(max, balance);
+    if (maxAmount < 50000) {
+        showToast('❌ Saldo tidak cukup untuk investasi!', 'error');
+        return;
+    }
+    document.getElementById('investAmount').value = maxAmount;
+    updateInvestInfo();
+    showToast('✅ Nominal maksimal ' + formatRupiahManual(maxAmount) + ' dipilih!', 'success');
+}
+
+// ============================================================
+// UPDATE INVEST INFO
+// ============================================================
+function updateInvestInfo() {
+    var amount = document.getElementById('investAmount').value;
+    var infoBox = document.getElementById('investInfo');
+    var profitPercent = {{ settings.profit_percent|default(50) }};
+    
+    if (amount && parseInt(amount) >= 50000) {
+        var val = parseInt(amount);
+        var profit = val * profitPercent / 100;
+        var total = val + profit;
+        
+        infoBox.style.display = 'grid';
+        document.getElementById('infoModal').textContent = 'Rp ' + formatRupiahManual(val);
+        document.getElementById('infoProfit').textContent = 'Rp ' + formatRupiahManual(profit);
+        document.getElementById('infoReturn').textContent = 'Rp ' + formatRupiahManual(total);
+        infoBox.style.animation = 'none';
+        setTimeout(function() {
+            infoBox.style.animation = 'slideInUp 0.5s ease-out forwards';
+        }, 10);
+    } else {
+        infoBox.style.display = 'none';
+    }
+}
+
+// ============================================================
+// FORMAT RUPIAH MANUAL
+// ============================================================
+function formatRupiahManual(amount) {
+    if (!amount && amount !== 0) return '0';
+    var num = Number(amount);
+    if (isNaN(num)) return '0';
+    var str = Math.round(num).toString();
+    var result = '';
+    var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+        result = str[i] + result;
+        count++;
+        if (count % 3 === 0 && i !== 0) {
+            result = '.' + result;
+        }
+    }
+    return result;
+}
+
+// ============================================================
+// SHOW TOAST
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+        console.log(message);
+        return;
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(function() { toast.remove(); }, 400);
+    }, 4000);
+}
+
+// ============================================================
+// START INVESTASI
+// ============================================================
+async function startInvestasi() {
+    var btn = document.getElementById('investBtn');
+    var amount = document.getElementById('investAmount');
+    var result = document.getElementById('investResult');
+    var balance = {{ balance|default(0)|float }};
+    var maxInvest = {{ settings.max_invest|default(10000000) }};
+    var minInvest = {{ settings.min_invest|default(50000) }};
+    
+    var val = parseInt(amount.value) || 0;
+    
+    // VALIDASI
+    if (val < minInvest) {
+        showToast('❌ Minimal investasi ' + formatRupiahManual(minInvest) + '!', 'error');
+        amount.focus();
+        amount.style.borderColor = '#FF1744';
+        amount.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            amount.style.borderColor = '';
+            amount.style.animation = '';
+        }, 2000);
+        return;
+    }
+    
+    if (val > maxInvest) {
+        showToast('❌ Maksimal investasi ' + formatRupiahManual(maxInvest) + '!', 'error');
+        amount.focus();
+        amount.style.borderColor = '#FF1744';
+        amount.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            amount.style.borderColor = '';
+            amount.style.animation = '';
+        }, 2000);
+        return;
+    }
+    
+    if (val > balance) {
+        showToast('❌ Saldo tidak cukup! Saldo: ' + formatRupiahManual(balance), 'error');
+        amount.focus();
+        amount.style.borderColor = '#FF1744';
+        amount.style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            amount.style.borderColor = '';
+            amount.style.animation = '';
+        }, 2000);
+        return;
+    }
+    
+    // DISABLE BUTTON
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+    btn.style.opacity = '0.7';
+    
+    try {
+        var response = await fetch('/api/investasi/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: val })
+        });
+        
+        var data = await response.json();
+        
+        if (data.success) {
+            result.style.display = 'block';
+            result.innerHTML = `
+                <div class="result-success">
+                    ✅ Investasi Berhasil Dimulai!
+                    <br><strong>Modal: ${formatRupiahManual(val)}</strong>
+                    <br><small>Profit: ${formatRupiahManual(data.profit || val * {{ settings.profit_percent|default(50) }} / 100)}
+                    <br>Total Return: ${formatRupiahManual(data.total_return || val + (val * {{ settings.profit_percent|default(50) }} / 100))}
+                    <br>Durasi: ${data.duration || {{ settings.duration_hours|default(24) }}} Jam</small>
+                </div>
+            `;
+            showToast('✅ Investasi berhasil dimulai!', 'success');
+            
+            amount.value = '';
+            document.getElementById('investInfo').style.display = 'none';
+            
+            setTimeout(function() { location.reload(); }, 2000);
+            
+        } else {
+            result.style.display = 'block';
+            result.innerHTML = `
+                <div class="result-error">
+                    ❌ ${data.error || 'Gagal memulai investasi!'}
+                </div>
+            `;
+            showToast('❌ ' + (data.error || 'Gagal memulai investasi!'), 'error');
+        }
+        
+    } catch (err) {
+        console.error('Invest error:', err);
+        result.style.display = 'block';
+        result.innerHTML = `
+            <div class="result-error">
+                ❌ Gagal terhubung ke server! Periksa koneksi Anda.
+            </div>
+        `;
+        showToast('❌ Gagal terhubung ke server!', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Mulai Investasi';
+        btn.style.opacity = '1';
+    }
+}
+
+// ============================================================
+// LIVE TIMER & PROFIT
+// ============================================================
+function startLiveTimer() {
+    {% if active_investasi_data %}
+        var endTime = new Date('{{ active_investasi_data.end_time }}').getTime();
+        var startTime = new Date('{{ active_investasi_data.start_time }}').getTime();
+        var totalDuration = {{ active_investasi_data.duration_hours|default(24) }} * 60 * 60 * 1000;
+        var modal = {{ active_investasi_data.modal|default(0) }};
+        var profitPercent = {{ active_investasi_data.profit_percent|default(50) }};
+        var totalProfit = modal * profitPercent / 100;
+        
+        function updateTimer() {
+            var now = new Date().getTime();
+            var remaining = endTime - now;
+            
+            if (remaining <= 0) {
+                document.getElementById('activeTimer').textContent = '✅ Selesai';
+                document.getElementById('activeProgressBar').style.width = '100%';
+                document.getElementById('activeProgressText').textContent = '100%';
+                document.getElementById('liveTimer').textContent = '✅ Selesai';
+                if (timerInterval) clearInterval(timerInterval);
+                if (profitInterval) clearInterval(profitInterval);
+                // Refresh untuk update saldo
+                setTimeout(function() { location.reload(); }, 5000);
+                return;
+            }
+            
+            var hours = Math.floor(remaining / (1000 * 60 * 60));
+            var minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            
+            var timeStr = String(hours).padStart(2, '0') + ':' + 
+                         String(minutes).padStart(2, '0') + ':' + 
+                         String(seconds).padStart(2, '0');
+            
+            document.getElementById('activeTimer').textContent = timeStr;
+            document.getElementById('liveTimer').textContent = timeStr;
+            
+            // Progress
+            var elapsed = now - startTime;
+            var progress = Math.min(100, (elapsed / totalDuration) * 100);
+            document.getElementById('activeProgressBar').style.width = progress + '%';
+            document.getElementById('activeProgressText').textContent = Math.round(progress) + '%';
+            
+            // Live profit
+            var currentProfit = (progress / 100) * totalProfit;
+            document.getElementById('activeProfit').textContent = formatRupiahManual(currentProfit);
+            document.getElementById('liveProfit').textContent = 'Rp ' + formatRupiahManual(currentProfit);
+            document.getElementById('activeReturn').textContent = formatRupiahManual(modal + currentProfit);
+        }
+        
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+    {% endif %}
+}
+
+// ============================================================
+// UPDATE SALDO LIVE
+// ============================================================
+function updateLiveBalance() {
+    fetch('/api/user')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.balance !== undefined) {
+                document.getElementById('liveBalance').textContent = 'Rp ' + formatRupiahManual(data.balance);
+            }
+        })
+        .catch(function() {});
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        var btn = document.getElementById('investBtn');
+        if (!btn.disabled) { btn.click(); }
+    }
+});
+
+// ============================================================
+// LOAD
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Update invest info on input
+    document.getElementById('investAmount').addEventListener('input', function() {
+        updateInvestInfo();
+    });
+    
+    // Start live timer if active
+    startLiveTimer();
+    
+    // Update balance every 30 seconds
+    setInterval(updateLiveBalance, 30000);
+    
+    console.log('🚀 DavaOFC Investasi Page Loaded!');
+    console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+    console.log('📊 ' + document.querySelectorAll('.history-item').length + ' investasi tercatat!');
+    console.log('🎬 ' + document.querySelectorAll('style').length + ' CSS animations loaded!');
+});
+
+console.log('✅ All systems ready!');
+console.log('📈 Investasi page is fully operational!');
+</script>
+
+{% endblock %}

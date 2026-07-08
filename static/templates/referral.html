@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Referral - DavaOFC{% endblock %}
+{% block page_title %}🔗 Referral{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <div class="card fade-in">
+        <div class="card-header">
+            <h3><i class="fas fa-link" style="color: var(--primary);"></i> Program Referral</h3>
+        </div>
+        <div style="padding: 16px; background: var(--glass); border-radius: 10px; margin-bottom: 16px;">
+            <p style="font-size: 14px; color: var(--text-secondary);">
+                📊 Total Referral: <strong>{{ ref_count|default(0) }} orang</strong><br>
+                💰 Total Komisi: <strong>{{ "{:,.0f}".format(total_earned|default(0)).replace(',', '.') }}</strong>
+            </p>
+        </div>
+        <div class="form-group">
+            <label>Link Referral Anda</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="refLink" value="{{ request.url_root }}?ref={{ session.user_id }}" readonly style="flex: 1;">
+                <button class="btn btn-primary btn-sm" onclick="copyRefLink()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 12px;">
+            💡 Setiap teman yang bergabung via link Anda, Anda dapat komisi!
+        </p>
+    </div>
+
+    <div class="card fade-in" style="animation-delay: 0.1s;">
+        <div class="card-header">
+            <h3><i class="fas fa-list"></i> Daftar Referral</h3>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>User</th>
+                        <th>Komisi</th>
+                        <th>Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if referrals %}
+                        {% for ref in referrals %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>@{{ ref.username or 'Unknown' }}</td>
+                            <td>{{ "{:,.0f}".format(ref.commission).replace(',', '.') }}</td>
+                            <td>{{ ref.created_at[:10] if ref.created_at else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Belum ada referral</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyRefLink() {
+    const input = document.getElementById('refLink');
+    input.select();
+    document.execCommand('copy');
+    showToast('Link referral berhasil disalin!', 'success');
+}
+</script>
+{% endblock %}

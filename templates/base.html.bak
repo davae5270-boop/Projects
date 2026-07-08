@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DavaOFC - Crypto Exchange & Slot Games{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        /* ============================================================
+           BASE STYLE - 1000+ BARIS CSS + RIBUAN ANIMASI
+           ============================================================ */
+        
+        /* ===== 1. RESET & ROOT ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #6C3CE1;
+            --primary-light: #8B6BE8;
+            --primary-dark: #5A2DBF;
+            --primary-gradient: linear-gradient(135deg, #6C3CE1, #8B6BE8);
+            --success: #00C853;
+            --success-glow: rgba(0,200,83,0.15);
+            --danger: #FF1744;
+            --danger-glow: rgba(255,23,68,0.15);
+            --warning: #FFD600;
+            --warning-glow: rgba(255,214,0,0.15);
+            --info: #00B4D8;
+            --info-glow: rgba(0,180,216,0.15);
+            --dark: #0A0A1A;
+            --darker: #050510;
+            --card: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.05);
+            --border-hover: rgba(255,255,255,0.08);
+            --text: #FFFFFF;
+            --text-secondary: rgba(255,255,255,0.5);
+            --text-muted: rgba(255,255,255,0.2);
+            --radius: 12px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.3);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        /* ===== 2. ANIMASI KEYFRAMES (200+ BARIS) ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        @keyframes bounceInDown {
+            0% { opacity: 0; transform: translateY(-100px) scale(0.3); }
+            50% { opacity: 1; transform: translateY(10px) scale(1.02); }
+            70% { transform: translateY(-5px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes bounceInLeft {
+            0% { opacity: 0; transform: translateX(-100px) scale(0.3); }
+            50% { opacity: 1; transform: translateX(10px) scale(1.02); }
+            70% { transform: translateX(-5px) scale(0.98); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes bounceInRight {
+            0% { opacity: 0; transform: translateX(100px) scale(0.3); }
+            50% { opacity: 1; transform: translateX(-10px) scale(1.02); }
+            70% { transform: translateX(5px) scale(0.98); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        @keyframes shakeX {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        @keyframes shakeY {
+            0%, 100% { transform: translateY(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateY(-8px); }
+            20%, 40%, 60%, 80% { transform: translateY(8px); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(108,60,225,0.1); }
+            50% { box-shadow: 0 0 60px rgba(108,60,225,0.3); }
+        }
+        @keyframes pulseGlowGold {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,214,0,0.05); }
+            50% { box-shadow: 0 0 40px rgba(255,214,0,0.2); }
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.6); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes spinFast {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(720deg); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes floatFast {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes shimmerText {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes shimmerBorder {
+            0% { border-color: rgba(108,60,225,0.1); }
+            50% { border-color: rgba(108,60,225,0.4); }
+            100% { border-color: rgba(108,60,225,0.1); }
+        }
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(108,60,225,0.1); }
+            50% { text-shadow: 0 0 40px rgba(108,60,225,0.3); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(108,60,225,0.1); }
+            50% { box-shadow: 0 0 40px rgba(108,60,225,0.3); }
+        }
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(108,60,225,0.06); }
+            50% { border-color: rgba(108,60,225,0.2); }
+        }
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes rotateIcon {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        @keyframes jello {
+            0%, 100% { transform: skew(0deg, 0deg); }
+            25% { transform: skew(5deg, 5deg); }
+            75% { transform: skew(-5deg, -5deg); }
+        }
+        @keyframes rubberBand {
+            0% { transform: scaleX(1); }
+            30% { transform: scaleX(1.25) scaleY(0.75); }
+            40% { transform: scaleX(0.75) scaleY(1.25); }
+            60% { transform: scaleX(1.15) scaleY(0.85); }
+            100% { transform: scaleX(1) scaleY(1); }
+        }
+        @keyframes headShake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            75% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes tada {
+            0% { transform: scale(1); }
+            10%, 20% { transform: scale(0.9) rotate(-3deg); }
+            30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+            40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        @keyframes swing {
+            20% { transform: rotate(15deg); }
+            40% { transform: rotate(-10deg); }
+            60% { transform: rotate(5deg); }
+            80% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        @keyframes wobble {
+            0%, 100% { transform: translateX(0%) rotate(0deg); }
+            15% { transform: translateX(-25%) rotate(-5deg); }
+            30% { transform: translateX(20%) rotate(3deg); }
+            45% { transform: translateX(-15%) rotate(-3deg); }
+            60% { transform: translateX(10%) rotate(2deg); }
+            80% { transform: translateX(-5%) rotate(-1deg); }
+        }
+        @keyframes flip {
+            0% { transform: perspective(400px) rotateY(0deg); }
+            100% { transform: perspective(400px) rotateY(360deg); }
+        }
+        @keyframes flipInX {
+            0% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
+            100% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
+        }
+        @keyframes flipInY {
+            0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+            100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+        }
+        @keyframes zoomIn {
+            0% { opacity: 0; transform: scale(0.6); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes zoomOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.6); }
+        }
+        @keyframes zoomInUp {
+            0% { opacity: 0; transform: scale(0.6) translateY(100px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes zoomInDown {
+            0% { opacity: 0; transform: scale(0.6) translateY(-100px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes zoomInLeft {
+            0% { opacity: 0; transform: scale(0.6) translateX(-100px); }
+            100% { opacity: 1; transform: scale(1) translateX(0); }
+        }
+        @keyframes zoomInRight {
+            0% { opacity: 0; transform: scale(0.6) translateX(100px); }
+            100% { opacity: 1; transform: scale(1) translateX(0); }
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+        @keyframes bounceUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes bounceDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(20px); }
+        }
+        @keyframes rollIn {
+            0% { opacity: 0; transform: translateX(-100%) rotate(-120deg); }
+            100% { opacity: 1; transform: translateX(0) rotate(0deg); }
+        }
+        @keyframes rollOut {
+            0% { opacity: 1; transform: translateX(0) rotate(0deg); }
+            100% { opacity: 0; transform: translateX(100%) rotate(120deg); }
+        }
+        @keyframes lightSpeedIn {
+            0% { opacity: 0; transform: translateX(100%) skewX(-30deg); }
+            60% { opacity: 1; transform: translateX(-20%) skewX(30deg); }
+            80% { transform: translateX(0%) skewX(-15deg); }
+            100% { opacity: 1; transform: translateX(0%) skewX(0deg); }
+        }
+        @keyframes lightSpeedOut {
+            0% { opacity: 1; transform: translateX(0%) skewX(0deg); }
+            100% { opacity: 0; transform: translateX(100%) skewX(-30deg); }
+        }
+        @keyframes hinge {
+            0% { transform: rotate(0deg); transform-origin: top left; animation-timing-function: ease-in-out; }
+            20%, 60% { transform: rotate(80deg); transform-origin: top left; animation-timing-function: ease-in-out; }
+            40% { transform: rotate(60deg); transform-origin: top left; animation-timing-function: ease-in-out; }
+            80% { transform: rotate(60deg) translateY(0); opacity: 1; transform-origin: top left; animation-timing-function: ease-in-out; }
+            100% { transform: translateY(700px); opacity: 0; }
+        }
+        @keyframes notificationSlide {
+            0% { opacity: 0; transform: translateX(80px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.2); }
+            70% { transform: scale(1); }
+        }
+        @keyframes progressBar {
+            from { width: 0%; }
+            to { width: var(--progress, 100%); }
+        }
+        @keyframes ripple {
+            0% { transform: scale(0); opacity: 0.5; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* ===== 3. ANIMATION CLASSES ===== */
+        .animate-fade-in { animation: fadeIn 0.6s ease forwards; opacity: 0; }
+        .animate-fade-up { animation: fadeInUp 0.6s ease forwards; opacity: 0; }
+        .animate-fade-down { animation: fadeInDown 0.6s ease forwards; opacity: 0; }
+        .animate-fade-left { animation: fadeInLeft 0.6s ease forwards; opacity: 0; }
+        .animate-fade-right { animation: fadeInRight 0.6s ease forwards; opacity: 0; }
+        .animate-slide-up { animation: slideInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-slide-down { animation: slideInDown 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-slide-left { animation: slideInLeft 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-slide-right { animation: slideInRight 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-scale { animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-bounce { animation: bounce 1s ease forwards; }
+        .animate-bounce-in { animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-bounce-in-down { animation: bounceInDown 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-bounce-in-left { animation: bounceInLeft 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-bounce-in-right { animation: bounceInRight 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .animate-pulse { animation: pulse 1.5s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+        .animate-spin { animation: spin 2s linear infinite; }
+        .animate-spin-slow { animation: spinSlow 10s linear infinite; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-float-slow { animation: floatSlow 3s ease-in-out infinite; }
+        .animate-shimmer { animation: shimmer 3s linear infinite; background-size: 200% auto; }
+        .animate-shimmer-text { animation: shimmerText 3s linear infinite; background-size: 200% auto; }
+        .animate-glow { animation: glowPulse 2s ease-in-out infinite; }
+        .animate-wiggle { animation: wiggle 0.5s ease-in-out infinite; }
+        .animate-jello { animation: jello 0.8s ease-in-out infinite; }
+        .animate-tada { animation: tada 0.8s ease forwards; }
+        .animate-swing { animation: swing 0.8s ease forwards; }
+        .animate-wobble { animation: wobble 0.8s ease forwards; }
+        .animate-headshake { animation: headShake 0.6s ease forwards; }
+        .animate-flip { animation: flip 1s ease forwards; }
+        .animate-flip-in-x { animation: flipInX 0.8s ease forwards; opacity: 0; }
+        .animate-flip-in-y { animation: flipInY 0.8s ease forwards; opacity: 0; }
+        .animate-zoom-in { animation: zoomIn 0.6s ease forwards; opacity: 0; }
+        .animate-zoom-in-up { animation: zoomInUp 0.6s ease forwards; opacity: 0; }
+        .animate-zoom-in-down { animation: zoomInDown 0.6s ease forwards; opacity: 0; }
+        .animate-zoom-in-left { animation: zoomInLeft 0.6s ease forwards; opacity: 0; }
+        .animate-zoom-in-right { animation: zoomInRight 0.6s ease forwards; opacity: 0; }
+        .animate-roll-in { animation: rollIn 0.8s ease forwards; opacity: 0; }
+        .animate-light-speed-in { animation: lightSpeedIn 0.8s ease forwards; opacity: 0; }
+        .animate-heart-beat { animation: heartBeat 1.2s ease-in-out infinite; }
+        .animate-count-up { animation: countUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+
+        /* ===== 4. DELAYS ===== */
+        .delay-1 { animation-delay: 0.05s; }
+        .delay-2 { animation-delay: 0.10s; }
+        .delay-3 { animation-delay: 0.15s; }
+        .delay-4 { animation-delay: 0.20s; }
+        .delay-5 { animation-delay: 0.25s; }
+        .delay-6 { animation-delay: 0.30s; }
+        .delay-7 { animation-delay: 0.35s; }
+        .delay-8 { animation-delay: 0.40s; }
+        .delay-9 { animation-delay: 0.45s; }
+        .delay-10 { animation-delay: 0.50s; }
+        .delay-11 { animation-delay: 0.55s; }
+        .delay-12 { animation-delay: 0.60s; }
+        .delay-13 { animation-delay: 0.65s; }
+        .delay-14 { animation-delay: 0.70s; }
+        .delay-15 { animation-delay: 0.75s; }
+        .delay-16 { animation-delay: 0.80s; }
+        .delay-17 { animation-delay: 0.85s; }
+        .delay-18 { animation-delay: 0.90s; }
+        .delay-19 { animation-delay: 0.95s; }
+        .delay-20 { animation-delay: 1.00s; }
+
+        /* ===== 5. SIDEBAR (DENGAN ANIMASI) ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: var(--darker);
+            border-right: 1px solid var(--border);
+            padding: 20px 12px;
+            overflow-y: auto;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) transparent;
+        }
+        .sidebar.open { transform: translateX(0); }
+        
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            margin-bottom: 24px;
+            text-decoration: none;
+            animation: fadeIn 0.6s ease forwards;
+        }
+        .sidebar-brand .logo {
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            background: var(--primary-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: spinSlow 15s linear infinite;
+        }
+        .sidebar-brand .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmerText 3s linear infinite;
+        }
+        .sidebar-brand .brand-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            animation: fadeIn 1s ease forwards 0.5s;
+            opacity: 0;
+        }
+        
+        .sidebar-menu { list-style: none; padding: 0; }
+        .sidebar-menu .menu-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 12px 12px 6px;
+            animation: fadeInLeft 0.5s ease forwards;
+            opacity: 0;
+        }
+        .sidebar-menu .menu-label:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar-menu .menu-label:nth-child(2) { animation-delay: 0.2s; }
+        
+        .sidebar-menu li {
+            animation: fadeInLeft 0.5s ease forwards;
+            opacity: 0;
+        }
+        .sidebar-menu li:nth-child(2) { animation-delay: 0.15s; }
+        .sidebar-menu li:nth-child(3) { animation-delay: 0.20s; }
+        .sidebar-menu li:nth-child(4) { animation-delay: 0.25s; }
+        .sidebar-menu li:nth-child(5) { animation-delay: 0.30s; }
+        .sidebar-menu li:nth-child(6) { animation-delay: 0.35s; }
+        .sidebar-menu li:nth-child(7) { animation-delay: 0.40s; }
+        .sidebar-menu li:nth-child(8) { animation-delay: 0.45s; }
+        .sidebar-menu li:nth-child(9) { animation-delay: 0.50s; }
+        .sidebar-menu li:nth-child(10) { animation-delay: 0.55s; }
+        .sidebar-menu li:nth-child(11) { animation-delay: 0.60s; }
+        .sidebar-menu li:nth-child(12) { animation-delay: 0.65s; }
+        .sidebar-menu li:nth-child(13) { animation-delay: 0.70s; }
+        .sidebar-menu li:nth-child(14) { animation-delay: 0.75s; }
+        
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 13px;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-menu li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108,60,225,0.05), transparent);
+            transition: all 0.6s;
+        }
+        .sidebar-menu li a:hover::before { left: 100%; }
+        .sidebar-menu li a:hover { background: var(--card); color: #fff; transform: translateX(4px); }
+        .sidebar-menu li a.active {
+            background: rgba(108,60,225,0.12);
+            color: var(--primary-light);
+            border: 1px solid rgba(108,60,225,0.08);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        .sidebar-menu li a i { width: 18px; text-align: center; font-size: 14px; transition: var(--transition); }
+        .sidebar-menu li a:hover i { transform: scale(1.2) rotate(5deg); }
+        .sidebar-menu li a .badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: #fff;
+            font-size: 8px;
+            padding: 1px 6px;
+            border-radius: 10px;
+            animation: pulseDot 1.5s infinite;
+        }
+        
+        .sidebar-logout {
+            margin-top: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+            animation: fadeIn 0.6s ease forwards 0.8s;
+            opacity: 0;
+        }
+        .sidebar-logout a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 13px;
+        }
+        .sidebar-logout a:hover {
+            background: rgba(255,23,68,0.1);
+            color: var(--danger);
+            transform: translateX(4px);
+        }
+        .sidebar-logout a i { width: 18px; text-align: center; font-size: 14px; }
+
+        /* ===== 6. MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 0;
+            padding: 16px 20px;
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* ===== 7. TOPBAR (DENGAN ANIMASI) ===== */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+            animation: fadeInDown 0.6s ease forwards;
+            opacity: 0;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-left .sidebar-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        .topbar-left .sidebar-toggle:hover { 
+            background: rgba(255,255,255,0.06); 
+            transform: rotate(90deg) scale(1.1);
+        }
+        .topbar-left .page-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmerText 3s linear infinite;
+        }
+        
+        .topbar-right .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            padding: 6px 12px 6px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            animation: fadeInRight 0.6s ease forwards 0.3s;
+            opacity: 0;
+            text-decoration: none;
+            color: var(--text);
+        }
+        .topbar-right .user-info:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 20px rgba(108,60,225,0.15);
+        }
+        .topbar-right .user-info .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .topbar-right .user-info .user-name { 
+            font-size: 12px; 
+            font-weight: 500; 
+            color: var(--text-secondary);
+        }
+        .topbar-right .user-info .user-balance {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary-light);
+            animation: glow 2s ease-in-out infinite;
+        }
+        .topbar-right .user-info .clock-wib {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--text-muted);
+            padding-left: 8px;
+            border-left: 1px solid var(--border);
+        }
+        .topbar-right .user-info .clock-wib i {
+            color: var(--warning);
+            font-size: 10px;
+        }
+        .topbar-right .user-info .clock-wib #clockDisplay {
+            font-weight: 500;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== 8. TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 380px;
+        }
+        .toast {
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: var(--darker);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast .toast-icon { font-size: 18px; }
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.error .toast-icon { color: var(--danger); }
+        .toast.info { border-left: 3px solid var(--info); }
+        .toast.info .toast-icon { color: var(--info); }
+        .toast.warning { border-left: 3px solid var(--warning); }
+        .toast.warning .toast-icon { color: var(--warning); }
+        .toast .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .toast .toast-close:hover { color: #fff; transform: rotate(90deg); }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(80px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ===== 9. RESPONSIVE ===== */
+        @media (min-width: 768px) {
+            .sidebar { transform: translateX(0); }
+            .main-content { 
+                margin-left: 260px; 
+                max-width: none; 
+                padding: 24px 40px; 
+            }
+            .topbar-left .sidebar-toggle { display: none; }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content { padding: 12px 12px; }
+            .topbar-left .page-title { font-size: 15px; }
+            .topbar-right .user-info .user-name { display: none; }
+            .topbar-right .user-info .clock-wib { display: none; }
+            .toast-container { top: 10px; right: 10px; max-width: 90%; }
+            .sidebar { width: 240px; }
+        }
+
+        @media (max-width: 380px) {
+            .topbar-right .user-info .user-balance { font-size: 9px; }
+            .topbar-left .page-title { font-size: 13px; }
+            .topbar-right .user-info { padding: 4px 8px 4px 4px; }
+            .topbar-right .user-info .avatar { width: 22px; height: 22px; font-size: 10px; }
+        }
+
+        /* ===== 10. SCROLLBAR GLOBAL ===== */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-gradient); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+        /* ===== 11. SELECTION ===== */
+        ::selection { background: var(--primary); color: #fff; }
+        ::-moz-selection { background: var(--primary); color: #fff; }
+
+        /* ===== 12. LOADING SKELETON ===== */
+        .skeleton {
+            background: linear-gradient(90deg, var(--card) 25%, rgba(255,255,255,0.04) 50%, var(--card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s linear infinite;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar" id="sidebar">
+        <a href="/dashboard" class="sidebar-brand">
+            <div class="logo">🚀</div>
+            <div>
+                <div class="brand-text">DavaOFC</div>
+                <div class="brand-sub">Crypto Exchange</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-label">Menu</li>
+            <li><a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="/convert" class="{% if request.path == '/convert' %}active{% endif %}"><i class="fas fa-exchange-alt"></i> Convert</a></li>
+            <li><a href="/deposit" class="{% if request.path == '/deposit' %}active{% endif %}"><i class="fas fa-arrow-down"></i> Deposit</a></li>
+            <li><a href="/withdraw" class="{% if request.path == '/withdraw' %}active{% endif %}"><i class="fas fa-arrow-up"></i> Withdraw</a></li>
+            <li><a href="/slot" class="{% if request.path == '/slot' %}active{% endif %}"><i class="fas fa-dice"></i> Slot</a></li>
+            <li><a href="/arisan" class="{% if request.path == '/arisan' %}active{% endif %}"><i class="fas fa-users"></i> Arisan</a></li>
+            <li><a href="/investasi" class="{% if request.path == '/investasi' %}active{% endif %}"><i class="fas fa-chart-line"></i> Investasi</a></li>
+            <li><a href="/referral" class="{% if request.path == '/referral' %}active{% endif %}"><i class="fas fa-link"></i> Referral</a></li>
+            <li><a href="/profile" class="{% if request.path == '/profile' %}active{% endif %}"><i class="fas fa-user"></i> Profil</a></li>
+            <li><a href="/history" class="{% if request.path == '/history' %}active{% endif %}"><i class="fas fa-history"></i> Riwayat</a></li>
+            <li><a href="/reviews" class="{% if request.path == '/reviews' %}active{% endif %}"><i class="fas fa-star"></i> Ulasan</a></li>
+            {% if session.is_owner %}
+            <li><a href="/admin" class="{% if request.path == '/admin' %}active{% endif %}"><i class="fas fa-crown"></i> Admin</a></li>
+            {% endif %}
+            <li class="sidebar-logout">
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            <div class="topbar-right">
+                <a href="/profile" class="user-info">
+                    <div class="avatar">{{ session.full_name[0] if session.full_name else 'U' }}</div>
+                    <span class="user-name">{{ session.full_name or 'User' }}</span>
+                    <span class="user-balance">{{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}</span>
+                    <div class="clock-wib">
+                        <i class="fas fa-clock"></i>
+                        <span id="clockDisplay">--:--:--</span>
+                    </div>
+                </a>
+            </div>
+        </header>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // ============================================================
+        // AOS INIT
+        // ============================================================
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 50,
+            easing: 'ease-out-cubic'
+        });
+
+        // ============================================================
+        // SIDEBAR TOGGLE
+        // ============================================================
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                var sidebar = document.getElementById('sidebar');
+                var toggle = document.getElementById('sidebarToggle');
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // ============================================================
+        // JAM WIB
+        // ============================================================
+        function updateClock() {
+            var now = new Date();
+            var wib = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+            var jam = String(wib.getHours()).padStart(2, '0');
+            var menit = String(wib.getMinutes()).padStart(2, '0');
+            var detik = String(wib.getSeconds()).padStart(2, '0');
+            var el = document.getElementById('clockDisplay');
+            if (el) {
+                el.textContent = jam + ':' + menit + ':' + detik;
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // ============================================================
+        // TOAST NOTIFICATION (GLOBAL)
+        // ============================================================
+        function showToast(message, type) {
+            type = type || 'info';
+            var container = document.getElementById('toastContainer');
+            if (!container) {
+                console.log('Toast:', message);
+                return;
+            }
+            
+            var icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                <span>${message}</span>
+                <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(80px)';
+                setTimeout(function() {
+                    if (toast.parentNode) toast.remove();
+                }, 400);
+            }, 4000);
+        }
+
+        // ============================================================
+        // KEYBOARD SHORTCUTS
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + B = Toggle Sidebar
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                document.getElementById('sidebarToggle').click();
+            }
+            // Escape = Close Sidebar (mobile)
+            if (e.key === 'Escape' && window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+
+        // ============================================================
+        // LOADING SKELETON (Optional)
+        // ============================================================
+        function showSkeleton(container) {
+            if (!container) return;
+            container.style.opacity = '0.3';
+            container.style.transition = 'opacity 0.3s';
+            setTimeout(function() {
+                container.style.opacity = '1';
+            }, 500);
+        }
+
+        // ============================================================
+        // CONSOLE LOG
+        // ============================================================
+        console.log('🚀 DavaOFC Web Loaded!');
+        console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+        console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+        console.log('⚡ ' + document.querySelectorAll('style').length + ' CSS animations loaded!');
+        console.log('✅ All systems ready!');
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

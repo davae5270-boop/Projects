@@ -1,0 +1,1813 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - DavaOFC{% endblock %}
+{% block page_title %}👑 Admin Panel{% endblock %}
+
+{% block content %}
+
+<style>
+:root {
+    --primary: #6C3CE1;
+    --primary-dark: #5A2DBF;
+    --success: #00C853;
+    --warning: #FFD600;
+    --danger: #FF1744;
+    --bg-dark: #0a0a0f;
+    --card-bg: rgba(255,255,255,0.02);
+    --border-color: rgba(255,255,255,0.04);
+    --text-muted: rgba(255,255,255,0.25);
+    --text-secondary: rgba(255,255,255,0.6);
+}
+
+.admin-container { max-width: 100%; }
+
+/* ===== STATS ===== */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.admin-stat {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 8px;
+    text-align: center;
+    transition: all 0.3s;
+}
+.admin-stat:hover {
+    background: rgba(255,255,255,0.04);
+    transform: translateY(-2px);
+}
+.admin-stat .num {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--primary);
+}
+.admin-stat .num.green { color: var(--success); }
+.admin-stat .num.gold { color: var(--warning); }
+.admin-stat .num.red { color: var(--danger); }
+.admin-stat .lbl {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+/* ===== CARDS ===== */
+.admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+.admin-card .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.admin-card .header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+}
+.admin-card .header h3 i {
+    color: var(--primary);
+    margin-right: 6px;
+}
+.admin-card .header .badge-count {
+    background: rgba(255,23,68,0.1);
+    color: var(--danger);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.admin-card .header .btn-refresh {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.3s;
+}
+.admin-card .header .btn-refresh:hover { 
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+/* ===== SETTINGS GRID ===== */
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.settings-grid .form-group { margin-bottom: 0; }
+.settings-grid .form-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.settings-grid .form-group input, 
+.settings-grid .form-group select {
+    width: 100%;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+.settings-grid .form-group input:focus,
+.settings-grid .form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(108,60,225,0.1);
+}
+.settings-grid .form-group input.usd-rate {
+    border-color: var(--success);
+    background: rgba(76,175,80,0.05);
+}
+.settings-grid .form-group .rate-hint {
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.settings-grid .form-group .rate-hint .rate-value {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.btn-save {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.3s;
+}
+.btn-save:hover { 
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* ===== FEE GRID ===== */
+.fee-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.fee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+.fee-item .fee-range {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.fee-item .fee-amount {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--success);
+}
+.fee-item .fee-delete {
+    padding: 2px 8px;
+    background: rgba(255,23,68,0.15);
+    color: var(--danger);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    transition: all 0.3s;
+}
+.fee-item .fee-delete:hover { background: rgba(255,23,68,0.25); }
+
+.fee-add {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+}
+.fee-add .fee-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.fee-add .fee-row input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    font-size: 12px;
+    font-family: inherit;
+    min-width: 60px;
+}
+.fee-add .fee-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+.fee-add .fee-row .btn-add-fee {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+.fee-add .fee-row .btn-add-fee:hover { opacity: 0.8; }
+
+/* ===== MAINTENANCE ===== */
+.maint-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.maint-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+.maint-item.active {
+    border-color: rgba(255,23,68,0.15);
+}
+.maint-item .maint-name {
+    font-size: 11px;
+    font-weight: 500;
+}
+.maint-item .maint-name.active { color: var(--danger); }
+.maint-item .maint-status {
+    font-size: 9px;
+    padding: 1px 8px;
+    border-radius: 10px;
+}
+.maint-item .maint-status.on {
+    background: rgba(255,23,68,0.1);
+    color: var(--danger);
+}
+.maint-item .maint-status.off {
+    background: rgba(0,200,83,0.1);
+    color: var(--success);
+}
+.maint-item .maint-toggle {
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 9px;
+    transition: all 0.3s;
+}
+.maint-item .maint-toggle.turn-off {
+    background: rgba(0,200,83,0.12);
+    color: var(--success);
+}
+.maint-item .maint-toggle.turn-off:hover { background: rgba(0,200,83,0.2); }
+.maint-item .maint-toggle.turn-on {
+    background: rgba(255,23,68,0.12);
+    color: var(--danger);
+}
+.maint-item .maint-toggle.turn-on:hover { background: rgba(255,23,68,0.2); }
+
+/* ===== WALLET ===== */
+.wallet-grid {
+    display: grid;
+    gap: 6px;
+}
+.wallet-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.wallet-item .wallet-token {
+    font-weight: 600;
+    font-size: 12px;
+    min-width: 100px;
+    color: var(--warning);
+}
+.wallet-item .wallet-address {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 150px;
+}
+.wallet-item .wallet-address code {
+    font-size: 10px;
+    color: var(--primary);
+    word-break: break-all;
+    background: rgba(0,0,0,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex: 1;
+}
+.wallet-item .wallet-address .btn-copy {
+    background: rgba(108,60,225,0.12);
+    border: none;
+    color: var(--primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    transition: all 0.3s;
+}
+.wallet-item .wallet-address .btn-copy:hover { background: rgba(108,60,225,0.2); }
+.wallet-item .wallet-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.wallet-item .wallet-actions input {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    font-size: 10px;
+    min-width: 120px;
+}
+.wallet-item .wallet-actions input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+.wallet-item .wallet-actions .btn-update {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 10px;
+    transition: all 0.3s;
+}
+.wallet-item .wallet-actions .btn-update:hover { opacity: 0.8; }
+.wallet-item .wallet-actions .btn-delete {
+    background: linear-gradient(135deg, var(--danger), #c62828);
+    border: none;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 10px;
+    transition: all 0.3s;
+}
+.wallet-item .wallet-actions .btn-delete:hover { opacity: 0.8; }
+.wallet-item .wallet-status {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+.wallet-item .wallet-status.active {
+    background: rgba(0,200,83,0.1);
+    color: var(--success);
+}
+.wallet-item .wallet-status.inactive {
+    background: rgba(255,23,68,0.1);
+    color: var(--danger);
+}
+
+.wallet-add {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+}
+.wallet-add .wallet-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.wallet-add .wallet-row input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    font-size: 12px;
+    font-family: inherit;
+    min-width: 80px;
+}
+.wallet-add .wallet-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+.wallet-add .wallet-row .btn-add-wallet {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, var(--success), #009624);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+.wallet-add .wallet-row .btn-add-wallet:hover { opacity: 0.8; }
+
+/* ===== TABLE ===== */
+.table-wrap { overflow-x: auto; }
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+.table-wrap table thead th {
+    text-align: left;
+    padding: 6px 8px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-color);
+}
+.table-wrap table tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    color: var(--text-secondary);
+    font-size: 11px;
+    vertical-align: middle;
+}
+.table-wrap table tbody tr:hover td {
+    background: rgba(255,255,255,0.02);
+}
+.table-wrap table .status {
+    font-size: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: inline-block;
+}
+.table-wrap table .status.pending {
+    background: rgba(255,214,0,0.1);
+    color: var(--warning);
+}
+.table-wrap table .status.approved {
+    background: rgba(0,200,83,0.1);
+    color: var(--success);
+}
+.table-wrap table .status.rejected {
+    background: rgba(255,23,68,0.1);
+    color: var(--danger);
+}
+.table-wrap table .btn-action {
+    padding: 2px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 2px;
+    transition: all 0.3s;
+}
+.btn-approve {
+    background: rgba(0,200,83,0.12);
+    color: var(--success);
+}
+.btn-approve:hover { background: rgba(0,200,83,0.2); }
+.btn-reject {
+    background: rgba(255,23,68,0.12);
+    color: var(--danger);
+}
+.btn-reject:hover { background: rgba(255,23,68,0.2); }
+.btn-view {
+    background: rgba(108,60,225,0.12);
+    color: var(--primary);
+}
+.btn-view:hover { background: rgba(108,60,225,0.2); }
+
+.empty-row td {
+    text-align: center;
+    padding: 16px 0 !important;
+    color: rgba(255,255,255,0.08);
+    font-size: 11px;
+}
+
+/* ===== PHOTO MODAL ===== */
+.photo-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.photo-modal.active { display: flex; }
+.photo-modal .modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+.photo-modal .modal-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+}
+.photo-modal .modal-content .close-btn {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* ===== USD RATE DISPLAY ===== */
+.usd-rate-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 4px 10px;
+    background: rgba(76,175,80,0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(76,175,80,0.1);
+}
+.usd-rate-display .label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+.usd-rate-display .value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--success);
+}
+
+/* ===== TOAST ===== */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.toast {
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 200px;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.warning { background: var(--warning); color: #000; }
+.toast.info { background: var(--primary); }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .admin-stats { grid-template-columns: repeat(2, 1fr); }
+    .settings-grid { grid-template-columns: 1fr 1fr; }
+    .maint-grid { grid-template-columns: 1fr 1fr; }
+    .fee-grid { grid-template-columns: 1fr; }
+    .wallet-item { flex-direction: column; align-items: stretch; }
+    .wallet-item .wallet-address { min-width: auto; }
+    .wallet-item .wallet-actions input { min-width: auto; }
+    .wallet-add .wallet-row { flex-direction: column; }
+    .fee-add .fee-row { flex-direction: column; }
+}
+@media (max-width: 480px) {
+    .settings-grid { grid-template-columns: 1fr; }
+    .maint-grid { grid-template-columns: 1fr; }
+    .admin-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<div class="admin-container">
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== STATS ===== -->
+    <div class="admin-stats" id="statsContainer">
+        <div class="admin-stat">
+            <div class="num" id="statUsers">{{ total_users|default(0) }}</div>
+            <div class="lbl">Total Users</div>
+        </div>
+        <div class="admin-stat">
+            <div class="num gold" id="statOrders">{{ total_orders|default(0) }}</div>
+            <div class="lbl">Total Orders</div>
+        </div>
+        <div class="admin-stat">
+            <div class="num red" id="statPending">{{ pending_orders|default(0) }}</div>
+            <div class="lbl">Pending Orders</div>
+        </div>
+        <div class="admin-stat">
+            <div class="num green" id="statDeposits">{{ "{:,.0f}".format(total_deposits|default(0)).replace(',', '.') }}</div>
+            <div class="lbl">Total Deposits</div>
+        </div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-cog"></i> Settings</h3>
+            <button class="btn-refresh" onclick="location.reload()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        <form id="settingsForm">
+            <div class="settings-grid">
+                <!-- ===== DEPOSIT & WITHDRAW SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Min Deposit</label>
+                    <input type="number" name="min_deposit" id="min_deposit" value="{{ settings.get('min_deposit', '10000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Min Withdraw</label>
+                    <input type="number" name="min_withdraw" id="min_withdraw" value="{{ settings.get('min_withdraw', '50000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Withdraw Fee</label>
+                    <input type="number" name="withdraw_fee" id="withdraw_fee" value="{{ settings.get('withdraw_fee', '5000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Transaction Fee</label>
+                    <input type="number" name="transaction_fee" id="transaction_fee" value="{{ settings.get('transaction_fee', '5000') }}">
+                </div>
+
+                <!-- ===== PROFIT SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Profit Rate (%)</label>
+                    <input type="number" name="profit_rate" id="profit_rate" value="{{ settings.get('profit_rate', '5') }}">
+                </div>
+                <div class="form-group">
+                    <label>Profit Interval (sec)</label>
+                    <input type="number" name="profit_interval" id="profit_interval" value="{{ settings.get('profit_interval', '300') }}">
+                </div>
+                <div class="form-group">
+                    <label>Maintenance</label>
+                    <select name="maintenance" id="maintenance">
+                        <option value="0" {% if settings.get('maintenance', '0') == '0' %}selected{% endif %}>Off</option>
+                        <option value="1" {% if settings.get('maintenance', '0') == '1' %}selected{% endif %}>On</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Site Name</label>
+                    <input type="text" name="site_name" id="site_name" value="{{ settings.get('site_name', 'DavaOFC') }}">
+                </div>
+
+                <!-- ===== SLOT SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Slot Min Bet</label>
+                    <input type="number" name="slot_min_bet" id="slot_min_bet" value="{{ settings.get('slot_min_bet', '400') }}">
+                </div>
+                <div class="form-group">
+                    <label>Slot Max Bet</label>
+                    <input type="number" name="slot_max_bet" id="slot_max_bet" value="{{ settings.get('slot_max_bet', '204800') }}">
+                </div>
+                <div class="form-group">
+                    <label>Slot Jackpot</label>
+                    <input type="number" name="slot_jackpot" id="slot_jackpot" value="{{ settings.get('slot_jackpot', '10000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Slot RTP (%)</label>
+                    <input type="number" name="slot_rtp" id="slot_rtp" value="{{ settings.get('slot_rtp', '25') }}" min="1" max="100">
+                </div>
+
+                <!-- ===== INVESTASI SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Investasi Min</label>
+                    <input type="number" name="investasi_min" id="investasi_min" value="{{ settings.get('investasi_min', '50000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Investasi Max</label>
+                    <input type="number" name="investasi_max" id="investasi_max" value="{{ settings.get('investasi_max', '10000000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Investasi Profit (%)</label>
+                    <input type="number" name="investasi_profit" id="investasi_profit" value="{{ settings.get('investasi_profit', '50') }}">
+                </div>
+                <div class="form-group">
+                    <label>Investasi Duration (Jam)</label>
+                    <input type="number" name="investasi_duration" id="investasi_duration" value="{{ settings.get('investasi_duration', '24') }}">
+                </div>
+
+                <!-- ===== ARISAN SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Arisan Price</label>
+                    <input type="number" name="arisan_price" id="arisan_price" value="{{ settings.get('arisan_price', '10000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Arisan Total Slots</label>
+                    <input type="number" name="arisan_slots" id="arisan_slots" value="{{ settings.get('arisan_slots', '10') }}">
+                </div>
+                <div class="form-group">
+                    <label>Arisan Owner Profit (%)</label>
+                    <input type="number" name="arisan_profit" id="arisan_profit" value="{{ settings.get('arisan_profit', '10') }}">
+                </div>
+                <div class="form-group">
+                    <label>Arisan Status</label>
+                    <select name="arisan_status" id="arisan_status">
+                        <option value="active" {% if settings.get('arisan_status', 'active') == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if settings.get('arisan_status', 'active') == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+
+                <!-- ===== REFERRAL SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Referral Bonus</label>
+                    <input type="number" name="referral_bonus" id="referral_bonus" value="{{ settings.get('referral_bonus', '400') }}">
+                </div>
+                <div class="form-group">
+                    <label>Referral Level 1</label>
+                    <input type="number" name="referral_level_1" id="referral_level_1" value="{{ settings.get('referral_level_1', '400') }}">
+                </div>
+                <div class="form-group">
+                    <label>Referral Level 2</label>
+                    <input type="number" name="referral_level_2" id="referral_level_2" value="{{ settings.get('referral_level_2', '200') }}">
+                </div>
+                <div class="form-group">
+                    <label>Referral Level 3</label>
+                    <input type="number" name="referral_level_3" id="referral_level_3" value="{{ settings.get('referral_level_3', '100') }}">
+                </div>
+
+                <!-- ===== USD RATE ===== -->
+                <div class="form-group">
+                    <label><i class="fas fa-dollar-sign" style="color:#4CAF50;"></i> Harga USD (IDR)</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="number" class="usd-rate" id="usdRateInput" 
+                               name="usd_rate" 
+                               value="{{ settings.get('usd_rate', '15500') }}" 
+                               min="1000" step="100" style="flex:1;">
+                        <button type="button" class="btn-update-rate" onclick="updateUsdRate()" 
+                                style="padding:8px 16px;background:linear-gradient(135deg,#6C3CE1,#5A2DBF);color:#fff;border:none;border-radius:6px;cursor:pointer;white-space:nowrap;">
+                            <i class="fas fa-save"></i> Update
+                        </button>
+                    </div>
+                    <div class="rate-hint">
+                        1 USD = Rp <span class="rate-value" id="usdRateDisplay">{{ settings.get('usd_rate', '15500') }}</span>
+                    </div>
+                    <div class="usd-rate-display">
+                        <span class="label">💰 Kurs Saat Ini</span>
+                        <span class="value">Rp <span id="usdRateLive">{{ "{:,.0f}".format(settings.get('usd_rate', '15500')|float).replace(',', '.') }}</span></span>
+                    </div>
+                </div>
+
+                <!-- ===== OTHER SETTINGS ===== -->
+                <div class="form-group">
+                    <label>Max Daily Bonus</label>
+                    <input type="number" name="max_daily_bonus" id="max_daily_bonus" value="{{ settings.get('max_daily_bonus', '50000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Daily Bonus</label>
+                    <input type="number" name="daily_bonus" id="daily_bonus" value="{{ settings.get('daily_bonus', '2000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Welcome Bonus</label>
+                    <input type="number" name="welcome_bonus" id="welcome_bonus" value="{{ settings.get('welcome_bonus', '10000') }}">
+                </div>
+                <div class="form-group">
+                    <label>Auto Approve Orders</label>
+                    <select name="auto_approve_orders" id="auto_approve_orders">
+                        <option value="0" {% if settings.get('auto_approve_orders', '0') == '0' %}selected{% endif %}>No</option>
+                        <option value="1" {% if settings.get('auto_approve_orders', '0') == '1' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Settings</button>
+            <div id="settingsResult" style="margin-top:10px;"></div>
+        </form>
+    </div>
+
+    <!-- ===== WALLET SETTINGS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-wallet" style="color:#FFD600;"></i> Wallet Settings</h3>
+            <button class="btn-refresh" onclick="loadWallets()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        <div id="walletList">
+            <div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+        <div class="wallet-add">
+            <div class="wallet-row">
+                <input type="text" id="newTokenName" placeholder="Token Name (e.g. USDT BEP-20)">
+                <input type="text" id="newTokenAddress" placeholder="Wallet Address">
+                <input type="number" id="newTokenRate" placeholder="Rate (IDR)" value="15500">
+                <button class="btn-add-wallet" onclick="addWallet()"><i class="fas fa-plus"></i> Add Wallet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FEE SETTINGS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-dollar-sign" style="color:#00C853;"></i> Fee Settings</h3>
+            <button class="btn-refresh" onclick="loadFees()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        <div id="feeList">
+            <div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+        <div class="fee-add">
+            <div class="fee-row">
+                <input type="number" id="feeMin" placeholder="Min Amount">
+                <input type="number" id="feeMax" placeholder="Max Amount">
+                <input type="number" id="feeAmount" placeholder="Fee Amount">
+                <button class="btn-add-fee" onclick="addFee()"><i class="fas fa-plus"></i> Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAINTENANCE ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-tools" style="color:#FFD600;"></i> Maintenance</h3>
+            <button class="btn-refresh" onclick="loadMaintenance()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+        <div id="maintenanceList">
+            <div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== RECENT ORDERS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-list"></i> Recent Orders</h3>
+            <span class="badge-count" id="orderCount">{{ recent_orders|length|default(0) }}</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Nama</th>
+                        <th>Bank</th>
+                        <th>Rekening</th>
+                        <th>USD</th>
+                        <th>Fee</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Photo</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTable">
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                        <tr id="order-{{ order.order_number }}">
+                            <td><code>{{ order.order_number }}</code></td>
+                            <td>@{{ order.username }}</td>
+                            <td>{{ order.full_name or '-' }}</td>
+                            <td>{{ order.bank_name or '-' }}</td>
+                            <td><code style="font-size:10px;color:#FFD600;">{{ order.account_number or '-' }}</code></td>
+                            <td>${{ "%.2f"|format(order.amount_usd|default(0)) }}</td>
+                            <td>{{ "{:,.0f}".format(order.fee_idr|default(0)).replace(',', '.') }}</td>
+                            <td>{{ "{:,.0f}".format(order.amount_idr|default(0)).replace(',', '.') }}</td>
+                            <td>
+                                <span class="status {{ order.status }}">
+                                    {% if order.status == 'pending' %}⏳ Pending
+                                    {% elif order.status == 'approved' %}✅ Approved
+                                    {% elif order.status == 'rejected' %}❌ Rejected
+                                    {% else %}{{ order.status }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if order.photo_id and order.photo_id.startswith('data:image') %}
+                                <button class="btn-action btn-view" onclick="viewPhoto('{{ order.photo_id }}')">📸</button>
+                                {% else %}
+                                <span style="color:rgba(255,255,255,0.15);font-size:9px;">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <button class="btn-action btn-approve" onclick="approveOrder('{{ order.order_number }}')">✅</button>
+                                    <button class="btn-action btn-reject" onclick="rejectOrder('{{ order.order_number }}')">❌</button>
+                                {% elif order.status == 'approved' %}
+                                    <span style="color:#00C853;font-size:10px;">✅ Done</span>
+                                {% else %}
+                                    <span style="color:rgba(255,255,255,0.15);font-size:9px;">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr class="empty-row"><td colspan="11">No orders</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== PENDING DEPOSITS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-arrow-down"></i> Pending Deposits</h3>
+            <span class="badge-count" id="depositCount">{{ recent_deposits|length|default(0) }}</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>User</th><th>Amount</th><th>Metode</th><th>Tujuan</th><th>Status</th><th>Photo</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="depositsTable">
+                    {% if recent_deposits %}
+                        {% for dep in recent_deposits %}
+                        <tr id="dep-{{ dep.dep_number }}">
+                            <td><code>{{ dep.dep_number }}</code></td>
+                            <td>@{{ dep.username }}</td>
+                            <td>{{ "{:,.0f}".format(dep.amount|default(0)).replace(',', '.') }}</td>
+                            <td>{{ dep.method or 'DANA' }}</td>
+                            <td><code style="font-size:10px;color:#8B6BE8;">{{ dep.destination or dep.account_number or '-' }}</code></td>
+                            <td><span class="status {{ dep.status }}">{{ dep.status }}</span></td>
+                            <td>
+                                {% if dep.photo_id and dep.photo_id.startswith('data:image') %}
+                                <button class="btn-action btn-view" onclick="viewPhoto('{{ dep.photo_id }}')">📸</button>
+                                {% else %}
+                                <span style="color:rgba(255,255,255,0.15);font-size:9px;">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if dep.status == 'pending' %}
+                                <button class="btn-action btn-approve" onclick="approveDeposit('{{ dep.dep_number }}')">✅</button>
+                                <button class="btn-action btn-reject" onclick="rejectDeposit('{{ dep.dep_number }}')">❌</button>
+                                {% else %}
+                                <span style="color:rgba(255,255,255,0.15);font-size:9px;">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr class="empty-row"><td colspan="8">No pending deposits</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== PENDING WITHDRAWS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-arrow-up"></i> Pending Withdraws</h3>
+            <span class="badge-count" id="withdrawCount">{{ recent_withdraws|length|default(0) }}</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>User</th><th>Amount</th><th>Tujuan</th><th>Status</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="withdrawsTable">
+                    {% if recent_withdraws %}
+                        {% for wd in recent_withdraws %}
+                        <tr id="wd-{{ wd.wd_number }}">
+                            <td><code>{{ wd.wd_number }}</code></td>
+                            <td>@{{ wd.username }}</td>
+                            <td>{{ "{:,.0f}".format(wd.amount|default(0)).replace(',', '.') }}</td>
+                            <td><code style="font-size:10px;color:#FFD600;">{{ wd.destination or '-' }}</code></td>
+                            <td><span class="status {{ wd.status }}">{{ wd.status }}</span></td>
+                            <td>
+                                {% if wd.status == 'pending' %}
+                                <button class="btn-action btn-approve" onclick="approveWithdraw('{{ wd.wd_number }}')">✅</button>
+                                <button class="btn-action btn-reject" onclick="rejectWithdraw('{{ wd.wd_number }}')">❌</button>
+                                {% else %}
+                                <span style="color:rgba(255,255,255,0.15);font-size:9px;">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr class="empty-row"><td colspan="6">No pending withdrawals</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== PENDING REVIEWS ===== -->
+    <div class="admin-card">
+        <div class="header">
+            <h3><i class="fas fa-star" style="color:#FFD600;"></i> Pending Reviews</h3>
+            <span class="badge-count" id="reviewCount">{{ pending_reviews|length|default(0) }}</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                        <th>Tanggal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewsTable">
+                    {% if pending_reviews %}
+                        {% for rev in pending_reviews %}
+                        <tr id="review-{{ rev.id }}">
+                            <td>@{{ rev.username or rev.full_name }}</td>
+                            <td style="color:#FFD600;">{{ '⭐' * rev.rating }}</td>
+                            <td>{{ rev.review_text[:50] }}{% if rev.review_text|length > 50 %}...{% endif %}</td>
+                            <td>{{ rev.created_at[:16] if rev.created_at else '-' }}</td>
+                            <td>
+                                <button class="btn-action btn-approve" onclick="approveReview({{ rev.id }})">✅ Approve</button>
+                                <button class="btn-action btn-reject" onclick="rejectReview({{ rev.id }})">❌</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr class="empty-row"><td colspan="5">No pending reviews</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== PHOTO MODAL ===== -->
+<div class="photo-modal" id="photoModal" onclick="closePhoto()">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closePhoto()">✕</button>
+        <img id="photoModalImg" src="" alt="Bukti Transfer"/>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// ===== TOAST SYSTEM =====
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+        alert(message);
+        return;
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(function() {
+            toast.remove();
+        }, 300);
+    }, 3500);
+}
+
+// ============================================================
+// ===== COPY =====
+// ============================================================
+function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('✅ Copied!', 'success');
+        }).catch(function() {
+            fallbackCopy(text);
+        });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    var input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    try {
+        document.execCommand('copy');
+        showToast('✅ Copied!', 'success');
+    } catch (e) {
+        showToast('❌ Failed to copy', 'error');
+    }
+    document.body.removeChild(input);
+}
+
+// ============================================================
+// ===== PHOTO VIEWER =====
+// ============================================================
+function viewPhoto(photoData) {
+    var modal = document.getElementById('photoModal');
+    var img = document.getElementById('photoModalImg');
+    img.src = photoData;
+    modal.classList.add('active');
+}
+
+function closePhoto() {
+    document.getElementById('photoModal').classList.remove('active');
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePhoto();
+});
+
+// ============================================================
+// ===== USD RATE =====
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    var usdInput = document.getElementById('usdRateInput');
+    if (usdInput) {
+        usdInput.addEventListener('input', function() {
+            var val = this.value || 15500;
+            document.getElementById('usdRateDisplay').textContent = parseInt(val).toLocaleString('id-ID');
+            document.getElementById('usdRateLive').textContent = parseInt(val).toLocaleString('id-ID');
+        });
+    }
+});
+
+function updateUsdRate() {
+    var input = document.getElementById('usdRateInput');
+    var rate = parseFloat(input.value);
+    
+    if (!rate || rate <= 0) {
+        showToast('❌ Harga USD harus lebih dari 0!', 'error');
+        return;
+    }
+    
+    fetch('/api/admin/usd-rate/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usd_rate: rate })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ ' + data.message, 'success');
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== SETTINGS =====
+// ============================================================
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var data = {};
+    for (var [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+    
+    fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(result) {
+        var resultDiv = document.getElementById('settingsResult');
+        if (result.success) {
+            resultDiv.innerHTML = '<div style="padding:10px;background:rgba(0,200,83,0.1);border-radius:6px;border:1px solid #00C853;text-align:center;">✅ Settings updated!</div>';
+            showToast('✅ Settings updated!', 'success');
+            setTimeout(function() { location.reload(); }, 1500);
+        } else {
+            resultDiv.innerHTML = '<div style="padding:10px;background:rgba(255,23,68,0.1);border-radius:6px;border:1px solid #FF1744;text-align:center;">❌ Error: ' + (result.error || 'Unknown error') + '</div>';
+            showToast('❌ Error updating settings', 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+});
+
+// ============================================================
+// ===== WALLETS =====
+// ============================================================
+function loadWallets() {
+    var container = document.getElementById('walletList');
+    container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    
+    fetch('/api/admin/wallets')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">No wallets configured</div>';
+            return;
+        }
+        
+        var html = '<div class="wallet-grid">';
+        data.forEach(function(w) {
+            var statusClass = w.is_active == 1 ? 'active' : 'inactive';
+            var statusText = w.is_active == 1 ? '✅ Active' : '❌ Inactive';
+            html += '<div class="wallet-item" id="wallet-' + w.id + '">';
+            html += '<span class="wallet-token">' + w.token_name + '</span>';
+            html += '<div class="wallet-address"><code>' + w.address + '</code>';
+            html += '<button class="btn-copy" onclick="copyText(\'' + w.address + '\')"><i class="fas fa-copy"></i></button></div>';
+            html += '<span class="wallet-status ' + statusClass + '">' + statusText + '</span>';
+            html += '<div class="wallet-actions">';
+            html += '<input type="text" id="wallet_address_' + w.id + '" value="' + w.address + '" placeholder="New address">';
+            html += '<input type="number" id="wallet_rate_' + w.id + '" value="' + (w.rate || 15500) + '" placeholder="Rate" style="min-width:80px;">';
+            html += '<button class="btn-update" onclick="updateWallet(' + w.id + ')">Update</button>';
+            html += '<button class="btn-delete" onclick="deleteWallet(' + w.id + ')">Delete</button>';
+            html += '</div></div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    })
+    .catch(function() {
+        container.innerHTML = '<div style="text-align:center;padding:12px;color:#FF1744;font-size:12px;">Error loading wallets</div>';
+        showToast('❌ Error loading wallets', 'error');
+    });
+}
+
+function updateWallet(walletId) {
+    var address = document.getElementById('wallet_address_' + walletId).value.trim();
+    var rate = parseFloat(document.getElementById('wallet_rate_' + walletId).value);
+    
+    if (!address || address.length < 10) {
+        showToast('❌ Invalid wallet address!', 'error');
+        return;
+    }
+    if (!rate || rate <= 0) {
+        showToast('❌ Rate harus lebih dari 0!', 'error');
+        return;
+    }
+    
+    fetch('/api/admin/wallets/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            id: walletId,
+            address: address,
+            rate: rate,
+            is_active: 1
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Wallet updated!', 'success');
+            loadWallets();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function deleteWallet(walletId) {
+    if (!confirm('Delete this wallet?')) return;
+    
+    fetch('/api/admin/wallets/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet_id: walletId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Wallet deleted!', 'success');
+            loadWallets();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function addWallet() {
+    var token = document.getElementById('newTokenName').value.trim();
+    var address = document.getElementById('newTokenAddress').value.trim();
+    var rate = parseFloat(document.getElementById('newTokenRate').value);
+    
+    if (!token) {
+        showToast('❌ Token name required!', 'error');
+        return;
+    }
+    if (!address || address.length < 10) {
+        showToast('❌ Invalid wallet address!', 'error');
+        return;
+    }
+    if (!rate || rate <= 0) {
+        showToast('❌ Rate harus lebih dari 0!', 'error');
+        return;
+    }
+    
+    fetch('/api/admin/wallets/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            token_name: token,
+            address: address,
+            rate: rate
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ ' + data.message, 'success');
+            document.getElementById('newTokenName').value = '';
+            document.getElementById('newTokenAddress').value = '';
+            document.getElementById('newTokenRate').value = '15500';
+            loadWallets();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== FEES =====
+// ============================================================
+function loadFees() {
+    var container = document.getElementById('feeList');
+    container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    
+    fetch('/api/admin/fees')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">No fee rules</div>';
+            return;
+        }
+        
+        var html = '<div class="fee-grid">';
+        data.forEach(function(f) {
+            html += '<div class="fee-item">';
+            html += '<span class="fee-range">Rp ' + f.min_amount.toLocaleString() + ' - ' + f.max_amount.toLocaleString() + '</span>';
+            html += '<span class="fee-amount">Rp ' + f.fee.toLocaleString() + '</span>';
+            html += '<button class="fee-delete" onclick="deleteFee(' + f.id + ')">✕</button>';
+            html += '</div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    })
+    .catch(function() {
+        container.innerHTML = '<div style="text-align:center;padding:12px;color:#FF1744;font-size:12px;">Error loading fees</div>';
+        showToast('❌ Error loading fees', 'error');
+    });
+}
+
+function addFee() {
+    var min = document.getElementById('feeMin').value;
+    var max = document.getElementById('feeMax').value;
+    var fee = document.getElementById('feeAmount').value;
+    
+    if (!min || !max || !fee) {
+        showToast('❌ Fill all fields!', 'error');
+        return;
+    }
+    
+    if (parseFloat(min) >= parseFloat(max)) {
+        showToast('❌ Min harus lebih kecil dari Max!', 'error');
+        return;
+    }
+    
+    fetch('/api/admin/fees/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            min_amount: parseFloat(min), 
+            max_amount: parseFloat(max), 
+            fee: parseFloat(fee) 
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Fee added!', 'success');
+            document.getElementById('feeMin').value = '';
+            document.getElementById('feeMax').value = '';
+            document.getElementById('feeAmount').value = '';
+            loadFees();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function deleteFee(feeId) {
+    if (!confirm('Delete this fee rule?')) return;
+    
+    fetch('/api/admin/fees/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fee_id: feeId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Fee deleted!', 'success');
+            loadFees();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== MAINTENANCE =====
+// ============================================================
+function loadMaintenance() {
+    var container = document.getElementById('maintenanceList');
+    container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    
+    var featureNames = {
+        'convert': 'Convert',
+        'deposit': 'Deposit', 
+        'withdraw': 'Withdraw',
+        'slot': 'Slot',
+        'arisan': 'Arisan',
+        'investasi': 'Investasi',
+        'referral': 'Referral',
+        'reviews': 'Reviews',
+        'register': 'Register'
+    };
+    
+    fetch('/api/admin/maintenance')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">No maintenance features</div>';
+            return;
+        }
+        
+        var html = '<div class="maint-grid">';
+        data.forEach(function(m) {
+            var active = m.is_active == 1;
+            html += '<div class="maint-item ' + (active ? 'active' : '') + '">';
+            html += '<span class="maint-name ' + (active ? 'active' : '') + '">' + (featureNames[m.feature] || m.feature) + '</span>';
+            html += '<span class="maint-status ' + (active ? 'on' : 'off') + '">' + (active ? '🔒' : '✅') + '</span>';
+            html += '<button class="maint-toggle ' + (active ? 'turn-off' : 'turn-on') + '" onclick="toggleMaintenance(\'' + m.feature + '\', ' + (active ? 0 : 1) + ')">';
+            html += active ? 'Off' : 'On';
+            html += '</button></div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    })
+    .catch(function() {
+        container.innerHTML = '<div style="text-align:center;padding:12px;color:#FF1744;font-size:12px;">Error loading maintenance</div>';
+        showToast('❌ Error loading maintenance', 'error');
+    });
+}
+
+function toggleMaintenance(feature, isActive) {
+    fetch('/api/admin/maintenance/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feature: feature, is_active: isActive })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ ' + data.message, 'success');
+            loadMaintenance();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== ORDER APPROVE/REJECT =====
+// ============================================================
+function approveOrder(orderId) {
+    if (!confirm('Approve order ' + orderId + '?')) return;
+    
+    fetch('/api/admin/order/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Order approved!', 'success');
+            var row = document.getElementById('order-' + orderId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function rejectOrder(orderId) {
+    if (!confirm('Reject order ' + orderId + '?')) return;
+    
+    fetch('/api/admin/order/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('❌ Order rejected', 'warning');
+            var row = document.getElementById('order-' + orderId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== DEPOSIT APPROVE/REJECT =====
+// ============================================================
+function approveDeposit(depositId) {
+    if (!confirm('Approve deposit ' + depositId + '?')) return;
+    
+    fetch('/api/admin/deposit/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deposit_id: depositId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Deposit approved!', 'success');
+            var row = document.getElementById('dep-' + depositId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function rejectDeposit(depositId) {
+    if (!confirm('Reject deposit ' + depositId + '?')) return;
+    
+    fetch('/api/admin/deposit/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deposit_id: depositId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('❌ Deposit rejected', 'warning');
+            var row = document.getElementById('dep-' + depositId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== WITHDRAW APPROVE/REJECT =====
+// ============================================================
+function approveWithdraw(withdrawId) {
+    if (!confirm('Approve withdraw ' + withdrawId + '?')) return;
+    
+    fetch('/api/admin/withdraw/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ withdraw_id: withdrawId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Withdraw approved!', 'success');
+            var row = document.getElementById('wd-' + withdrawId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function rejectWithdraw(withdrawId) {
+    if (!confirm('Reject withdraw ' + withdrawId + '?')) return;
+    
+    fetch('/api/admin/withdraw/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ withdraw_id: withdrawId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('❌ Withdraw rejected', 'warning');
+            var row = document.getElementById('wd-' + withdrawId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== REVIEW APPROVE/REJECT =====
+// ============================================================
+function approveReview(reviewId) {
+    if (!confirm('Approve this review?')) return;
+    
+    fetch('/api/admin/review/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review_id: reviewId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Review approved!', 'success');
+            var row = document.getElementById('review-' + reviewId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+function rejectReview(reviewId) {
+    if (!confirm('Reject this review?')) return;
+    
+    fetch('/api/admin/review/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review_id: reviewId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('❌ Review rejected', 'warning');
+            var row = document.getElementById('review-' + reviewId);
+            if (row) row.remove();
+            updateCounts();
+        } else {
+            showToast('❌ ' + data.error, 'error');
+        }
+    })
+    .catch(function(err) {
+        showToast('❌ Error: ' + err.message, 'error');
+    });
+}
+
+// ============================================================
+// ===== UPDATE COUNTS =====
+// ============================================================
+function updateCounts() {
+    var orderRows = document.querySelectorAll('#ordersTable tr:not(.empty-row)');
+    var depRows = document.querySelectorAll('#depositsTable tr:not(.empty-row)');
+    var wdRows = document.querySelectorAll('#withdrawsTable tr:not(.empty-row)');
+    var reviewRows = document.querySelectorAll('#reviewsTable tr:not(.empty-row)');
+    
+    document.getElementById('orderCount').textContent = orderRows.length;
+    document.getElementById('depositCount').textContent = depRows.length;
+    document.getElementById('withdrawCount').textContent = wdRows.length;
+    document.getElementById('reviewCount').textContent = reviewRows.length;
+    
+    if (orderRows.length === 0) {
+        document.getElementById('ordersTable').innerHTML = '<tr class="empty-row"><td colspan="11">No orders</td></tr>';
+    }
+    if (depRows.length === 0) {
+        document.getElementById('depositsTable').innerHTML = '<tr class="empty-row"><td colspan="8">No pending deposits</td></tr>';
+    }
+    if (wdRows.length === 0) {
+        document.getElementById('withdrawsTable').innerHTML = '<tr class="empty-row"><td colspan="6">No pending withdrawals</td></tr>';
+    }
+    if (reviewRows.length === 0) {
+        document.getElementById('reviewsTable').innerHTML = '<tr class="empty-row"><td colspan="5">No pending reviews</td></tr>';
+    }
+}
+
+// ============================================================
+// ===== LOAD ON PAGE =====
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    loadWallets();
+    loadFees();
+    loadMaintenance();
+    
+    // Refresh stats every 30 seconds
+    setInterval(function() {
+        fetch('/api/admin/stats')
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.total_users !== undefined) {
+                    document.getElementById('statUsers').textContent = data.total_users;
+                    document.getElementById('statOrders').textContent = data.total_orders;
+                    document.getElementById('statPending').textContent = data.pending_orders;
+                    document.getElementById('statDeposits').textContent = data.total_deposits ? data.total_deposits.toLocaleString() : '0';
+                }
+            })
+            .catch(function() {});
+    }, 30000);
+});
+
+// ============================================================
+// ===== KEYBOARD SHORTCUTS =====
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'r' && e.ctrlKey) {
+        e.preventDefault();
+        location.reload();
+    }
+    if (e.key === 'Escape') {
+        closePhoto();
+    }
+});
+</script>
+
+{% endblock %}

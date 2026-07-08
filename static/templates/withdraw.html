@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Withdraw - DavaOFC{% endblock %}
+{% block page_title %}Withdraw{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <!-- Form Withdraw -->
+    <div class="card fade-in">
+        <div class="card-header">
+            <h3><i class="fas fa-arrow-up" style="color: var(--danger);"></i> Form Withdraw</h3>
+        </div>
+        <div style="padding: 12px; background: var(--glass); border-radius: 8px; margin-bottom: 16px;">
+            <strong>Saldo Anda:</strong> {{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}
+        </div>
+        <form id="withdrawForm">
+            <div class="form-group">
+                <label>Nominal WD (Min Rp 50.000)</label>
+                <input type="number" name="amount" min="50000" max="{{ balance|default(0) }}" placeholder="50000" required>
+            </div>
+            <div class="form-group">
+                <label>Metode & Tujuan</label>
+                <input type="text" name="destination" placeholder="Contoh: DANA 08123456789 a/n Nama" required>
+            </div>
+            <button type="submit" class="btn btn-danger btn-block"><i class="fas fa-paper-plane"></i> Submit Withdraw</button>
+        </form>
+        <div id="withdrawResult" style="margin-top: 16px; display: none;"></div>
+    </div>
+
+    <!-- Info Withdraw -->
+    <div class="card fade-in" style="animation-delay: 0.1s;">
+        <div class="card-header">
+            <h3><i class="fas fa-info-circle"></i> Panduan Withdraw</h3>
+        </div>
+        <ul style="list-style: none; padding: 0; color: var(--text-secondary); line-height: 2;">
+            <li><i class="fas fa-check" style="color: var(--success);"></i> Minimal WD: Rp 50.000</li>
+            <li><i class="fas fa-check" style="color: var(--success);"></i> WD akan diproses dalam 1x24 jam</li>
+            <li><i class="fas fa-check" style="color: var(--success);"></i> Pastikan data tujuan Anda benar</li>
+            <li><i class="fas fa-check" style="color: var(--success);"></i> Saldo akan dikurangi otomatis</li>
+            <li style="margin-top: 12px; padding: 12px; background: rgba(255,214,0,0.1); border-radius: 8px; border: 1px solid var(--warning);">
+                <i class="fas fa-clock" style="color: var(--warning);"></i>
+                <span style="color: var(--warning);">Permintaan WD akan dikonfirmasi oleh Owner</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Riwayat WD -->
+<div class="card fade-in" style="animation-delay: 0.2s;">
+    <div class="card-header">
+        <h3><i class="fas fa-history"></i> Riwayat Withdraw</h3>
+        <a href="/history" class="action-btn">Lihat Semua</a>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID WD</th>
+                    <th>Jumlah</th>
+                    <th>Tujuan</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if withdrawals %}
+                {% for wd in withdrawals %}
+                <tr>
+                    <td><code>{{ wd.wd_number }}</code></td>
+                    <td>{{ "{:,.0f}".format(wd.amount).replace(',', '.') }}</td>
+                    <td>{{ wd.destination[:20] }}...</td>
+                    <td><span class="status-badge {{ wd.status }}">{{ wd.status }}</span></td>
+                    <td>{{ wd.created_at[:10] }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">Belum ada WD</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const data = Object.fromEntries(form);
+    
+    try {
+        const res = await fetch('/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        
+        const resultDiv = document.getElementById('withdrawResult');
+        resultDiv.style.display = 'block';
+        if (result.success) {
+            resultDiv.innerHTML = `
+                <div style="padding: 16px; background: rgba(0,200,83,0.1); border-radius: 10px; border: 1px solid var(--success);">
+                    <h4 style="color: var(--success);"><i class="fas fa-check-circle"></i> ${result.message}</h4>
+                    <p style="margin-top: 8px; color: var(--text-secondary);">
+                        ID WD: <code>${result.wd_number}</code>
+                    </p>
+                </div>
+            `;
+            showToast('Withdraw berhasil diajukan!', 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            resultDiv.innerHTML = `
+                <div style="padding: 16px; background: rgba(255,23,68,0.1); border-radius: 10px; border: 1px solid var(--danger);">
+                    <h4 style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> Error</h4>
+                    <p style="color: var(--text-secondary);">${result.error}</p>
+                </div>
+            `;
+            showToast(result.error, 'error');
+        }
+    } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+    }
+});
+</script>
+{% endblock %}

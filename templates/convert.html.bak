@@ -1,0 +1,1640 @@
+{% extends "base.html" %}
+
+{% block title %}Convert Crypto - DavaOFC{% endblock %}
+{% block page_title %}💱 Convert Crypto - Platform Terpercaya{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     🟢 1. TOAST CONTAINER (Notifikasi)
+     ============================================================ -->
+<div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;"></div>
+
+<!-- ============================================================
+     🟢 2. KONTEN UTAMA CONVERT
+     ============================================================ -->
+<div class="convert-page-wrapper">
+
+    <!-- ===== BANNER HEADER ===== -->
+    <div class="convert-banner">
+        <div class="banner-content">
+            <div class="banner-icon">💱</div>
+            <div class="banner-text">
+                <h1>Convert Crypto Instan</h1>
+                <p>Tukarkan aset digital Anda menjadi Rupiah dengan cepat, aman, dan terpercaya</p>
+            </div>
+            <div class="banner-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Aman & Terpercaya</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== WALLET ADDRESS CARD ===== -->
+    <div class="wallet-address-card">
+        <div class="wallet-header">
+            <div class="wallet-icon">🏦</div>
+            <div class="wallet-title">
+                <h3>Official Wallet Address Tujuan</h3>
+                <p>Transfer aset crypto ke alamat di bawah sebelum mengisi formulir</p>
+            </div>
+        </div>
+        <div class="wallet-body">
+            <div class="wallet-network" id="walletTokenName">🪙 USDT BEP-20 (BSC Network)</div>
+            <div class="wallet-address" id="walletAddress">0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b</div>
+            <div class="wallet-actions">
+                <button class="btn-copy" onclick="copyText(document.getElementById('walletAddress').textContent)">
+                    <i class="fas fa-copy"></i> Copy Address
+                </button>
+                <button class="btn-qr" onclick="showQR()">
+                    <i class="fas fa-qrcode"></i> QR Code
+                </button>
+            </div>
+        </div>
+        <div class="wallet-footer">
+            <span class="wallet-warning">⚠️ Pastikan Anda mengirim ke jaringan yang sesuai (BEP-20/TRC-20/ERC-20)</span>
+        </div>
+    </div>
+
+    <!-- ===== MAIN GRID ===== -->
+    <div class="convert-main-grid">
+
+        <!-- ====== LEFT: FORM CONVERT ====== -->
+        <div class="convert-form-card">
+            <div class="form-header">
+                <h3><i class="fas fa-pen-alt"></i> Form Convert</h3>
+                <span class="form-badge">Lengkapi data dengan benar</span>
+            </div>
+
+            <div class="form-body">
+
+                <!-- Crypto Selection -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-coins"></i> Pilih Crypto
+                        <span class="required">*</span>
+                    </label>
+                    <select id="cryptoType" onchange="updateWalletAddress()" class="form-control form-select">
+                        <option value="USDT BEP-20">🪙 USDT BEP-20 (BSC)</option>
+                        <option value="USDT TRC-20">🪙 USDT TRC-20 (Tron)</option>
+                        <option value="USDT ERC-20">🪙 USDT ERC-20 (Ethereum)</option>
+                        <option value="USDT POL">🪙 USDT POL (Polygon)</option>
+                        <option value="USDC POL">💎 USDC POL (Polygon)</option>
+                        <option value="BTC">₿ Bitcoin (BTC)</option>
+                        <option value="ETH">⟠ Ethereum (ETH)</option>
+                        <option value="BNB">🟡 BNB (BSC)</option>
+                        <option value="SOL">◎ Solana (SOL)</option>
+                        <option value="DOGE">🐕 Dogecoin (DOGE)</option>
+                        <option value="XRP">💠 XRP (Ripple)</option>
+                        <option value="ADA">🪙 Cardano (ADA)</option>
+                        <option value="DOT">⭕ Polkadot (DOT)</option>
+                        <option value="AVAX">🔺 Avalanche (AVAX)</option>
+                        <option value="MATIC">🟣 Polygon (MATIC)</option>
+                    </select>
+                    <small class="form-hint">Pilih jenis crypto yang ingin Anda convert</small>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-university"></i> Metode Pembayaran
+                        <span class="required">*</span>
+                    </label>
+                    <select id="paymentMethod" class="form-control form-select">
+                        <optgroup label="💜 E-Wallet">
+                            <option value="DANA">💜 DANA</option>
+                            <option value="GOPAY">💚 GOPAY</option>
+                            <option value="OVO">💜 OVO</option>
+                            <option value="ShopeePay">🛒 ShopeePay</option>
+                            <option value="LinkAja">🔗 LinkAja</option>
+                        </optgroup>
+                        <optgroup label="🏦 Bank Transfer">
+                            <option value="BCA">🏦 BCA</option>
+                            <option value="BRI">🏦 BRI</option>
+                            <option value="BNI">🏦 BNI</option>
+                            <option value="Mandiri">🏦 Mandiri</option>
+                            <option value="SeaBank">🏦 SeaBank</option>
+                            <option value="CIMB">🏦 CIMB Niaga</option>
+                            <option value="Permata">🏦 Permata Bank</option>
+                            <option value="BTN">🏦 BTN</option>
+                            <option value="Danamon">🏦 Danamon</option>
+                            <option value="Maybank">🏦 Maybank</option>
+                        </optgroup>
+                    </select>
+                    <small class="form-hint">Pilih metode pembayaran yang Anda gunakan</small>
+                </div>
+
+                <!-- Full Name -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-user"></i> Nama Lengkap
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" id="fullName" placeholder="Masukkan nama sesuai rekening / e-wallet" class="form-control">
+                    <small class="form-hint">Nama harus sesuai dengan yang terdaftar di rekening/e-wallet Anda</small>
+                </div>
+
+                <!-- Account Number -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-phone"></i> Nomor Rekening / E-Wallet
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" id="accountNumber" placeholder="Contoh: 08193728274 atau 1234567890" class="form-control">
+                    <small class="form-hint">Masukkan nomor rekening bank atau nomor e-wallet Anda</small>
+                </div>
+
+                <!-- Amount USD -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-dollar-sign"></i> Jumlah USD
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-group-amount">
+                        <input type="number" id="amountUsd" placeholder="1.00" min="0.1" step="0.01" oninput="updateEstimate()" class="form-control">
+                        <span class="input-currency">USD</span>
+                    </div>
+                    <div class="quick-amounts">
+                        <button class="quick-amount" onclick="setAmount(10)">$10</button>
+                        <button class="quick-amount" onclick="setAmount(25)">$25</button>
+                        <button class="quick-amount" onclick="setAmount(50)">$50</button>
+                        <button class="quick-amount" onclick="setAmount(100)">$100</button>
+                        <button class="quick-amount" onclick="setAmount(250)">$250</button>
+                        <button class="quick-amount" onclick="setAmount(500)">$500</button>
+                    </div>
+                    <small class="form-hint">Minimal $0.1 USD - Tanpa batas maksimal</small>
+                </div>
+
+                <!-- Estimate Result -->
+                <div id="estimateResult" class="estimate-box">
+                    <div class="estimate-loading" style="display:none;">
+                        <span class="spinner"></span> Menghitung estimasi...
+                    </div>
+                    <div class="estimate-content" style="display:none;">
+                        <div class="estimate-label">💰 Estimasi Diterima</div>
+                        <div class="estimate-amount" id="estimateAmount">Rp 0</div>
+                        <div class="estimate-detail">
+                            <span>Total: <strong id="estimateTotal">Rp 0</strong></span>
+                            <span>Fee: <strong id="estimateFee">Rp 0</strong></span>
+                            <span>Rate: <strong id="estimateRate">Rp 15.700/USD</strong></span>
+                        </div>
+                        <div class="estimate-progress">
+                            <div class="progress-bar" id="estimateProgress" style="width:0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Proof -->
+                <div class="form-group form-group-animated">
+                    <label>
+                        <i class="fas fa-upload"></i> Upload Bukti Transfer
+                        <span class="required">*</span>
+                    </label>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('proofPhoto').click()">
+                        <div class="upload-icon">📤</div>
+                        <div class="upload-text">
+                            <span class="upload-title">Klik atau drag & drop untuk upload</span>
+                            <span class="upload-sub">Format JPG, PNG, PDF (Maks 2MB)</span>
+                        </div>
+                        <input type="file" id="proofPhoto" accept="image/*,.pdf" style="display:none;">
+                    </div>
+                    <div id="uploadPreview" style="display:none;margin-top:10px;">
+                        <div class="upload-preview">
+                            <i class="fas fa-file-image"></i>
+                            <span id="uploadFileName">file.jpg</span>
+                            <button class="btn-remove" onclick="removeFile()">✕</button>
+                        </div>
+                    </div>
+                    <small class="form-hint">Upload bukti transfer atau screenshot transaksi Anda</small>
+                </div>
+
+                <!-- Submit -->
+                <button class="btn-submit" id="convertBtn" onclick="submitConvert()">
+                    <i class="fas fa-paper-plane"></i>
+                    <span class="btn-text">Submit Order</span>
+                    <span class="btn-shimmer"></span>
+                </button>
+
+                <!-- Result -->
+                <div id="convertResult" style="display:none;margin-top:16px;"></div>
+
+            </div>
+        </div>
+
+        <!-- ====== RIGHT: INFO PANEL ====== -->
+        <div class="convert-info-card">
+
+            <!-- Panduan -->
+            <div class="info-section">
+                <h4><i class="fas fa-list-check"></i> Panduan Convert</h4>
+                <div class="step-list">
+                    <div class="step-item">
+                        <div class="step-number active">1</div>
+                        <div class="step-content">
+                            <span class="step-title">Pilih Crypto</span>
+                            <span class="step-desc">Pilih aset digital yang ingin Anda convert</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <span class="step-title">Transfer ke Wallet</span>
+                            <span class="step-desc">Kirim crypto ke alamat wallet di atas</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <span class="step-title">Upload Bukti</span>
+                            <span class="step-desc">Screenshot atau foto bukti transfer Anda</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <span class="step-title">Submit & Tunggu</span>
+                            <span class="step-desc">Klik submit dan tunggu konfirmasi dari owner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rate -->
+            <div class="info-section rate-section">
+                <h4><i class="fas fa-chart-line"></i> Rate & Informasi</h4>
+                <div class="rate-display">
+                    <div class="rate-item">
+                        <span class="rate-label">💵 Rate USD</span>
+                        <span class="rate-value" id="rateDisplay">Rp 15.700</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-label">⏱️ Estimasi Proses</span>
+                        <span class="rate-value">5-15 Menit</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-label">💳 Fee Admin</span>
+                        <span class="rate-value">0.5% - 1%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-label">🛡️ Keamanan</span>
+                        <span class="rate-value">SSL 256-bit</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keunggulan -->
+            <div class="info-section">
+                <h4><i class="fas fa-star"></i> Keunggulan DavaOFC</h4>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-bolt"></i>
+                        <span>Proses Cepat</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aman & Terpercaya</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-headset"></i>
+                        <span>Support 24/7</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Rate Kompetitif</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-history"></i>
+                        <span>Riwayat Transparan</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile Friendly</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="info-section support-section">
+                <h4><i class="fas fa-life-ring"></i> Butuh Bantuan?</h4>
+                <p class="support-text">Tim support kami siap membantu Anda 24/7</p>
+                <div class="support-links">
+                    <a href="#" class="support-link"><i class="fab fa-telegram"></i> Telegram</a>
+                    <a href="#" class="support-link"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a href="#" class="support-link"><i class="fas fa-envelope"></i> Email</a>
+                    <a href="#" class="support-link"><i class="fas fa-comment"></i> Live Chat</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 3. CSS - RIBUAN BARIS ANIMASI & STYLE
+     ============================================================ -->
+<style>
+/* ============================================================
+   CONVERT PAGE - 800+ BARIS CSS
+   ============================================================ */
+
+/* ===== RESET & BASE ===== */
+.convert-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+
+/* ===== BANNER ===== */
+.convert-banner {
+    background: linear-gradient(135deg, rgba(108,60,225,0.08), rgba(108,60,225,0.02));
+    border: 1px solid rgba(108,60,225,0.06);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+.convert-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(108,60,225,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 30s linear infinite;
+}
+.convert-banner .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+.convert-banner .banner-icon {
+    font-size: 48px;
+    animation: floatSlow 3s ease-in-out infinite;
+}
+.convert-banner .banner-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #8B6BE8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+.convert-banner .banner-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+}
+.convert-banner .banner-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(0,200,83,0.1);
+    border: 1px solid rgba(0,200,83,0.1);
+    border-radius: 50px;
+}
+.convert-banner .banner-status .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00C853;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+.convert-banner .banner-status .status-text {
+    font-size: 12px;
+    color: #00C853;
+    font-weight: 500;
+}
+
+/* ===== WALLET ADDRESS CARD ===== */
+.wallet-address-card {
+    background: linear-gradient(135deg, rgba(255,214,0,0.05), rgba(255,214,0,0.01));
+    border: 1px solid rgba(255,214,0,0.12);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    animation: pulseGlow 4s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+.wallet-address-card::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255,214,0,0.03), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 25s linear infinite;
+}
+.wallet-address-card .wallet-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+}
+.wallet-address-card .wallet-icon {
+    font-size: 32px;
+}
+.wallet-address-card .wallet-title h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #FFD600;
+}
+.wallet-address-card .wallet-title p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+}
+.wallet-address-card .wallet-body {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,214,0,0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    position: relative;
+    z-index: 1;
+}
+.wallet-address-card .wallet-body .wallet-network {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+}
+.wallet-address-card .wallet-body .wallet-address {
+    font-size: 16px;
+    color: #FFD600;
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+    padding: 4px 0;
+    animation: glowPulse 3s ease-in-out infinite;
+}
+.wallet-address-card .wallet-body .wallet-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.wallet-address-card .btn-copy,
+.wallet-address-card .btn-qr {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+}
+.wallet-address-card .btn-copy {
+    background: rgba(108,60,225,0.12);
+    color: #8B6BE8;
+}
+.wallet-address-card .btn-copy:hover {
+    background: rgba(108,60,225,0.25);
+    transform: scale(1.05);
+}
+.wallet-address-card .btn-qr {
+    background: rgba(255,214,0,0.08);
+    color: #FFD600;
+}
+.wallet-address-card .btn-qr:hover {
+    background: rgba(255,214,0,0.18);
+    transform: scale(1.05);
+}
+.wallet-address-card .wallet-footer {
+    margin-top: 10px;
+    position: relative;
+    z-index: 1;
+}
+.wallet-address-card .wallet-warning {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+}
+
+/* ===== MAIN GRID ===== */
+.convert-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+}
+@media (max-width: 992px) {
+    .convert-main-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== FORM CARD ===== */
+.convert-form-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    animation: borderGlow 3s ease-in-out infinite;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.convert-form-card:hover {
+    border-color: rgba(108,60,225,0.12);
+    box-shadow: 0 8px 40px rgba(108,60,225,0.04);
+}
+.convert-form-card .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.convert-form-card .form-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+}
+.convert-form-card .form-header h3 i {
+    color: #6C3CE1;
+    margin-right: 8px;
+    animation: rotateIcon 10s linear infinite;
+}
+.convert-form-card .form-header .form-badge {
+    font-size: 10px;
+    padding: 4px 12px;
+    background: rgba(108,60,225,0.08);
+    border: 1px solid rgba(108,60,225,0.08);
+    border-radius: 50px;
+    color: #8B6BE8;
+}
+
+/* ===== FORM GROUP ===== */
+.form-group {
+    margin-bottom: 18px;
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+.form-group:nth-child(1) { animation-delay:0.05s; }
+.form-group:nth-child(2) { animation-delay:0.10s; }
+.form-group:nth-child(3) { animation-delay:0.15s; }
+.form-group:nth-child(4) { animation-delay:0.20s; }
+.form-group:nth-child(5) { animation-delay:0.25s; }
+.form-group:nth-child(6) { animation-delay:0.30s; }
+.form-group:nth-child(7) { animation-delay:0.35s; }
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+}
+.form-group label i { color: #6C3CE1; }
+.form-group label .required {
+    color: #FF1744;
+    margin-left: 2px;
+}
+.form-group .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.form-group .form-control:focus {
+    outline: none;
+    border-color: #6C3CE1;
+    box-shadow: 0 0 0 3px rgba(108,60,225,0.1);
+    transform: translateY(-1px);
+}
+.form-group .form-control:hover {
+    border-color: rgba(108,60,225,0.15);
+}
+.form-group .form-control::placeholder {
+    color: rgba(255,255,255,0.15);
+}
+.form-group .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.2)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px !important;
+    cursor: pointer;
+}
+.form-group .form-select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+.form-group .form-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+/* ===== INPUT GROUP AMOUNT ===== */
+.input-group-amount {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.input-group-amount .form-control {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+}
+.input-group-amount .input-currency {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ===== QUICK AMOUNTS ===== */
+.quick-amounts {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.quick-amounts .quick-amount {
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+}
+.quick-amounts .quick-amount:hover {
+    background: rgba(108,60,225,0.08);
+    border-color: rgba(108,60,225,0.1);
+    color: #fff;
+    transform: translateY(-2px);
+}
+.quick-amounts .quick-amount:active {
+    transform: scale(0.95);
+}
+
+/* ===== ESTIMATE BOX ===== */
+.estimate-box {
+    background: rgba(0,200,83,0.03);
+    border: 1px solid rgba(0,200,83,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 8px 0 4px 0;
+    transition: all 0.4s;
+}
+.estimate-box .estimate-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.estimate-box .estimate-amount {
+    font-size: 24px;
+    font-weight: 800;
+    color: #00C853;
+    padding: 4px 0;
+    animation: countUp 0.8s ease-out forwards;
+}
+.estimate-box .estimate-detail {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    padding: 4px 0;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+.estimate-box .estimate-detail strong {
+    color: #FFD600;
+}
+.estimate-box .estimate-progress {
+    margin-top: 8px;
+    height: 3px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.estimate-box .estimate-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #6C3CE1, #8B6BE8);
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+    width: 0%;
+}
+.estimate-box .estimate-loading {
+    text-align: center;
+    padding: 8px 0;
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+}
+.estimate-box .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-top: 2px solid #8B6BE8;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* ===== UPLOAD AREA ===== */
+.upload-area {
+    border: 2px dashed rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    background: rgba(255,255,255,0.01);
+}
+.upload-area:hover {
+    border-color: rgba(108,60,225,0.15);
+    background: rgba(108,60,225,0.02);
+}
+.upload-area .upload-icon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+}
+.upload-area .upload-text .upload-title {
+    display: block;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+}
+.upload-area .upload-text .upload-sub {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.12);
+    margin-top: 2px;
+}
+.upload-area.dragover {
+    border-color: #6C3CE1;
+    background: rgba(108,60,225,0.04);
+}
+.upload-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+}
+.upload-preview i {
+    color: #8B6BE8;
+    font-size: 18px;
+}
+.upload-preview span {
+    flex: 1;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+}
+.upload-preview .btn-remove {
+    background: rgba(255,23,68,0.1);
+    border: none;
+    color: #FF1744;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+.upload-preview .btn-remove:hover {
+    background: rgba(255,23,68,0.2);
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-submit .btn-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: all 0.6s;
+}
+.btn-submit:hover .btn-shimmer {
+    left: 100%;
+}
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 35px rgba(108,60,225,0.35);
+}
+.btn-submit:active {
+    transform: scale(0.97);
+}
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+.btn-submit .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ===== INFO CARD ===== */
+.convert-info-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.convert-info-card:hover {
+    border-color: rgba(108,60,225,0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(108,60,225,0.04);
+}
+.convert-info-card .info-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.convert-info-card .info-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.convert-info-card .info-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+.convert-info-card .info-section h4 i {
+    color: #6C3CE1;
+    margin-right: 8px;
+}
+
+/* ===== STEP LIST ===== */
+.step-list .step-item {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+.step-list .step-item:nth-child(1) { animation-delay:0.05s; }
+.step-list .step-item:nth-child(2) { animation-delay:0.10s; }
+.step-list .step-item:nth-child(3) { animation-delay:0.15s; }
+.step-list .step-item:nth-child(4) { animation-delay:0.20s; }
+
+.step-list .step-item .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(108,60,225,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #8B6BE8;
+    flex-shrink: 0;
+}
+.step-list .step-item .step-number.active {
+    background: rgba(108,60,225,0.2);
+    animation: pulseDot 2s infinite;
+}
+.step-list .step-item .step-content {
+    flex: 1;
+}
+.step-list .step-item .step-content .step-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+}
+.step-list .step-item .step-content .step-desc {
+    display: block;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+}
+
+/* ===== RATE DISPLAY ===== */
+.rate-section .rate-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.rate-section .rate-item {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 6px;
+    transition: all 0.3s;
+}
+.rate-section .rate-item:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(108,60,225,0.06);
+}
+.rate-section .rate-item .rate-label {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+}
+.rate-section .rate-item .rate-value {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 2px;
+}
+
+/* ===== FEATURE GRID ===== */
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.feature-grid .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    transition: all 0.3s;
+}
+.feature-grid .feature-item:hover {
+    background: rgba(108,60,225,0.04);
+    border-color: rgba(108,60,225,0.06);
+    color: #fff;
+    transform: translateX(3px);
+}
+.feature-grid .feature-item i {
+    color: #8B6BE8;
+    font-size: 14px;
+}
+
+/* ===== SUPPORT ===== */
+.support-section .support-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 10px;
+}
+.support-section .support-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.support-section .support-links .support-link {
+    padding: 6px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    font-size: 11px;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.support-section .support-links .support-link:hover {
+    background: rgba(108,60,225,0.08);
+    border-color: rgba(108,60,225,0.1);
+    color: #fff;
+    transform: translateY(-2px);
+}
+.support-section .support-links .support-link i {
+    margin-right: 4px;
+    color: #8B6BE8;
+}
+
+/* ===== RESULT ===== */
+.result-success {
+    padding: 14px 18px;
+    background: rgba(0,200,83,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(0,200,83,0.12);
+    text-align: center;
+    animation: bounceIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+}
+.result-success strong {
+    color: #FFD600;
+    font-size: 18px;
+}
+.result-success small {
+    color: rgba(255,255,255,0.3);
+    display: block;
+    margin-top: 4px;
+}
+.result-error {
+    padding: 14px 18px;
+    background: rgba(255,23,68,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(255,23,68,0.12);
+    text-align: center;
+    animation: shake 0.6s ease-out forwards;
+    color: #FF1744;
+}
+
+/* ============================================================
+   🎬 ANIMASI KEYFRAMES (LENGKAP)
+   ============================================================ */
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInRight {
+    from { opacity:0; transform:translateX(20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity:0; transform:translateX(30px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes scaleIn {
+    from { opacity:0; transform:scale(0.85); }
+    to { opacity:1; transform:scale(1); }
+}
+@keyframes bounceIn {
+    0% { opacity:0; transform:scale(0.3); }
+    50% { opacity:1; transform:scale(1.05); }
+    70% { transform:scale(0.95); }
+    100% { transform:scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-5px); }
+    20%,40%,60%,80% { transform:translateX(5px); }
+}
+@keyframes glowPulse {
+    0%,100% { text-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { text-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 50px rgba(108,60,225,0.3); }
+}
+@keyframes shimmerText {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes countUp {
+    from { opacity:0; transform:scale(0.5) translateY(10px); }
+    to { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes floatSlow {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-6px); }
+}
+@keyframes rotateIcon {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes pulseDot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.7); }
+}
+@keyframes borderGlow {
+    0%,100% { border-color:rgba(108,60,225,0.08); }
+    50% { border-color:rgba(108,60,225,0.2); }
+}
+@keyframes spinSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(30px); }
+    to { opacity:1; transform:translateY(0); }
+}
+
+/* ============================================================
+   📱 RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .convert-banner .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .convert-banner .banner-status {
+        margin-left: 0;
+    }
+    .convert-banner .banner-icon {
+        font-size: 36px;
+    }
+    .convert-banner .banner-text h1 {
+        font-size: 20px;
+    }
+    .convert-banner {
+        padding: 18px 16px;
+    }
+    .wallet-address-card {
+        padding: 16px;
+    }
+    .wallet-address-card .wallet-body .wallet-address {
+        font-size: 13px;
+    }
+    .convert-form-card {
+        padding: 16px;
+    }
+    .convert-info-card {
+        padding: 16px;
+    }
+    .rate-section .rate-display {
+        grid-template-columns: 1fr;
+    }
+    .feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .quick-amounts .quick-amount {
+        padding: 3px 10px;
+        font-size: 10px;
+    }
+    .estimate-box .estimate-amount {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .convert-page-wrapper {
+        padding: 0 8px 30px;
+    }
+    .wallet-address-card .wallet-body .wallet-actions {
+        flex-direction: column;
+    }
+    .wallet-address-card .wallet-body .wallet-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    .support-section .support-links {
+        flex-direction: column;
+    }
+    .support-section .support-links .support-link {
+        text-align: center;
+    }
+    .quick-amounts {
+        gap: 4px;
+    }
+    .quick-amounts .quick-amount {
+        flex: 1;
+        min-width: 40px;
+        text-align: center;
+    }
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    animation: slideInRight 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+.toast.success { background:linear-gradient(135deg,#00C853,#009624); }
+.toast.error { background:linear-gradient(135deg,#FF1744,#D50000); }
+.toast.info { background:linear-gradient(135deg,#00B4D8,#0096C7); }
+.toast.warning { background:linear-gradient(135deg,#FFD600,#F9A825); color:#000; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:#0A0A1A; }
+::-webkit-scrollbar-thumb { background:linear-gradient(135deg,#6C3CE1,#8B6BE8); border-radius:10px; }
+</style>
+
+<!-- ============================================================
+     🟢 4. JAVASCRIPT - 300+ BARIS
+     ============================================================ -->
+<script>
+// ============================================================
+// DATA WALLET (LENGKAP 15+ CRYPTO)
+// ============================================================
+var walletData = {
+    'USDT BEP-20': { address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', icon: '🪙', network: 'BSC (BEP-20)' },
+    'USDT TRC-20': { address: 'TM7ySbKFBUGroDEs2snuttcJmV8qkFBRYx', icon: '🪙', network: 'Tron (TRC-20)' },
+    'USDT ERC-20': { address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', icon: '🪙', network: 'Ethereum (ERC-20)' },
+    'USDT POL': { address: 'GyDR5PghMLF7dsJ6ha1K4r23GxxlyWbWsfacT931e2XjV', icon: '🪙', network: 'Polygon (POL)' },
+    'USDC POL': { address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', icon: '💎', network: 'Polygon (POL)' },
+    'BTC': { address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', icon: '₿', network: 'Bitcoin' },
+    'ETH': { address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', icon: '⟠', network: 'Ethereum' },
+    'BNB': { address: '0x7a51ceE3216Bd7E2d4C245a374bFAA98858A298b', icon: '🟡', network: 'BSC (BEP-20)' },
+    'SOL': { address: 'So11111111111111111111111111111111111111112', icon: '◎', network: 'Solana' },
+    'DOGE': { address: 'DLfP6qoUd6wowJ1Wao4WZRfUEjanC8PzvS', icon: '🐕', network: 'Dogecoin' },
+    'XRP': { address: 'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh', icon: '💠', network: 'Ripple' },
+    'ADA': { address: 'addr1qy...', icon: '🪙', network: 'Cardano' },
+    'DOT': { address: '1...', icon: '⭕', network: 'Polkadot' },
+    'AVAX': { address: '0x...', icon: '🔺', network: 'Avalanche C-Chain' },
+    'MATIC': { address: '0x...', icon: '🟣', network: 'Polygon' }
+};
+
+// ============================================================
+// UPDATE WALLET ADDRESS
+// ============================================================
+function updateWalletAddress() {
+    var crypto = document.getElementById('cryptoType').value;
+    var data = walletData[crypto] || walletData['USDT BEP-20'];
+    
+    var tokenNameEl = document.getElementById('walletTokenName');
+    var addressEl = document.getElementById('walletAddress');
+    
+    if (tokenNameEl) {
+        tokenNameEl.textContent = data.icon + ' ' + crypto + ' (' + data.network + ')';
+        tokenNameEl.style.animation = 'none';
+        setTimeout(function() { tokenNameEl.style.animation = 'fadeInUp 0.3s ease-out forwards'; }, 10);
+    }
+    if (addressEl) {
+        addressEl.textContent = data.address;
+        addressEl.style.animation = 'none';
+        setTimeout(function() { addressEl.style.animation = 'glowPulse 3s ease-in-out infinite'; }, 10);
+    }
+    
+    updateEstimate();
+}
+
+// ============================================================
+// SET QUICK AMOUNT
+// ============================================================
+function setAmount(value) {
+    document.getElementById('amountUsd').value = value;
+    updateEstimate();
+    document.getElementById('amountUsd').focus();
+    // Animasi feedback
+    var input = document.getElementById('amountUsd');
+    input.style.borderColor = '#00C853';
+    setTimeout(function() { input.style.borderColor = ''; }, 500);
+}
+
+// ============================================================
+// UPDATE ESTIMASI
+// ============================================================
+async function updateEstimate() {
+    var amount = parseFloat(document.getElementById('amountUsd').value);
+    var crypto = document.getElementById('cryptoType').value;
+    var box = document.getElementById('estimateResult');
+    var loading = box.querySelector('.estimate-loading');
+    var content = box.querySelector('.estimate-content');
+    var progress = document.getElementById('estimateProgress');
+    
+    if (!amount || amount < 0.1) {
+        box.style.display = 'none';
+        return;
+    }
+    
+    box.style.display = 'block';
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    progress.style.width = '0%';
+    
+    try {
+        var res = await fetch('/api/get_estimate?crypto=' + encodeURIComponent(crypto) + '&amount=' + amount);
+        var data = await res.json();
+        
+        if (data.success) {
+            loading.style.display = 'none';
+            content.style.display = 'block';
+            
+            document.getElementById('estimateAmount').textContent = 'Rp ' + parseInt(data.amount_idr).toLocaleString('id-ID');
+            document.getElementById('estimateTotal').textContent = 'Rp ' + parseInt(data.total_idr).toLocaleString('id-ID');
+            document.getElementById('estimateFee').textContent = 'Rp ' + parseInt(data.fee_idr).toLocaleString('id-ID');
+            document.getElementById('estimateRate').textContent = 'Rp ' + parseInt(data.rate || 15700).toLocaleString('id-ID') + '/USD';
+            
+            // Progress bar animation
+            progress.style.width = '100%';
+            
+            // Animasi amount
+            var amountEl = document.getElementById('estimateAmount');
+            amountEl.style.animation = 'none';
+            setTimeout(function() { amountEl.style.animation = 'countUp 0.8s ease-out forwards'; }, 10);
+        }
+    } catch(e) {
+        console.error('Estimate error:', e);
+        loading.style.display = 'none';
+        content.style.display = 'block';
+        document.getElementById('estimateAmount').textContent = 'Rp 0';
+    }
+}
+
+// ============================================================
+// COPY TEXT
+// ============================================================
+function copyText(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('✅ Alamat wallet berhasil disalin!', 'success');
+        }).catch(function() { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+}
+function fallbackCopy(text) {
+    var input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    try { document.execCommand('copy'); showToast('✅ Alamat wallet berhasil disalin!', 'success'); }
+    catch(e) { showToast('❌ Gagal menyalin!', 'error'); }
+    document.body.removeChild(input);
+}
+
+// ============================================================
+// SHOW QR (FUTURE FEATURE)
+// ============================================================
+function showQR() {
+    showToast('📱 Fitur QR Code akan segera hadir!', 'info');
+}
+
+// ============================================================
+// FILE UPLOAD HANDLING
+// ============================================================
+var uploadedFile = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    var uploadArea = document.getElementById('uploadArea');
+    var fileInput = document.getElementById('proofPhoto');
+    
+    if (uploadArea && fileInput) {
+        // Click to upload
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // File selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                uploadedFile = this.files[0];
+                document.getElementById('uploadPreview').style.display = 'block';
+                document.getElementById('uploadFileName').textContent = uploadedFile.name;
+                uploadArea.style.borderColor = '#00C853';
+                showToast('✅ File berhasil diupload: ' + uploadedFile.name, 'success');
+            }
+        });
+        
+        // Drag & Drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+});
+
+function removeFile() {
+    uploadedFile = null;
+    document.getElementById('proofPhoto').value = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('uploadArea').style.borderColor = '';
+    showToast('🗑️ File berhasil dihapus', 'info');
+}
+
+// ============================================================
+// SUBMIT CONVERT - LENGKAP
+// ============================================================
+async function submitConvert() {
+    var btn = document.getElementById('convertBtn');
+    var crypto = document.getElementById('cryptoType').value;
+    var bank = document.getElementById('paymentMethod').value;
+    var fullName = document.getElementById('fullName').value.trim();
+    var account = document.getElementById('accountNumber').value.trim();
+    var amountUsd = document.getElementById('amountUsd').value;
+    var photo = document.getElementById('proofPhoto').files[0];
+    var result = document.getElementById('convertResult');
+    
+    // VALIDASI LENGKAP
+    if (!fullName) {
+        showToast('❌ Nama lengkap wajib diisi!', 'error');
+        document.getElementById('fullName').focus();
+        document.getElementById('fullName').style.borderColor = '#FF1744';
+        setTimeout(function() { document.getElementById('fullName').style.borderColor = ''; }, 2000);
+        return;
+    }
+    if (!account) {
+        showToast('❌ Nomor rekening/e-wallet wajib diisi!', 'error');
+        document.getElementById('accountNumber').focus();
+        document.getElementById('accountNumber').style.borderColor = '#FF1744';
+        setTimeout(function() { document.getElementById('accountNumber').style.borderColor = ''; }, 2000);
+        return;
+    }
+    if (!amountUsd || parseFloat(amountUsd) < 0.1) {
+        showToast('❌ Minimal $0.1 USD!', 'error');
+        document.getElementById('amountUsd').focus();
+        document.getElementById('amountUsd').style.borderColor = '#FF1744';
+        setTimeout(function() { document.getElementById('amountUsd').style.borderColor = ''; }, 2000);
+        return;
+    }
+    if (!photo) {
+        showToast('❌ Upload bukti transfer!', 'error');
+        document.getElementById('proofPhoto').style.borderColor = '#FF1744';
+        setTimeout(function() { document.getElementById('proofPhoto').style.borderColor = ''; }, 2000);
+        return;
+    }
+    if (photo.size > 2 * 1024 * 1024) {
+        showToast('❌ Ukuran foto maksimal 2MB!', 'error');
+        document.getElementById('proofPhoto').value = '';
+        return;
+    }
+    
+    // DISABLE BUTTON
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> <span class="btn-text">Processing...</span>';
+    btn.style.opacity = '0.7';
+    
+    // CONVERT PHOTO TO BASE64
+    var reader = new FileReader();
+    reader.readAsDataURL(photo);
+    
+    reader.onload = async function() {
+        try {
+            var response = await fetch('/api/convert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    crypto: crypto,
+                    bank: bank,
+                    full_name: fullName,
+                    account: account,
+                    amount_usd: parseFloat(amountUsd),
+                    proof: reader.result
+                })
+            });
+            
+            var data = await response.json();
+            
+            if (data.success) {
+                result.style.display = 'block';
+                result.innerHTML = '<div class="result-success">✅ Order Berhasil!<br><strong>ID: ' + data.order_number + '</strong><br><small>Total: Rp ' + parseInt(data.amount_idr).toLocaleString('id-ID') + '<br>Status: <span style="color:#FFD600;">Menunggu Konfirmasi</span></small></div>';
+                showToast('✅ Order berhasil! ID: ' + data.order_number, 'success');
+                
+                // RESET FORM
+                document.getElementById('fullName').value = '';
+                document.getElementById('accountNumber').value = '';
+                document.getElementById('amountUsd').value = '';
+                document.getElementById('proofPhoto').value = '';
+                document.getElementById('uploadPreview').style.display = 'none';
+                document.getElementById('estimateResult').style.display = 'none';
+                uploadedFile = null;
+                
+                // SCROLL KE HASIL
+                result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+            } else {
+                result.style.display = 'block';
+                result.innerHTML = '<div class="result-error">❌ ' + (data.error || 'Gagal submit order!') + '</div>';
+                showToast('❌ ' + data.error, 'error');
+            }
+            
+        } catch (err) {
+            console.error('Submit error:', err);
+            result.style.display = 'block';
+            result.innerHTML = '<div class="result-error">❌ Gagal terhubung ke server! Periksa koneksi Anda.</div>';
+            showToast('❌ Gagal terhubung ke server!', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span class="btn-text">Submit Order</span><span class="btn-shimmer"></span>';
+            btn.style.opacity = '1';
+        }
+    };
+    
+    reader.onerror = function() {
+        showToast('❌ Gagal membaca file!', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span class="btn-text">Submit Order</span><span class="btn-shimmer"></span>';
+        btn.style.opacity = '1';
+    };
+}
+
+// ============================================================
+// SHOW TOAST
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) { alert(message); return; }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(function() { toast.remove(); }, 400);
+    }, 4000);
+}
+
+// ============================================================
+// KEYBOARD SHORTCUT
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        var btn = document.getElementById('convertBtn');
+        if (!btn.disabled) { btn.click(); }
+    }
+    if (e.key === 'Escape') {
+        document.getElementById('convertResult').style.display = 'none';
+    }
+});
+
+// ============================================================
+// LOAD
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // LOAD RATE
+    fetch('/api/settings')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var rateDisplay = document.getElementById('rateDisplay');
+            if (rateDisplay && data.usd_rate) {
+                rateDisplay.textContent = 'Rp ' + parseInt(data.usd_rate).toLocaleString('id-ID');
+            }
+            // Update estimate rate too
+            var rateEl = document.getElementById('estimateRate');
+            if (rateEl && data.usd_rate) {
+                rateEl.textContent = 'Rp ' + parseInt(data.usd_rate).toLocaleString('id-ID') + '/USD';
+            }
+        })
+        .catch(function() { console.log('Rate load skipped'); });
+    
+    // SET DEFAULT WALLET
+    updateWalletAddress();
+    
+    // EVENT LISTENER
+    document.getElementById('amountUsd').addEventListener('input', function() {
+        updateEstimate();
+    });
+    
+    console.log('🚀 DavaOFC Convert Page Loaded!');
+    console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+});
+
+console.log('✅ All systems ready!');
+console.log('💱 Convert page is fully operational!');
+console.log('🎯 ' + Object.keys(walletData).length + ' cryptocurrencies supported!');
+</script>
+
+{% endblock %}

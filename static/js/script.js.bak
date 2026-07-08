@@ -1,0 +1,41 @@
+// ===== SIDEBAR TOGGLE =====
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (toggle && sidebar) {
+        toggle.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+    }
+});
+
+// ===== TOAST =====
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 400);
+    }, 5000);
+}
+
+// ===== FORMAT RUPIAH =====
+function formatRupiah(amount) {
+    return 'Rp ' + Number(amount).toLocaleString('id-ID');
+}
+
+console.log('🚀 DavaOFC Web Loaded!');

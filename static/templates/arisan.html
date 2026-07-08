@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Arisan - DavaOFC{% endblock %}
+{% block page_title %}🎯 Arisan{% endblock %}
+
+{% block content %}
+<div class="card fade-in">
+    <div class="card-header">
+        <h3><i class="fas fa-users" style="color: var(--warning);"></i> Daftar Arisan Aktif</h3>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Arisan</th>
+                    <th>Slot</th>
+                    <th>Harga</th>
+                    <th>Peserta</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if arisan_list %}
+                    {% for arisan in arisan_list %}
+                    <tr>
+                        <td><code>#{{ arisan.id }}</code></td>
+                        <td>{{ arisan.total_slots }}</td>
+                        <td>{{ arisan.price_display }}</td>
+                        <td>{{ arisan.participant_count }}/{{ arisan.total_slots }}</td>
+                        <td><span class="status-badge active">Aktif</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="joinArisan('{{ arisan.id }}')">
+                                <i class="fas fa-hand-peace"></i> Join
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">Belum ada arisan aktif</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Join Arisan -->
+<div id="joinModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; backdrop-filter: blur(10px);">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--darker); padding: 32px; border-radius: var(--radius); width: 400px; max-width: 90%; border: 1px solid var(--border);">
+        <h3 style="margin-bottom: 16px;"><i class="fas fa-hand-peace"></i> Join Arisan</h3>
+        <div class="form-group">
+            <label>Wallet / Rekening Tujuan</label>
+            <input type="text" id="walletInfo" placeholder="Contoh: DANA 08123456789 a/n Nama" required>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="submitJoinArisan()">
+            <i class="fas fa-check"></i> Konfirmasi Join
+        </button>
+        <button class="btn btn-outline btn-block" style="margin-top: 8px;" onclick="closeModal()">
+            <i class="fas fa-times"></i> Batal
+        </button>
+    </div>
+</div>
+
+<script>
+let selectedArisanId = null;
+
+function joinArisan(id) {
+    selectedArisanId = id;
+    document.getElementById('joinModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('joinModal').style.display = 'none';
+    selectedArisanId = null;
+}
+
+async function submitJoinArisan() {
+    const wallet = document.getElementById('walletInfo').value.trim();
+    if (!wallet) {
+        showToast('Masukkan wallet tujuan!', 'error');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/arisan/join', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                arisan_id: selectedArisanId,
+                wallet_info: wallet
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message, 'success');
+            closeModal();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'error');
+        }
+    } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+    }
+}
+</script>
+{% endblock %}

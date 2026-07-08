@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Ulasan - DavaOFC{% endblock %}
+{% block page_title %}⭐ Ulasan & Testimoni{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+    <div class="card fade-in">
+        <div class="card-header">
+            <h3><i class="fas fa-star" style="color: var(--warning);"></i> Beri Ulasan</h3>
+        </div>
+        <form id="reviewForm">
+            <div class="form-group">
+                <label>Rating</label>
+                <div style="display: flex; gap: 8px; font-size: 32px;">
+                    {% for i in range(1, 6) %}
+                    <span class="star" data-value="{{ i }}" style="cursor: pointer; color: var(--text-muted); transition: var(--transition);">⭐</span>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="ratingValue" value="5">
+            </div>
+            <div class="form-group">
+                <label>Ulasan Anda</label>
+                <textarea name="review_text" placeholder="Ceritakan pengalaman Anda menggunakan layanan kami..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-paper-plane"></i> Kirim Ulasan
+            </button>
+        </form>
+        <div id="reviewResult" style="margin-top: 16px; display: none;"></div>
+    </div>
+
+    <div class="card fade-in" style="animation-delay: 0.1s;">
+        <div class="card-header">
+            <h3><i class="fas fa-comments"></i> Testimoni Pengguna</h3>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto;">
+            {% if reviews %}
+                {% for rev in reviews %}
+                <div style="padding: 12px; background: var(--glass); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>@{{ rev.username or rev.full_name }}</strong>
+                        <span style="color: var(--warning);">{{ '⭐' * rev.rating }}</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">{{ rev.review_text }}</p>
+                    <small style="color: var(--text-muted);">{{ rev.created_at[:10] if rev.created_at else '-' }}</small>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--text-secondary); text-align: center;">Belum ada ulasan</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Star rating
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+        const value = parseInt(this.dataset.value);
+        document.getElementById('ratingValue').value = value;
+        document.querySelectorAll('.star').forEach(s => {
+            s.style.color = parseInt(s.dataset.value) <= value ? 'var(--warning)' : 'var(--text-muted)';
+        });
+    });
+});
+
+document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const rating = parseInt(document.getElementById('ratingValue').value);
+    const review_text = form.get('review_text');
+    
+    try {
+        const res = await fetch('/api/reviews/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rating, review_text })
+        });
+        const data = await res.json();
+        
+        const resultDiv = document.getElementById('reviewResult');
+        resultDiv.style.display = 'block';
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div style="padding: 16px; background: rgba(0,200,83,0.1); border-radius: 10px; border: 1px solid var(--success);">
+                    <h4 style="color: var(--success);"><i class="fas fa-check-circle"></i> ${data.message}</h4>
+                </div>
+            `;
+            showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            resultDiv.innerHTML = `
+                <div style="padding: 16px; background: rgba(255,23,68,0.1); border-radius: 10px; border: 1px solid var(--danger);">
+                    <h4 style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> Error</h4>
+                    <p style="color: var(--text-secondary);">${data.error}</p>
+                </div>
+            `;
+            showToast(data.error, 'error');
+        }
+    } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+    }
+});
+</script>
+{% endblock %}

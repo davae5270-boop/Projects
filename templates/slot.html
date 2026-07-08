@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Slot Games - DavaOFC{% endblock %}
+{% block page_title %}🎰 Slot Games{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== SLOT STYLE ===== */
+.slot-container { max-width: 100%; }
+
+.slot-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.slot-stat {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+.slot-stat .num {
+    font-size: 18px;
+    font-weight: 700;
+    color: #8B6BE8;
+}
+.slot-stat .lbl {
+    font-size: 9px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.slot-machine {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+.slot-machine .reels {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    font-size: 48px;
+    padding: 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+.slot-machine .reels .reel {
+    min-width: 50px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 4px 8px;
+}
+.slot-machine .result {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 12px;
+    min-height: 30px;
+}
+.slot-machine .result.win { color: #00C853; }
+.slot-machine .result.lose { color: #FF1744; }
+.slot-machine .bet-info {
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.bet-options {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.bet-options .bet-btn {
+    padding: 6px 4px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-align: center;
+}
+.bet-options .bet-btn:hover {
+    border-color: rgba(108,60,225,0.2);
+    color: #fff;
+}
+.bet-options .bet-btn.active {
+    background: rgba(108,60,225,0.15);
+    border-color: #6C3CE1;
+    color: #fff;
+}
+
+.slot-actions {
+    display: flex;
+    gap: 8px;
+}
+.slot-actions .btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+}
+.btn-spin {
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    color: #fff;
+}
+.btn-spin:hover { opacity: 0.9; }
+.btn-custom {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.btn-custom:hover { background: rgba(255,255,255,0.1); }
+
+/* ===== RECENT ===== */
+.recent-slots {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 16px;
+}
+.recent-slots .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.recent-slots .header h3 {
+    font-size: 13px;
+    font-weight: 600;
+}
+.recent-slots .header h3 i { color: #8B6BE8; margin-right: 6px; }
+.recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    font-size: 12px;
+}
+.recent-item:last-child { border-bottom: none; }
+.recent-item .symbols { font-size: 16px; letter-spacing: 2px; }
+.recent-item .amount { font-weight: 600; }
+.recent-item .amount.win { color: #00C853; }
+.recent-item .amount.lose { color: #FF1744; }
+
+@media (max-width: 480px) {
+    .slot-machine .reels { font-size: 32px; gap: 8px; }
+    .slot-machine .reels .reel { min-width: 36px; padding: 2px 4px; }
+    .bet-options { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .bet-options .bet-btn { font-size: 8px; padding: 4px 2px; }
+}
+</style>
+
+<div class="slot-container">
+
+    <!-- ===== STATS ===== -->
+    <div class="slot-stats">
+        <div class="slot-stat">
+            <div class="num">{{ "{:,.0f}".format(balance|default(0)).replace(',', '.') }}</div>
+            <div class="lbl">Saldo Anda</div>
+        </div>
+        <div class="slot-stat">
+            <div class="num">Rp {{ min_bet|default(400)|int|replace(',', '.') }}</div>
+            <div class="lbl">Minimal Bet</div>
+        </div>
+        <div class="slot-stat">
+            <div class="num">Rp {{ max_bet|default(204800)|int|replace(',', '.') }}</div>
+            <div class="lbl">Maksimal Bet</div>
+        </div>
+    </div>
+
+    <!-- ===== SLOT MACHINE ===== -->
+    <div class="slot-machine">
+        <div class="reels" id="slotReels">
+            <span class="reel" id="reel1">🍒</span>
+            <span class="reel" id="reel2">🍋</span>
+            <span class="reel" id="reel3">🍊</span>
+        </div>
+        <div class="result" id="slotResult">🎰 Putar untuk mulai!</div>
+        <div class="bet-info" id="slotBetInfo">Bet: Rp 0</div>
+    </div>
+
+    <!-- ===== BET OPTIONS ===== -->
+    <div class="bet-options" id="betOptions">
+        <button class="bet-btn" data-bet="400">Rp 400</button>
+        <button class="bet-btn" data-bet="800">Rp 800</button>
+        <button class="bet-btn" data-bet="1600">Rp 1.600</button>
+        <button class="bet-btn" data-bet="3200">Rp 3.200</button>
+        <button class="bet-btn" data-bet="6400">Rp 6.400</button>
+        <button class="bet-btn" data-bet="12800">Rp 12.800</button>
+        <button class="bet-btn" data-bet="25600">Rp 25.600</button>
+        <button class="bet-btn" data-bet="51200">Rp 51.200</button>
+        <button class="bet-btn" data-bet="102400">Rp 102.400</button>
+        <button class="bet-btn active" data-bet="204800">Rp 204.800</button>
+    </div>
+
+    <!-- ===== ACTIONS ===== -->
+    <div class="slot-actions">
+        <button class="btn btn-spin" id="spinBtn"><i class="fas fa-dice"></i> PUTAR</button>
+        <button class="btn btn-custom" id="customBetBtn"><i class="fas fa-edit"></i> Bet Custom</button>
+    </div>
+
+    <!-- ===== RECENT ===== -->
+    <div class="recent-slots">
+        <div class="header">
+            <h3><i class="fas fa-history"></i> Riwayat Spin</h3>
+        </div>
+        <div id="slotHistory">
+            <div style="text-align:center;color:rgba(255,255,255,0.15);padding:12px 0;font-size:12px;">
+                Belum ada riwayat
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ===== SLOT GAME =====
+let currentBet = 204800;
+let isSpinning = false;
+const balance = {{ balance|default(0)|float }};
+const symbols = ['🍒', '🍋', '🍊', '🍉', '⭐', '💎', '7️⃣'];
+const reels = [
+    document.getElementById('reel1'),
+    document.getElementById('reel2'),
+    document.getElementById('reel3')
+];
+const resultDisplay = document.getElementById('slotResult');
+const betInfo = document.getElementById('slotBetInfo');
+
+// Bet buttons
+document.querySelectorAll('.bet-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.bet-btn').forEach(function(b) {
+            b.classList.remove('active');
+        });
+        this.classList.add('active');
+        currentBet = parseInt(this.dataset.bet);
+        betInfo.textContent = 'Bet: Rp ' + currentBet.toLocaleString('id-ID');
+    });
+});
+
+// Custom bet
+document.getElementById('customBetBtn').addEventListener('click', function() {
+    var custom = prompt('Masukkan nominal bet (400 - 204800):');
+    if (custom) {
+        var bet = parseInt(custom);
+        if (bet >= 400 && bet <= 204800) {
+            currentBet = bet;
+            betInfo.textContent = 'Bet: Rp ' + currentBet.toLocaleString('id-ID');
+            document.querySelectorAll('.bet-btn').forEach(function(b) {
+                b.classList.remove('active');
+            });
+            showToast('Bet diubah ke Rp ' + currentBet.toLocaleString('id-ID'), 'success');
+        } else {
+            showToast('Bet harus antara 400 - 204.800!', 'error');
+        }
+    }
+});
+
+// Spin
+document.getElementById('spinBtn').addEventListener('click', function() {
+    if (isSpinning) return;
+    if (currentBet > balance) {
+        showToast('Saldo tidak cukup!', 'error');
+        return;
+    }
+    
+    isSpinning = true;
+    this.disabled = true;
+    resultDisplay.textContent = '🔄 Memutar...';
+    resultDisplay.className = 'result';
+    
+    // Animation
+    var frame = 0;
+    var interval = setInterval(function() {
+        reels.forEach(function(reel) {
+            reel.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        });
+        frame++;
+        if (frame > 15) clearInterval(interval);
+    }, 80);
+    
+    // Wait for animation
+    setTimeout(function() {
+        // Random result
+        var result = symbols.map(function() {
+            return symbols[Math.floor(Math.random() * symbols.length)];
+        });
+        reels.forEach(function(reel, i) {
+            reel.textContent = result[i];
+        });
+        
+        // Check win
+        var isWin = Math.random() < 0.25;
+        var multiplier = 0;
+        var winAmount = 0;
+        
+        if (isWin) {
+            multiplier = [2, 3, 5, 10][Math.floor(Math.random() * 4)];
+            winAmount = currentBet * multiplier;
+            if (result[0] === '7️⃣' && result[1] === '7️⃣' && result[2] === '7️⃣') {
+                winAmount = 10000;
+                multiplier = 30;
+            }
+            resultDisplay.textContent = '🎉 MENANG! +Rp ' + winAmount.toLocaleString('id-ID') + ' (x' + multiplier + ') 🎉';
+            resultDisplay.className = 'result win';
+            // Update balance
+            document.querySelector('.slot-stat .num').textContent = (balance + winAmount - currentBet).toLocaleString('id-ID');
+            showToast('🎉 Menang Rp ' + winAmount.toLocaleString('id-ID') + '!', 'success');
+        } else {
+            resultDisplay.textContent = '😢 KALAH! Coba lagi!';
+            resultDisplay.className = 'result lose';
+            showToast('😢 Kalah! Coba lagi.', 'error');
+        }
+        
+        // Add history
+        var history = document.getElementById('slotHistory');
+        var item = document.createElement('div');
+        item.className = 'recent-item';
+        item.innerHTML = `
+            <span class="symbols">${result.join(' ')}</span>
+            <span>Rp ${currentBet.toLocaleString('id-ID')}</span>
+            <span class="amount ${isWin ? 'win' : 'lose'}">${isWin ? '+Rp ' + winAmount.toLocaleString('id-ID') : '-Rp ' + currentBet.toLocaleString('id-ID')}</span>
+        `;
+        history.prepend(item);
+        if (history.children.length > 10) {
+            history.removeChild(history.lastChild);
+        }
+        // Remove placeholder
+        var placeholder = history.querySelector('div[style]');
+        if (placeholder) placeholder.remove();
+        
+        isSpinning = false;
+        document.getElementById('spinBtn').disabled = false;
+    }, 1600);
+});
+</script>
+
+{% endblock %}

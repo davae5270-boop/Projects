@@ -1,0 +1,1294 @@
+{% extends "base.html" %}
+
+{% block title %}Arisan - DavaOFC{% endblock %}
+{% block page_title %}🎯 Arisan Premium{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     🟢 TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;"></div>
+
+<!-- ============================================================
+     🟢 KONTEN UTAMA ARISAN
+     ============================================================ -->
+<div class="arisan-page-wrapper">
+
+    <!-- ===== BANNER HEADER ===== -->
+    <div class="arisan-banner">
+        <div class="banner-content">
+            <div class="banner-icon">🎯</div>
+            <div class="banner-text">
+                <h1>Arisan DavaOFC</h1>
+                <p>Ikuti arisan dan dapatkan hadiah menarik setiap minggunya</p>
+            </div>
+            <div class="banner-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Aman & Terpercaya</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="arisan-stats">
+        <div class="arisan-stat" data-aos="fade-up" data-aos-delay="100">
+            <div class="num">{{ arisan_list|length|default(0) }}</div>
+            <div class="lbl">Total Arisan</div>
+        </div>
+        <div class="arisan-stat" data-aos="fade-up" data-aos-delay="200">
+            <div class="num gold">{{ active_count|default(0) }}</div>
+            <div class="lbl">Aktif</div>
+        </div>
+        <div class="arisan-stat" data-aos="fade-up" data-aos-delay="300">
+            <div class="num green">{{ total_participants|default(0) }}</div>
+            <div class="lbl">Total Peserta</div>
+        </div>
+        <div class="arisan-stat" data-aos="fade-up" data-aos-delay="400">
+            <div class="num purple">{{ won_count|default(0) }}</div>
+            <div class="lbl">Total Pemenang</div>
+        </div>
+    </div>
+
+    <!-- ===== LIST ARISAN ===== -->
+    <div class="arisan-grid">
+        {% if arisan_list %}
+            {% for arisan in arisan_list %}
+            <div class="arisan-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                <div class="card-header">
+                    <div class="card-id">
+                        <i class="fas fa-ticket-alt"></i>
+                        Arisan #{{ arisan.id }}
+                    </div>
+                    <div class="card-status {% if arisan.participant_count >= arisan.total_slots %}full{% else %}active{% endif %}">
+                        {% if arisan.participant_count >= arisan.total_slots %}
+                            🔒 Penuh
+                        {% else %}
+                            🟢 Aktif
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="card-item">
+                        <div class="item-value">{{ arisan.total_slots }}</div>
+                        <div class="item-label">🎟️ Slot</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="item-value">{{ arisan.price_display }}</div>
+                        <div class="item-label">💰 Harga</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="item-value">{{ arisan.participant_count }}/{{ arisan.total_slots }}</div>
+                        <div class="item-label">👥 Peserta</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="item-value">{{ arisan.owner_profit_percent|default(10) }}%</div>
+                        <div class="item-label">📊 Profit</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="item-value">{{ arisan.prize_display }}</div>
+                        <div class="item-label">🏆 Hadiah</div>
+                    </div>
+                    <div class="card-item">
+                        <div class="item-value">{{ arisan.created_at[:10] if arisan.created_at else '-' }}</div>
+                        <div class="item-label">📅 Dibuat</div>
+                    </div>
+                </div>
+
+                <div class="card-progress">
+                    <div class="progress-bar" style="width: {{ (arisan.participant_count / arisan.total_slots * 100)|round|int if arisan.total_slots > 0 else 0 }}%;"></div>
+                    <div class="progress-text">
+                        {{ (arisan.participant_count / arisan.total_slots * 100)|round|int if arisan.total_slots > 0 else 0 }}%
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <button class="btn btn-join" onclick="openJoinModal('{{ arisan.id }}', '{{ arisan.price }}')" 
+                            {% if arisan.participant_count >= arisan.total_slots %}disabled{% endif %}>
+                        <i class="fas fa-hand-peace"></i> Join Arisan
+                    </button>
+                    <button class="btn btn-detail" onclick="viewArisan('{{ arisan.id }}')">
+                        <i class="fas fa-info-circle"></i> Detail
+                    </button>
+                    <button class="btn btn-refresh" onclick="location.reload()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div class="card-footer">
+                    <span class="participants">
+                        <i class="fas fa-users"></i>
+                        {{ arisan.participant_count }} peserta bergabung
+                    </span>
+                    <span class="winner-info">
+                        {% if arisan.winner_name %}
+                            🏆 Pemenang: {{ arisan.winner_name }}
+                        {% else %}
+                            ⏳ Belum ada pemenang
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state" data-aos="fade-up">
+                <div class="empty-icon">🎯</div>
+                <div class="empty-title">Belum Ada Arisan Aktif</div>
+                <div class="empty-desc">Tunggu owner membuka arisan baru</div>
+                <button class="btn btn-primary" onclick="location.reload()" style="margin-top:16px;">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ============================================================
+     🟢 MODAL JOIN ARISAN
+     ============================================================ -->
+<div class="modal-overlay" id="joinModal">
+    <div class="modal-box" data-aos="zoomIn">
+        <div class="modal-header">
+            <h3><i class="fas fa-hand-peace" style="color:#8B6BE8;"></i> Join Arisan</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-info">
+                <div class="info-item">
+                    <span class="info-label">🎟️ Arisan ID</span>
+                    <span class="info-value" id="modalArisanId">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">💰 Harga Slot</span>
+                    <span class="info-value" id="modalPrice">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">👥 Peserta</span>
+                    <span class="info-value" id="modalParticipants">-</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-wallet"></i> Wallet / Rekening Tujuan
+                    <span class="required">*</span>
+                </label>
+                <input type="text" id="walletInput" placeholder="Contoh: DANA 08123456789 a/n Nama" class="form-control">
+                <small class="form-hint">Masukkan wallet untuk menerima hadiah jika menang</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-check-circle"></i> Konfirmasi
+                </label>
+                <div class="confirm-box">
+                    <input type="checkbox" id="confirmCheck">
+                    <label for="confirmCheck">Saya setuju dengan syarat dan ketentuan arisan</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-confirm" onclick="confirmJoin()">
+                <i class="fas fa-check"></i> Konfirmasi Join
+            </button>
+            <button class="btn btn-cancel" onclick="closeModal()">
+                <i class="fas fa-times"></i> Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 MODAL DETAIL ARISAN
+     ============================================================ -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box" data-aos="zoomIn">
+        <div class="modal-header">
+            <h3><i class="fas fa-info-circle" style="color:#8B6BE8;"></i> Detail Arisan</h3>
+            <button class="modal-close" onclick="closeDetailModal()">✕</button>
+        </div>
+        <div class="modal-body" id="detailBody">
+            <div style="text-align:center;padding:20px;">
+                <div class="loading-spinner"></div>
+                <p style="color:rgba(255,255,255,0.2);margin-top:8px;">Memuat detail...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeDetailModal()">
+                <i class="fas fa-times"></i> Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     🟢 CSS - ANIMASI 1000+ BARIS
+     ============================================================ -->
+<style>
+/* ============================================================
+   ANIMASI KEYFRAMES
+   ============================================================ */
+@keyframes fadeInPage {
+    from { opacity:0; transform:translateY(30px) scale(0.98); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInDown {
+    from { opacity:0; transform:translateY(-20px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes fadeInLeft {
+    from { opacity:0; transform:translateX(-20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes fadeInRight {
+    from { opacity:0; transform:translateX(20px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInUp {
+    from { opacity:0; transform:translateY(40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInDown {
+    from { opacity:0; transform:translateY(-40px); }
+    to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInLeft {
+    from { opacity:0; transform:translateX(-40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes slideInRight {
+    from { opacity:0; transform:translateX(40px); }
+    to { opacity:1; transform:translateX(0); }
+}
+@keyframes scaleIn {
+    from { opacity:0; transform:scale(0.85); }
+    to { opacity:1; transform:scale(1); }
+}
+@keyframes bounceIn {
+    0% { opacity:0; transform:scale(0.3); }
+    50% { opacity:1; transform:scale(1.05); }
+    70% { transform:scale(0.95); }
+    100% { transform:scale(1); }
+}
+@keyframes bounceInDown {
+    0% { opacity:0; transform:translateY(-200px) scale(0.3); }
+    50% { transform:translateY(10px) scale(1.02); }
+    70% { transform:translateY(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes bounceInLeft {
+    0% { opacity:0; transform:translateX(-200px) scale(0.3); }
+    50% { transform:translateX(10px) scale(1.02); }
+    70% { transform:translateX(-5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes bounceInRight {
+    0% { opacity:0; transform:translateX(200px) scale(0.3); }
+    50% { transform:translateX(-10px) scale(1.02); }
+    70% { transform:translateX(5px) scale(0.98); }
+    100% { opacity:1; transform:translateX(0) scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,30%,50%,70%,90% { transform:translateX(-5px); }
+    20%,40%,60%,80% { transform:translateX(5px); }
+}
+@keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+}
+@keyframes pulseGlow {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 60px rgba(108,60,225,0.3); }
+}
+@keyframes pulseDot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.6); }
+}
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+@keyframes spinSlow {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes float {
+    0%,100% { transform:translateY(0px) rotate(0deg); }
+    50% { transform:translateY(-10px) rotate(3deg); }
+}
+@keyframes floatSlow {
+    0%,100% { transform:translateY(0px); }
+    50% { transform:translateY(-6px); }
+}
+@keyframes shimmer {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerText {
+    0% { background-position:-200% center; }
+    100% { background-position:200% center; }
+}
+@keyframes shimmerBorder {
+    0% { border-color:rgba(108,60,225,0.1); }
+    50% { border-color:rgba(108,60,225,0.4); }
+    100% { border-color:rgba(108,60,225,0.1); }
+}
+@keyframes glow {
+    0%,100% { text-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { text-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes glowPulse {
+    0%,100% { box-shadow:0 0 20px rgba(108,60,225,0.1); }
+    50% { box-shadow:0 0 40px rgba(108,60,225,0.3); }
+}
+@keyframes borderGlow {
+    0%,100% { border-color:rgba(108,60,225,0.06); }
+    50% { border-color:rgba(108,60,225,0.2); }
+}
+@keyframes rainbow {
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
+}
+@keyframes rotateIcon {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+}
+@keyframes wiggle {
+    0%,100% { transform:rotate(0deg); }
+    25% { transform:rotate(-5deg); }
+    75% { transform:rotate(5deg); }
+}
+@keyframes tada {
+    0% { transform:scale(1); }
+    10%,20% { transform:scale(0.9) rotate(-3deg); }
+    30%,50%,70%,90% { transform:scale(1.1) rotate(3deg); }
+    40%,60%,80% { transform:scale(1.1) rotate(-3deg); }
+    100% { transform:scale(1) rotate(0); }
+}
+@keyframes swing {
+    20% { transform:rotate(15deg); }
+    40% { transform:rotate(-10deg); }
+    60% { transform:rotate(5deg); }
+    80% { transform:rotate(-5deg); }
+    100% { transform:rotate(0deg); }
+}
+@keyframes zoomIn {
+    0% { opacity:0; transform:scale(0.6); }
+    100% { opacity:1; transform:scale(1); }
+}
+@keyframes zoomInUp {
+    0% { opacity:0; transform:scale(0.6) translateY(100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInDown {
+    0% { opacity:0; transform:scale(0.6) translateY(-100px); }
+    100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes zoomInLeft {
+    0% { opacity:0; transform:scale(0.6) translateX(-100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes zoomInRight {
+    0% { opacity:0; transform:scale(0.6) translateX(100px); }
+    100% { opacity:1; transform:scale(1) translateX(0); }
+}
+@keyframes bounce {
+    0%,20%,50%,80%,100% { transform:translateY(0); }
+    40% { transform:translateY(-30px); }
+    60% { transform:translateY(-15px); }
+}
+@keyframes bounceUp {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-20px); }
+}
+@keyframes bounceDown {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(20px); }
+}
+@keyframes rollIn {
+    0% { opacity:0; transform:translateX(-100%) rotate(-120deg); }
+    100% { opacity:1; transform:translateX(0) rotate(0deg); }
+}
+@keyframes rollOut {
+    0% { opacity:1; transform:translateX(0) rotate(0deg); }
+    100% { opacity:0; transform:translateX(100%) rotate(120deg); }
+}
+@keyframes lightSpeedIn {
+    0% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+    60% { opacity:1; transform:translateX(-20%) skewX(30deg); }
+    80% { transform:translateX(0%) skewX(-15deg); }
+    100% { opacity:1; transform:translateX(0%) skewX(0deg); }
+}
+@keyframes lightSpeedOut {
+    0% { opacity:1; transform:translateX(0%) skewX(0deg); }
+    100% { opacity:0; transform:translateX(100%) skewX(-30deg); }
+}
+@keyframes hinge {
+    0% { transform:rotate(0deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    20%,60% { transform:rotate(80deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    40% { transform:rotate(60deg); transform-origin:top left; animation-timing-function:ease-in-out; }
+    80% { transform:rotate(60deg) translateY(0); opacity:1; transform-origin:top left; animation-timing-function:ease-in-out; }
+    100% { transform:translateY(700px); opacity:0; }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.animate-up { animation:fadeInUp 0.6s ease-out forwards; }
+.animate-down { animation:fadeInDown 0.6s ease-out forwards; }
+.animate-left { animation:fadeInLeft 0.6s ease-out forwards; }
+.animate-right { animation:fadeInRight 0.6s ease-out forwards; }
+.animate-scale { animation:scaleIn 0.6s ease-out forwards; }
+.animate-bounce { animation:bounce 1s ease forwards; }
+.animate-pulse { animation:pulse 1.5s ease-in-out infinite; }
+.animate-spin { animation:spin 2s linear infinite; }
+.animate-spin-slow { animation:spinSlow 10s linear infinite; }
+.animate-float { animation:float 3s ease-in-out infinite; }
+.animate-shimmer { animation:shimmer 3s linear infinite; background-size:200% auto; }
+.animate-glow { animation:glowPulse 2s ease-in-out infinite; }
+.animate-wiggle { animation:wiggle 0.5s ease-in-out infinite; }
+.animate-tada { animation:tada 0.8s ease forwards; }
+.animate-swing { animation:swing 0.8s ease forwards; }
+.animate-zoomIn { animation:zoomIn 0.6s ease forwards; }
+.animate-zoomInUp { animation:zoomInUp 0.6s ease forwards; }
+.animate-zoomInDown { animation:zoomInDown 0.6s ease forwards; }
+.animate-zoomInLeft { animation:zoomInLeft 0.6s ease forwards; }
+.animate-zoomInRight { animation:zoomInRight 0.6s ease forwards; }
+.animate-bounceIn { animation:bounceIn 0.8s ease forwards; }
+.animate-bounceInDown { animation:bounceInDown 0.8s ease forwards; }
+.animate-bounceInLeft { animation:bounceInLeft 0.8s ease forwards; }
+.animate-bounceInRight { animation:bounceInRight 0.8s ease forwards; }
+.animate-rollIn { animation:rollIn 0.8s ease forwards; }
+.animate-rollOut { animation:rollOut 0.8s ease forwards; }
+.animate-lightSpeedIn { animation:lightSpeedIn 0.8s ease forwards; }
+.animate-lightSpeedOut { animation:lightSpeedOut 0.8s ease forwards; }
+.animate-hinge { animation:hinge 2s ease forwards; }
+
+.delay-1 { animation-delay:0.05s; }
+.delay-2 { animation-delay:0.10s; }
+.delay-3 { animation-delay:0.15s; }
+.delay-4 { animation-delay:0.20s; }
+.delay-5 { animation-delay:0.25s; }
+.delay-6 { animation-delay:0.30s; }
+.delay-7 { animation-delay:0.35s; }
+.delay-8 { animation-delay:0.40s; }
+.delay-9 { animation-delay:0.45s; }
+.delay-10 { animation-delay:0.50s; }
+.delay-11 { animation-delay:0.55s; }
+.delay-12 { animation-delay:0.60s; }
+.delay-13 { animation-delay:0.65s; }
+.delay-14 { animation-delay:0.70s; }
+.delay-15 { animation-delay:0.75s; }
+.delay-16 { animation-delay:0.80s; }
+.delay-17 { animation-delay:0.85s; }
+.delay-18 { animation-delay:0.90s; }
+.delay-19 { animation-delay:0.95s; }
+.delay-20 { animation-delay:1.00s; }
+
+/* ============================================================
+   ARISAN PAGE STYLES
+   ============================================================ */
+.arisan-page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+/* ===== BANNER ===== */
+.arisan-banner {
+    background: linear-gradient(135deg, rgba(108,60,225,0.06), rgba(108,60,225,0.02));
+    border: 1px solid rgba(108,60,225,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+.arisan-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(108,60,225,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 30s linear infinite;
+}
+.arisan-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(0,200,83,0.04), transparent 70%);
+    border-radius: 50%;
+    animation: spinSlow 20s linear infinite reverse;
+}
+.arisan-banner .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+.arisan-banner .banner-icon {
+    font-size: 48px;
+    animation: float 3s ease-in-out infinite;
+}
+.arisan-banner .banner-text h1 {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, #6C3CE1 60%, #8B6BE8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmerText 3s linear infinite;
+}
+.arisan-banner .banner-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+    animation: fadeInUp 0.6s ease-out 0.3s forwards;
+    opacity:0;
+}
+.arisan-banner .banner-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(108,60,225,0.1);
+    border: 1px solid rgba(108,60,225,0.1);
+    border-radius: 50px;
+    animation: pulse 2s ease-in-out infinite;
+}
+.arisan-banner .banner-status .status-dot {
+    width: 8px;
+    height: 8px;
+    background: #00C853;
+    border-radius: 50%;
+    animation: pulseDot 1.5s infinite;
+}
+.arisan-banner .banner-status .status-text {
+    font-size: 12px;
+    color: #00C853;
+    font-weight: 500;
+}
+
+/* ===== STATS ===== */
+.arisan-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.arisan-stat {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s;
+}
+.arisan-stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(108,60,225,0.1);
+}
+.arisan-stat .num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #8B6BE8;
+}
+.arisan-stat .num.gold { color: #FFD600; }
+.arisan-stat .num.green { color: #00C853; }
+.arisan-stat .num.purple { color: #8B6BE8; }
+.arisan-stat .lbl {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+}
+@media (max-width: 768px) {
+    .arisan-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .arisan-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== ARISAN GRID ===== */
+.arisan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 768px) {
+    .arisan-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== ARISAN CARD ===== */
+.arisan-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    animation: borderGlow 3s ease-in-out infinite;
+}
+.arisan-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(108,60,225,0.15);
+    box-shadow: 0 8px 40px rgba(108,60,225,0.04);
+}
+
+.arisan-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.arisan-card .card-header .card-id {
+    font-size: 14px;
+    font-weight: 600;
+    color: #8B6BE8;
+}
+.arisan-card .card-header .card-id i {
+    margin-right: 6px;
+}
+.arisan-card .card-header .card-status {
+    font-size: 10px;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+.arisan-card .card-header .card-status.active {
+    background: rgba(0,200,83,0.1);
+    color: #00C853;
+}
+.arisan-card .card-header .card-status.full {
+    background: rgba(255,214,0,0.1);
+    color: #FFD600;
+}
+
+.arisan-card .card-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 8px 0 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.arisan-card .card-body .card-item {
+    text-align: center;
+}
+.arisan-card .card-body .card-item .item-value {
+    font-size: 15px;
+    font-weight: 600;
+}
+.arisan-card .card-body .card-item .item-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+}
+
+.arisan-card .card-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+}
+.arisan-card .card-progress .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.arisan-card .card-progress .progress-bar {
+    background: linear-gradient(90deg, #6C3CE1, #8B6BE8);
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.arisan-card .card-progress .progress-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    min-width: 36px;
+    text-align: right;
+}
+
+.arisan-card .card-actions {
+    display: flex;
+    gap: 8px;
+    margin: 10px 0;
+}
+.arisan-card .card-actions .btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+.arisan-card .card-actions .btn-join {
+    flex: 1;
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    color: #fff;
+}
+.arisan-card .card-actions .btn-join:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108,60,225,0.3);
+}
+.arisan-card .card-actions .btn-join:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.arisan-card .card-actions .btn-detail {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.arisan-card .card-actions .btn-detail:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+.arisan-card .card-actions .btn-refresh {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 8px 12px;
+}
+.arisan-card .card-actions .btn-refresh:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+.arisan-card .card-actions .btn i {
+    font-size: 12px;
+}
+
+.arisan-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.03);
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+}
+.arisan-card .card-footer .participants i {
+    color: #8B6BE8;
+    margin-right: 4px;
+}
+.arisan-card .card-footer .winner-info {
+    color: #FFD600;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 16px;
+}
+.empty-state .empty-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+.empty-state .empty-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+}
+.empty-state .empty-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+    background: #1a1a2e;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    width: 420px;
+    max-width: 92%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: bounceIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+}
+.modal-box .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.modal-box .modal-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+.modal-box .modal-header .modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.modal-box .modal-header .modal-close:hover {
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+.modal-box .modal-body {
+    padding: 4px 0 16px;
+}
+.modal-box .modal-body .modal-info {
+    background: rgba(108,60,225,0.04);
+    border: 1px solid rgba(108,60,225,0.06);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+.modal-box .modal-body .modal-info .info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+}
+.modal-box .modal-body .modal-info .info-item .info-label {
+    color: rgba(255,255,255,0.3);
+}
+.modal-box .modal-body .modal-info .info-item .info-value {
+    color: #fff;
+    font-weight: 500;
+}
+
+.modal-box .modal-body .form-group {
+    margin-bottom: 14px;
+}
+.modal-box .modal-body .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 4px;
+}
+.modal-box .modal-body .form-group label .required {
+    color: #FF1744;
+}
+.modal-box .modal-body .form-group .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+.modal-box .modal-body .form-group .form-control:focus {
+    outline: none;
+    border-color: #6C3CE1;
+    box-shadow: 0 0 0 3px rgba(108,60,225,0.1);
+}
+.modal-box .modal-body .form-group .form-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.15);
+    margin-top: 4px;
+}
+
+.modal-box .modal-body .confirm-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+}
+.modal-box .modal-body .confirm-box input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #6C3CE1;
+    cursor: pointer;
+}
+.modal-box .modal-body .confirm-box label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+}
+
+.modal-box .modal-footer {
+    display: flex;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+.modal-box .modal-footer .btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.modal-box .modal-footer .btn-confirm {
+    background: linear-gradient(135deg, #6C3CE1, #5A2DBF);
+    color: #fff;
+}
+.modal-box .modal-footer .btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(108,60,225,0.3);
+}
+.modal-box .modal-footer .btn-cancel {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.modal-box .modal-footer .btn-cancel:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 35px rgba(0,0,0,0.4);
+    animation: slideInRight 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    backdrop-filter: blur(10px);
+}
+.toast.success { 
+    background: linear-gradient(135deg, #00C853, #009624);
+    border-left: 4px solid #69F0AE;
+}
+.toast.error { 
+    background: linear-gradient(135deg, #FF1744, #D50000);
+    border-left: 4px solid #FF8A80;
+}
+.toast.info { 
+    background: linear-gradient(135deg, #00B4D8, #0096C7);
+    border-left: 4px solid #80DEEA;
+}
+.toast.warning { 
+    background: linear-gradient(135deg, #FFD600, #F9A825);
+    color: #000;
+    border-left: 4px solid #FFF59D;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:#0A0A1A; }
+::-webkit-scrollbar-thumb { background:linear-gradient(135deg,#6C3CE1,#8B6BE8); border-radius:10px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .arisan-banner .banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .arisan-banner .banner-status { margin-left: 0; }
+    .arisan-banner .banner-icon { font-size: 36px; }
+    .arisan-banner .banner-text h1 { font-size: 20px; }
+    .arisan-banner { padding: 18px 16px; }
+    .arisan-card .card-body { grid-template-columns: repeat(2, 1fr); }
+    .arisan-card .card-actions { flex-wrap: wrap; }
+    .arisan-card .card-actions .btn { flex: 1; min-width: 80px; }
+    .modal-box { width: 95%; padding: 18px; }
+}
+
+@media (max-width: 480px) {
+    .arisan-card .card-body { grid-template-columns: 1fr 1fr; }
+    .arisan-card .card-footer { flex-direction: column; gap: 4px; align-items: center; }
+    .modal-box .modal-footer { flex-direction: column; }
+}
+</style>
+
+<!-- ============================================================
+     🟢 JAVASCRIPT
+     ============================================================ -->
+<script>
+// ============================================================
+// GLOBAL VARIABLES
+// ============================================================
+var selectedArisanId = null;
+var selectedPrice = 0;
+
+// ============================================================
+// OPEN JOIN MODAL
+// ============================================================
+function openJoinModal(id, price) {
+    selectedArisanId = id;
+    selectedPrice = price;
+    document.getElementById('modalArisanId').textContent = '#' + id;
+    document.getElementById('modalPrice').textContent = 'Rp ' + formatRupiahManual(price);
+    document.getElementById('modalParticipants').textContent = 'Menunggu...';
+    document.getElementById('joinModal').classList.add('active');
+    document.getElementById('walletInput').value = '';
+    document.getElementById('confirmCheck').checked = false;
+    
+    // Fetch participant count
+    fetch('/api/arisan/' + id + '/participants')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.count !== undefined) {
+                document.getElementById('modalParticipants').textContent = data.count + ' peserta';
+            }
+        })
+        .catch(function() {
+            document.getElementById('modalParticipants').textContent = '❌ Gagal load';
+        });
+}
+
+// ============================================================
+// CLOSE MODAL
+// ============================================================
+function closeModal() {
+    document.getElementById('joinModal').classList.remove('active');
+    selectedArisanId = null;
+}
+
+// ============================================================
+// CONFIRM JOIN
+// ============================================================
+function confirmJoin() {
+    var wallet = document.getElementById('walletInput').value.trim();
+    var confirmCheck = document.getElementById('confirmCheck');
+    
+    if (!wallet) {
+        showToast('❌ Masukkan wallet tujuan!', 'error');
+        document.getElementById('walletInput').focus();
+        document.getElementById('walletInput').style.borderColor = '#FF1744';
+        document.getElementById('walletInput').style.animation = 'shake 0.5s ease-out';
+        setTimeout(function() {
+            document.getElementById('walletInput').style.borderColor = '';
+            document.getElementById('walletInput').style.animation = '';
+        }, 2000);
+        return;
+    }
+    
+    if (!confirmCheck.checked) {
+        showToast('❌ Centang konfirmasi syarat & ketentuan!', 'error');
+        confirmCheck.style.outline = '2px solid #FF1744';
+        setTimeout(function() {
+            confirmCheck.style.outline = '';
+        }, 2000);
+        return;
+    }
+    
+    // Disable button
+    var btn = document.querySelector('.modal-footer .btn-confirm');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+    
+    // Simulate API call
+    fetch('/api/arisan/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            arisan_id: selectedArisanId,
+            wallet: wallet,
+            price: selectedPrice
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showToast('✅ Berhasil join arisan #' + selectedArisanId + '!', 'success');
+            closeModal();
+            setTimeout(function() { location.reload(); }, 1500);
+        } else {
+            showToast('❌ ' + (data.error || 'Gagal join arisan!'), 'error');
+        }
+    })
+    .catch(function(err) {
+        console.error('Join error:', err);
+        showToast('❌ Gagal terhubung ke server!', 'error');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Konfirmasi Join';
+    });
+}
+
+// ============================================================
+// VIEW ARISAN DETAIL
+// ============================================================
+function viewArisan(id) {
+    document.getElementById('detailModal').classList.add('active');
+    document.getElementById('detailBody').innerHTML = `
+        <div style="text-align:center;padding:20px;">
+            <div class="loading-spinner"></div>
+            <p style="color:rgba(255,255,255,0.2);margin-top:8px;">Memuat detail...</p>
+        </div>
+    `;
+    
+    fetch('/api/arisan/' + id + '/detail')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.success) {
+                var html = '<div style="padding:12px 0;">';
+                html += '<div class="modal-info">';
+                html += '<div class="info-item"><span class="info-label">🎟️ ID</span><span class="info-value">#' + data.id + '</span></div>';
+                html += '<div class="info-item"><span class="info-label">💰 Harga</span><span class="info-value">Rp ' + formatRupiahManual(data.price) + '</span></div>';
+                html += '<div class="info-item"><span class="info-label">🎯 Slot</span><span class="info-value">' + data.participant_count + '/' + data.total_slots + '</span></div>';
+                html += '<div class="info-item"><span class="info-label">📊 Progress</span><span class="info-value">' + Math.round((data.participant_count / data.total_slots) * 100) + '%</span></div>';
+                html += '<div class="info-item"><span class="info-label">📅 Dibuat</span><span class="info-value">' + data.created_at + '</span></div>';
+                if (data.winner_name) {
+                    html += '<div class="info-item"><span class="info-label">🏆 Pemenang</span><span class="info-value" style="color:#FFD600;">' + data.winner_name + '</span></div>';
+                }
+                html += '</div>';
+                
+                if (data.participants && data.participants.length > 0) {
+                    html += '<div style="margin-top:12px;"><h4 style="font-size:13px;font-weight:600;margin-bottom:8px;">👥 Peserta (' + data.participants.length + ')</h4>';
+                    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
+                    data.participants.forEach(function(p) {
+                        html += '<div style="background:rgba(255,255,255,0.02);padding:4px 8px;border-radius:4px;font-size:12px;color:rgba(255,255,255,0.3);">' + p.username + '</div>';
+                    });
+                    html += '</div></div>';
+                }
+                html += '</div>';
+                document.getElementById('detailBody').innerHTML = html;
+            } else {
+                document.getElementById('detailBody').innerHTML = '<div style="text-align:center;padding:20px;color:#FF1744;">❌ ' + (data.error || 'Gagal memuat detail') + '</div>';
+            }
+        })
+        .catch(function() {
+            document.getElementById('detailBody').innerHTML = '<div style="text-align:center;padding:20px;color:#FF1744;">❌ Gagal terhubung ke server</div>';
+        });
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').classList.remove('active');
+}
+
+// ============================================================
+// FORMAT RUPIAH MANUAL
+// ============================================================
+function formatRupiahManual(amount) {
+    if (!amount && amount !== 0) return '0';
+    var num = Number(amount);
+    if (isNaN(num)) return '0';
+    var str = Math.round(num).toString();
+    var result = '';
+    var count = 0;
+    for (var i = str.length - 1; i >= 0; i--) {
+        result = str[i] + result;
+        count++;
+        if (count % 3 === 0 && i !== 0) {
+            result = '.' + result;
+        }
+    }
+    return result;
+}
+
+// ============================================================
+// SHOW TOAST
+// ============================================================
+function showToast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+        console.log(message);
+        return;
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100px)';
+        setTimeout(function() { toast.remove(); }, 400);
+    }, 4000);
+}
+
+// ============================================================
+// KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+        closeDetailModal();
+    }
+});
+
+// ============================================================
+// CLOSE MODAL ON OUTSIDE CLICK
+// ============================================================
+document.getElementById('joinModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+document.getElementById('detailModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDetailModal();
+});
+
+// ============================================================
+// LOAD
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DavaOFC Arisan Page Loaded!');
+    console.log('📅 ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    console.log('🕐 ' + new Date().toLocaleTimeString('id-ID'));
+    console.log('🎯 ' + document.querySelectorAll('.arisan-card').length + ' arisan tersedia!');
+    console.log('🎬 ' + document.querySelectorAll('style').length + ' CSS animations loaded!');
+});
+
+console.log('✅ All systems ready!');
+console.log('🎯 Arisan page is fully operational!');
+</script>
+
+{% endblock %}
