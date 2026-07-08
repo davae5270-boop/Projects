@@ -3506,7 +3506,7 @@ if __name__ == '__main__':
     print("=" * 70)
     print("🚀 DAVAOFC WEB - VERSI SUPER LENGKAP")
     print("=" * 70)
-    print(f"📱 Open: http://139.162.24.234:2000")
+    print(f"📱 Open: http://139.162.24.234:5000")
     print(f"👑 Owner Login: {OWNER_EMAIL} / {OWNER_PASSWORD}")
     print("=" * 70)
     print("✅ Semua fitur terhubung dengan benar!")
@@ -3517,5 +3517,5 @@ if __name__ == '__main__':
     print("✅ User management!")
     print("=" * 70)
     
-    port = int(os.environ.get('PORT', 2000))
+    port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
