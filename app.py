@@ -2279,33 +2279,22 @@ def api_submit_review():
         logger.error(f"Submit review error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# ============================================================
-# API USER - UNTUK LIVE BALANCE
-# ============================================================
-
 @app.route('/api/user')
 @login_required
-def api_user():
+def get_user():
     try:
         user_id = session['user_id']
-        user = execute_query('SELECT id, username, full_name, email, balance, is_owner FROM users WHERE id = ?', (user_id,), fetch_one=True)
-        
-        if not user:
-            return jsonify({'success': False, 'error': 'User not found'}), 404
-        
+        user = execute_query('SELECT id, username, email, full_name, balance, is_owner FROM users WHERE id = ?', (user_id,), fetch_one=True)
         return jsonify({
-            'success': True,
             'id': user['id'],
             'username': user['username'],
-            'full_name': user['full_name'],
             'email': user['email'],
-            'balance': user['balance'],
-            'is_owner': user['is_owner']
+            'full_name': user['full_name'],
+            'balance': user['balance'] or 0,
+            'is_owner': user['is_owner'] or 0
         })
-        
     except Exception as e:
-        logger.error(f"API user error: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/settings')
 @login_required
